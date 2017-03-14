@@ -1,5 +1,5 @@
 body{
-  background-color: #111;
+  /*background-color: #111;*/
 }
 
 body, html {
@@ -46,7 +46,7 @@ canvas{
   height: 100%;*/
 }
 #simulationArea{
-  background-color: #111;
+  /*background-color: #111;*/
 }
 .button:hover{
   background-color: #fff;
