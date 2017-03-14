@@ -7,10 +7,11 @@ function setup() {
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
   b1=new Button(300,300,20,"rgba(255,255,255,1)", "rgba(255,255,0,1)");
+  e1=new Element(400,400);
   simulationArea.setup();
 
-}
 
+}
 
 window.onresize = setup;
 
@@ -73,7 +74,24 @@ var simulationArea = {
 
 function update() {
     simulationArea.clear();
-    b1.update();
+
+    e1.update();
+
+}
+
+
+
+
+function Element(x,y){
+  this.x=x;
+  this.y=y;
+  this.b=new Button(x,y,6,"rgba(255,255,255,1)", "rgba(255,255,0,1)");
+
+  this.update=function(){
+    console.log("check");
+    this.b.updatePosition();
+    this.b.update();
+  }
 
 }
 
