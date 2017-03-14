@@ -6,7 +6,7 @@ var height;
 function setup() {
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
-  b1=new Button(300,300,"#0f0","f00");
+  b1=new Button(300,300,20,"rgba(255,255,255,1)", "rgba(255,255,0,1)");
   simulationArea.setup();
 
 }
@@ -30,6 +30,7 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseX = (e.clientX - rect.left)*scale;
             simulationArea.mouseY = (e.clientY - rect.top)*scale;
+            console.log(simulationArea.mouseX,simulationArea.mouseY);
         });
         window.addEventListener('mousedown', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -73,7 +74,7 @@ var simulationArea = {
 }
 
 function update() {
-    // simulationArea.clear();
+    simulationArea.clear();
     b1.update();
 
 }
@@ -91,8 +92,10 @@ function Button(x, y, radius, color1, color2) {
 
     this.update = function() {
 
-
+        // console.log((this.clicked || (this.isHover() && !simulationArea.selected)));
         if (this.clicked || (this.isHover() && !simulationArea.selected)) {
+
+            console.log("check");
             var ctx = simulationArea.context;
             ctx.fillStyle = this.color2;
             ctx.beginPath();
@@ -100,11 +103,13 @@ function Button(x, y, radius, color1, color2) {
             ctx.closePath();
             ctx.fill();
         } else {
+
             var ctx = simulationArea.context;
-            ctx.fillStyle = this.color1;
+            ctx.fillStyle =this.color1;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
             ctx.closePath();
+
             ctx.fill();
         }
 
