@@ -19,9 +19,7 @@ window.addEventListener('orientationchange', setup);
 var simulationArea = {
     canvas: document.getElementById("simulationArea"),
     selected: false,
-
     setup: function() {
-
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
