@@ -3,27 +3,23 @@ scale=1;
 var b1;
 var width;
 var height;
-
 unit=10
 
 function setup() {
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
-
+  inputs=[];
+  andGates=[];
   a1=new AndGate(400,400);
   i1=new Input(500,500);
   i2=new Input(500,500);
-  // inputs=[];
-  // andGates=[];
-  i1.toggleState();
+  //i1.toggleState();
   i2.toggleState();
   i1.output1.connections.push(a1.inp1);
   i2.output1.connections.push(a1.inp2);
   a1.inp1.connections.push(i1.output1);
   a1.inp2.connections.push(i2.output1);
-  inputs=[i1,i2];
-  andGates=[a1];
-  // console.log(inputs);
+  console.log(inputs);
   simulationArea.setup();
 }
 
@@ -39,16 +35,7 @@ function play(){
 
   while(simulationArea.stack.length){
     elem=simulationArea.stack.pop();
-    if(elem.element.type=="input"){
-      for(var i=0;i<elem.output1.connections.length;i++){
-        elem.output1.connections[i].value=elem.state;
-        if(elem.output1.connections[i].parent.isResolvable())
-          simulationArea.stack.push(elem.output1.connections[i].parent);
-      }
-    }
-    else if (elem.element.type="and"){
-        elem.resolve();
-    }
+   	elem.resolve();
   }
 
   console.log(a1.output1.value);
@@ -121,6 +108,7 @@ function update() {
      dots(10);
      for(var i=0;i<inputs.length;i++)
       inputs[i].update();
+      
      for(var i=0;i<andGates.length;i++)
       andGates[i].update();
 
@@ -152,7 +140,7 @@ function AndGate(x,y){
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
   this.output1=new Node(20,0,1,this);
-
+  andGates.push(this);
   this.isResolvable=function(){
     return this.inp1.value!=-1 && this.inp2.value!=-1;
   }
@@ -194,6 +182,15 @@ function Input(x,y){
   this.output1=new Node(10,0,1,this);
   this.state=0;
   this.output1.value=this.state;
+  inputs.push(this);
+  this.wasClicked=false;
+  this.resolve=function(){
+  	for(var i=0;i<elem.output1.connections.length;i++){
+        elem.output1.connections[i].value=elem.state;
+        if(elem.output1.connections[i].parent.isResolvable())
+          simulationArea.stack.push(elem.output1.connections[i].parent);
+      }
+  }
   this.toggleState=function(){
     this.state=(this.state+1)%2;
     this.output1.value=this.state;
@@ -213,6 +210,15 @@ function Input(x,y){
     ctx.lineTo(xx-10, yy-10);
     ctx.stroke();
     ctx.closePath();
+    if(simulationArea.mouseDown==false)
+		this.wasClicked=false;    	
+    if(simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked){
+    	this.toggleState();
+    	this.wasClicked=true;
+    	console.log(this.state);
+    	}
+    ctx.font="20px Georgia";
+    ctx.fillText(this.state.toString(),xx-5,yy+5);
     this.element.update();
     this.output1.update();
   }
@@ -257,6 +263,7 @@ function Node(x,y,type,parent){
       ctx.closePath();
       ctx.fill();
   }
+  
 }
 
 
@@ -273,7 +280,7 @@ function Button(x, y, radius, color1, color2) {
         // //console.log((this.clicked || (this.isHover() && !simulationArea.selected)));
         if (this.clicked || (this.isHover() && !simulationArea.selected)) {
 
-            //console.log("check");
+           // console.log("check");
             var ctx = simulationArea.context;
             ctx.fillStyle = this.color2;
             ctx.beginPath();
