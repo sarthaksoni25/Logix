@@ -27,7 +27,11 @@ function setup() {
   simulationArea.setup();
 }
 
-
+function resetup(){
+  width = window.innerWidth*scale;
+  height = window.innerHeight*scale;
+  simulationArea.setup();
+}
 
 var canvas = document.getElementById("myCanvas");
 
@@ -47,9 +51,9 @@ function play(){
 
 
 
-// window.onresize = setup;
+window.onresize = resetup;
 
-// window.addEventListener('orientationchange', setup);
+window.addEventListener('orientationchange', resetup);
 
 var simulationArea = {
     canvas: document.getElementById("simulationArea"),
@@ -110,9 +114,11 @@ var simulationArea = {
 function update() {
     simulationArea.clear();
      dots(10);
+    //  play();
      for(var i=0;i<objects.length;i++)
         for(var j=0;j<objects[i].length;j++)
           objects[i][j].update();
+
 
 }
 
