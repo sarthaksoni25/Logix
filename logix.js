@@ -10,15 +10,19 @@ function setup() {
   height = window.innerHeight*scale;
   inputs=[];
   andGates=[];
+  outputs=[];
+  objects=[inputs,andGates,outputs];
   a1=new AndGate(400,400);
   i1=new Input(500,500);
   i2=new Input(500,500);
+  o1=new Output(300,300);
   //i1.toggleState();
   i2.toggleState();
   i1.output1.connections.push(a1.inp1);
   i2.output1.connections.push(a1.inp2);
   a1.inp1.connections.push(i1.output1);
   a1.inp2.connections.push(i2.output1);
+  a1.output1.connections.push(o1.inp1);
   console.log(inputs);
   simulationArea.setup();
 }
@@ -34,18 +38,18 @@ function play(){
   }
 
   while(simulationArea.stack.length){
-    elem=simulationArea.stack.pop();
+    var elem=simulationArea.stack.pop();
    	elem.resolve();
   }
 
   console.log(a1.output1.value);
 }
 
-// That's how you define the value of a pixel //
 
-window.onresize = setup;
 
-window.addEventListener('orientationchange', setup);
+// window.onresize = setup;
+
+// window.addEventListener('orientationchange', setup);
 
 var simulationArea = {
     canvas: document.getElementById("simulationArea"),
@@ -106,11 +110,9 @@ var simulationArea = {
 function update() {
     simulationArea.clear();
      dots(10);
-     for(var i=0;i<inputs.length;i++)
-      inputs[i].update();
-      
-     for(var i=0;i<andGates.length;i++)
-      andGates[i].update();
+     for(var i=0;i<objects.length;i++)
+        for(var j=0;j<objects[i].length;j++)
+          objects[i][j].update();
 
 }
 
@@ -146,18 +148,18 @@ function AndGate(x,y){
   }
 
   this.resolve=function(){
-    if(this.isResolvable==false){
+    if(this.isResolvable()==false){
       console.log("FAIL");
       return;
     }
     this.output1.value=this.inp1.value&this.inp2.value;
-
+    simulationArea.stack.push(this.output1);
   }
 
   this.update=function(){
     this.element.updatePosition();
     ctx = simulationArea.context;
-    ctx.strokeStyle = ("rgba(0,0,0,.8)");
+    ctx.strokeStyle = ("rgba(0,0,0,1)");
     ctx.lineWidth=3*scale;
     ctx.beginPath();
     var xx=this.element.x;
@@ -167,8 +169,8 @@ function AndGate(x,y){
     ctx.arc(xx,yy,20,-Math.PI/2,Math.PI/2);
     ctx.lineTo(xx-10,yy+20);
     ctx.lineTo(xx-10, yy-20);
-    ctx.stroke();
     ctx.closePath();
+    ctx.stroke();
     this.element.update();
     this.inp1.update();
     this.inp2.update();
@@ -185,12 +187,9 @@ function Input(x,y){
   inputs.push(this);
   this.wasClicked=false;
   this.resolve=function(){
-  	for(var i=0;i<elem.output1.connections.length;i++){
-        elem.output1.connections[i].value=elem.state;
-        if(elem.output1.connections[i].parent.isResolvable())
-          simulationArea.stack.push(elem.output1.connections[i].parent);
-      }
+    this.output1.resolve();
   }
+
   this.toggleState=function(){
     this.state=(this.state+1)%2;
     this.output1.value=this.state;
@@ -198,20 +197,16 @@ function Input(x,y){
   this.update=function(){
     this.element.updatePosition();
     ctx = simulationArea.context;
-    ctx.strokeStyle = ("rgba(0,0,0,.8)");
+    ctx.strokeStyle = ("rgba(0,0,0,1)");
     ctx.lineWidth=3*scale;
     ctx.beginPath();
     var xx=this.element.x;
     var yy=this.element.y;
-    ctx.moveTo(xx-10, yy-10);
-    ctx.lineTo(xx+10, yy-10);
-    ctx.lineTo(xx+10,yy+10);
-    ctx.lineTo(xx-10, yy+10);
-    ctx.lineTo(xx-10, yy-10);
+    ctx.rect(xx-10,yy-10,20,20);
     ctx.stroke();
     ctx.closePath();
     if(simulationArea.mouseDown==false)
-		this.wasClicked=false;    	
+		this.wasClicked=false;
     if(simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked){
     	this.toggleState();
     	this.wasClicked=true;
@@ -224,6 +219,43 @@ function Input(x,y){
   }
 }
 
+function Output(x,y){
+  this.element=new Element(x,y,"output");
+  this.inp1=new Node(10,0,0,this);
+  this.state=-1;
+  this.inp1.value=this.state;
+  outputs.push(this);
+
+  this.resolve=function(){
+  	this.state=this.inp1.value;
+  }
+
+  this.isResolvable=function(){
+    return this.inp1.value!=-1;
+  }
+
+  this.update=function(){
+    this.element.updatePosition();
+    ctx = simulationArea.context;
+    ctx.strokeStyle = ("rgba(0,0,0,1)");
+    ctx.lineWidth=3*scale;
+    ctx.beginPath();
+    var xx=this.element.x;
+    var yy=this.element.y;
+    ctx.arc(xx,yy,10,0,2*Math.PI);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.font="19px Georgia";
+    if(this.state==-1)
+      ctx.fillText("x",xx-5,yy+5);
+    else
+      ctx.fillText(this.state.toString(),xx-5,yy+5);
+    this.element.update();
+    this.inp1.update();
+  }
+}
+
 function Element(x,y,type){
   this.type=type;
   this.x=x;
@@ -231,7 +263,7 @@ function Element(x,y,type){
   this.b=new Button(x,y,6,"rgba(255,255,255,0)", "rgba(0,0,0,1)");
   this.isResolved=false;
   this.updatePosition=function(){
-    //console.log("check");
+
     this.b.updatePosition();
     this.b.x=Math.round(this.b.x/unit)*unit;
     this.b.y=Math.round(this.b.y/unit)*unit;
@@ -245,6 +277,8 @@ function Element(x,y,type){
 
 
 
+//output node=1
+//input node=0
 function Node(x,y,type,parent){
   this.parent=parent;
   this.x=x;
@@ -255,6 +289,26 @@ function Node(x,y,type,parent){
   this.reset=function(){
     this.value=-1;
   }
+
+  this.resolve=function(){
+    if(this.value==-1){
+      console.log("FATAL ERROR");
+      return;
+    }
+
+    if(this.type==1){
+      for(var i=0;i<this.connections.length;i++){
+        this.connections[i].value=this.value;
+        // console.log(this.connections[i]);
+        simulationArea.stack.push(this.connections[i]);
+      }
+    }
+    else if(this.type==0){
+      if(this.parent.isResolvable())
+        simulationArea.stack.push(this.parent);
+    }
+
+  }
   this.update=function(){
       var ctx = simulationArea.context;
       ctx.fillStyle ="green";
@@ -263,7 +317,7 @@ function Node(x,y,type,parent){
       ctx.closePath();
       ctx.fill();
   }
-  
+
 }
 
 
@@ -330,7 +384,6 @@ function Button(x, y, radius, color1, color2) {
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
-
 
 
 document.getElementById("playButton").addEventListener("click", play);
