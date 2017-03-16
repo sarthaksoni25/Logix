@@ -515,7 +515,7 @@ function Node(x,y,type,parent){
   this.update=function(){
       if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
-      
+
       if(this.clicked){
         if(this.prev=='x')
         {
@@ -642,8 +642,7 @@ function Node(x,y,type,parent){
         }
         if(n1==undefined)
           n1=new Node(x,y,2,root);
-
-          allNodes[allNodes.length-2].connect(n1);
+          n.connect(n1);
         }
       }
 
