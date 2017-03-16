@@ -231,7 +231,7 @@ function OrGate(x,y){
     if(this.isResolvable()==false){
       return;
     }
-    this.output1.value=this.inp1.value&this.inp2.value;
+    this.output1.value=this.inp1.value|this.inp2.value;
     simulationArea.stack.push(this.output1);
   }
 
@@ -246,11 +246,12 @@ function OrGate(x,y){
     ctx.beginPath();
     var xx=this.element.x;
     var yy=this.element.y;
-    ctx.moveTo(xx-10, yy-20);
-    ctx.lineTo(xx, yy-20);
-    ctx.arc(xx,yy,20,-Math.PI/2,Math.PI/2);
-    ctx.lineTo(xx-10,yy+20);
-    ctx.lineTo(xx-10, yy-20);
+    ctx.moveTo(xx-10,yy-20);
+    ctx.bezierCurveTo(xx,yy-20,xx+15,yy-10,xx+20,yy);
+    ctx.moveTo(xx-10,yy-20);
+    ctx.bezierCurveTo(xx,yy,xx,yy,xx-10,yy+20);
+    ctx.moveTo(xx-10,yy+20);
+    ctx.bezierCurveTo(xx,yy+20,xx+15,yy+10,xx+20,yy);
     ctx.closePath();
     ctx.stroke();
     this.element.update();
