@@ -4,6 +4,16 @@ var b1;
 var width;
 var height;
 unit=10
+Array.prototype.clean = function(deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+};
+
 var root={
   element:new Element(0,0,"root")
 }
@@ -17,7 +27,8 @@ function setup() {
   outputs=[];
   nodes=[];//intermediate nodes only
   allNodes=[];
-  objects=[inputs,andGates,orGates,notGates,outputs,nodes];
+  wires=[];
+  objects=[wires,inputs,andGates,orGates,notGates,outputs,nodes];
   // i1=new Input(100,100);
   // i2=new Input(100,200);
   // i3=new Input(100,300);
@@ -63,6 +74,62 @@ function play(){
 }
 
 
+function Wire(node1,node2){
+  this.node1=node1;
+  this.node2=node2;
+  this.type="horizonatal";
+  this.x1=node1.absX();
+  this.y1=node1.absY();
+  this.x2=node2.absX();
+  this.y2=node2.absY();
+  if(this.x1==this.x2)this.type="vertical";
+  wires.push(this);
+  this.update=function(){
+    if(simulationArea.mouseDown==false){
+
+
+
+      if(this.type=="horizonatal"){
+        if(node1.absY()!=this.y1){
+            var n=new Node(node1.absX(),this.y1,2,root);
+            this.node1.connect(n);
+            this.node2.connect(n);
+            this.delete();
+        }
+        else if(node2.absY()!=this.y2){
+            var n=new Node(node2.absX(),this.y2,2,root);
+            this.node1.connect(n);
+            this.node2.connect(n);
+            this.delete();
+        }
+      }
+      else if(this.type=="vertical"){
+        if(node1.absX()!=this.x1){
+            var n=new Node(this.x1,node1.absY(),2,root);
+            this.node1.connect(n);
+            this.node2.connect(n);
+            this.delete();
+        }
+        else if(node2.absY()!=this.y2){
+            var n=new Node(this.x2,node2.absY(),2,root);
+            this.node1.connect(n);
+            this.node2.connect(n);
+            this.delete();
+        }
+      }
+  }
+
+    ctx=simulationArea.context;
+    ctx.moveTo(this.node1.absX(),this.node1.absY());
+    ctx.lineTo(this.node2.absX(),this.node2.absY());
+    ctx.stroke();
+  }
+  this.delete=function(){
+    this.node1.connections.clean(this.node2);
+    this.node2.connections.clean(this.node1);
+    wires.clean(this);
+  }
+}
 window.onresize = resetup;
 
 window.addEventListener('orientationchange', resetup);
@@ -417,6 +484,7 @@ function Node(x,y,type,parent){
   }
 
   this.connect=function(n){
+    var w=new Wire(this,n);
     this.connections.push(n);
     n.connections.push(this);
   }
