@@ -60,8 +60,23 @@ function play(){
 
 }
 
+function addAnd(){
 
+  var a=new AndGate(200,150);
 
+}
+
+function addInput(){
+
+  var a=new Input(200,150);
+
+}
+
+function addOutput(){
+
+  var a=new Output(200,150);
+
+}
 window.onresize = resetup;
 
 window.addEventListener('orientationchange', resetup);
@@ -554,3 +569,6 @@ function distance(x1, y1, x2, y2) {
 
 
 document.getElementById("playButton").addEventListener("click", play);
+document.getElementById("andButton").addEventListener("click", addAnd);
+document.getElementById("inputButton").addEventListener("click", addInput);
+document.getElementById("outputButton").addEventListener("click", addOutput);
