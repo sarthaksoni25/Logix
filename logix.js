@@ -12,10 +12,12 @@ function setup() {
   height = window.innerHeight*scale;
   inputs=[];
   andGates=[];
+  orGates=[];
+  notGates=[];
   outputs=[];
   nodes=[];//intermediate nodes only
   allNodes=[];
-  objects=[inputs,andGates,outputs,nodes];
+  objects=[inputs,andGates,orGates,notGates,outputs,nodes];
   // i1=new Input(100,100);
   // i2=new Input(100,200);
   // i3=new Input(100,300);
@@ -60,23 +62,7 @@ function play(){
 
 }
 
-function addAnd(){
 
-  var a=new AndGate(200,150);
-
-}
-
-function addInput(){
-
-  var a=new Input(200,150);
-
-}
-
-function addOutput(){
-
-  var a=new Output(200,150);
-
-}
 window.onresize = resetup;
 
 window.addEventListener('orientationchange', resetup);
@@ -218,11 +204,11 @@ function AndGate(x,y){
 }
 
 function OrGate(x,y){
-  this.element=new Element(x,y,"and");
+  this.element=new Element(x,y,"or");
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
   this.output1=new Node(20,0,1,this);
-  andGates.push(this);
+  orGates.push(this);
   this.isResolvable=function(){
     return this.inp1.value!=-1 && this.inp2.value!=-1;
   }
@@ -243,20 +229,61 @@ function OrGate(x,y){
     ctx = simulationArea.context;
     ctx.strokeStyle = ("rgba(0,0,0,1)");
     ctx.lineWidth=3*scale;
-    ctx.beginPath();
+
     var xx=this.element.x;
     var yy=this.element.y;
+    ctx.beginPath();
     ctx.moveTo(xx-10,yy-20);
     ctx.bezierCurveTo(xx,yy-20,xx+15,yy-10,xx+20,yy);
-    ctx.moveTo(xx-10,yy-20);
-    ctx.bezierCurveTo(xx,yy,xx,yy,xx-10,yy+20);
-    ctx.moveTo(xx-10,yy+20);
-    ctx.bezierCurveTo(xx,yy+20,xx+15,yy+10,xx+20,yy);
+    ctx.bezierCurveTo(xx+15,yy+10,xx,yy+20,xx-10,yy+20);
+    ctx.bezierCurveTo(xx,yy,xx,yy,xx-10,yy-20);
     ctx.closePath();
     ctx.stroke();
     this.element.update();
     this.inp1.update();
     this.inp2.update();
+    this.output1.update();
+  }
+}
+
+function NotGate(x,y){
+  this.element=new Element(x,y,"not");
+  this.inp1=new Node(-10,0,0,this);
+  this.output1=new Node(20,0,1,this);
+  notGates.push(this);
+  this.isResolvable=function(){
+    return this.inp1.value!=-1 ;
+  }
+
+  this.resolve=function(){
+    if(this.isResolvable()==false){
+      return;
+    }
+    this.output1.value=(this.inp1.value+1)%2;
+    simulationArea.stack.push(this.output1);
+  }
+
+  this.update=function(){
+    this.inp1.updatePosition();
+    this.output1.updatePosition();
+    this.element.updatePosition();
+    ctx = simulationArea.context;
+    ctx.strokeStyle = ("rgba(0,0,0,1)");
+    ctx.lineWidth=3*scale;
+
+    var xx=this.element.x;
+    var yy=this.element.y;
+    ctx.beginPath();
+    ctx.moveTo(xx-10,yy-10);
+    ctx.lineTo(xx+10,yy);
+    ctx.arc(xx+15,yy,5,-Math.PI,Math.PI);
+    ctx.lineTo(xx-10,yy+10);
+    ctx.closePath();
+    ctx.stroke();
+
+    ctx.stroke();
+    this.element.update();
+    this.inp1.update();
     this.output1.update();
   }
 }
@@ -505,7 +532,6 @@ function Node(x,y,type,parent){
 
 }
 
-
 function Button(x, y, radius, color1, color2) {
     this.x = x;
     this.y = y;
@@ -563,13 +589,29 @@ function Button(x, y, radius, color1, color2) {
     }
 }
 
-
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
 
+function addAnd(){
+  var a=new AndGate(200,150);
+}
+function addOr(){
+  var or=new OrGate(200,150);
+}
+function addNot(){
+  var npt=new NotGate(200,150);
+}
+function addInput(){
+  var a=new Input(200,150);
+}
+function addOutput(){
+  var a=new Output(200,150);
+}
 
 document.getElementById("playButton").addEventListener("click", play);
 document.getElementById("andButton").addEventListener("click", addAnd);
+document.getElementById("orButton").addEventListener("click", addOr);
+document.getElementById("notButton").addEventListener("click", addNot);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);
