@@ -401,6 +401,8 @@ function Node(x,y,type,parent){
   this.radius=5;
   this.clicked=false;
   this.wasClicked=false;
+  this.prev='a';
+  this.count=0;
   if(this.type==2)nodes.push(this);
   allNodes.push(this);
 
@@ -445,21 +447,42 @@ function Node(x,y,type,parent){
   this.update=function(){
       if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
+      
       if(this.clicked){
-        if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
-            ctx.beginPath();
-            ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
-            ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
-            ctx.closePath();
-            ctx.stroke();
+        if(this.prev=='x')
+        {
+          ctx.beginPath();
+          ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
+          ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
+          ctx.lineTo(simulationArea.mouseX,simulationArea.mouseY);
+          ctx.stroke();
+
         }
-        else{
+        else if(this.prev=='y')
+        {
           ctx.beginPath();
           ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
           ctx.lineTo(this.x+this.parent.element.x,simulationArea.mouseY);
-          ctx.closePath();
+          ctx.lineTo(simulationArea.mouseX,simulationArea.mouseY);
           ctx.stroke();
         }
+        else{
+          if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
+              ctx.beginPath();
+              ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
+              ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
+              ctx.closePath();
+              ctx.stroke();
+          }
+          else{
+            ctx.beginPath();
+            ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
+            ctx.lineTo(this.x+this.parent.element.x,simulationArea.mouseY);
+            ctx.closePath();
+            ctx.stroke();
+          }
+        }
+
       }
 
       ctx.fillStyle ="green";
@@ -479,6 +502,17 @@ function Node(x,y,type,parent){
   }
   this.updatePosition = function() {
       if (simulationArea.mouseDown && (this.clicked)) {
+        this.count+=1;
+        if(this.prev=='a' && this.count>=20)
+        {
+          if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY))
+          {
+            this.prev='x';
+          }
+          else{
+            this.prev='y';
+          }
+        }
         if(this.type==2){
           // this.x = simulationArea.mouseX;
           // this.y = simulationArea.mouseY;
@@ -495,15 +529,20 @@ function Node(x,y,type,parent){
       if(this.wasClicked&&!this.clicked){
 
         this.wasClicked=false;
-        var n;
-        var x,y;
-        if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
-          x=simulationArea.mouseX;
+        var n,n1;
+        var x,y,x1,y1,flag=-1;
+        x1=simulationArea.mouseX;
+        y1=simulationArea.mouseY;
+        if(this.prev=='x'){
+          x=x1;
           y=this.absY();
-        }else{
-          y=simulationArea.mouseY;
+          flag=0;
+        }else if(this.prev=='y'){
+          y=y1;
           x=this.absX();
+          flag=1;
         }
+        if(this.prev!='a'){
         for(var i=0;i<allNodes.length;i++){
           if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
             n=allNodes[i];
@@ -511,10 +550,35 @@ function Node(x,y,type,parent){
             break;
           }
         }
+      }
         if(n==undefined)
           n=new Node(x,y,2,root);
+        this.prev='a';
         this.connect(n);
+
+        if(flag==0 && (this.y+this.parent.element.y - simulationArea.mouseY)!=0){
+          y=y1;
+          flag=2;
+        }
+        else if((this.x+this.parent.element.x - simulationArea.mouseX)!=0 && flag==1) {
+          x=x1;
+          flag=2;
+        }
+        if(flag==2){
+        for(var i=0;i<allNodes.length;i++){
+          if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
+            n1=allNodes[i];
+
+            break;
+          }
+        }
+        if(n1==undefined)
+          n1=new Node(x,y,2,root);
+
+          allNodes[allNodes.length-2].connect(n1);
+        }
       }
+
       return false;
   }
   this.isClicked = function() {
