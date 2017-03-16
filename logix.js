@@ -62,6 +62,9 @@ var canvas = document.getElementById("myCanvas");
 
 
 function play(){
+
+  for(var i=0;i<allNodes.length;i++)
+    if(allNodes[i].parent.element.type!="input")allNodes[i].reset();
   for(var i=0;i<inputs.length;i++){
     simulationArea.stack.push(inputs[i]);
   }
@@ -110,7 +113,7 @@ function Wire(node1,node2){
             this.node2.connect(n);
             this.delete();
         }
-        else if(node2.absY()!=this.y2){
+        else if(node2.absX()!=this.x2){
             var n=new Node(this.x2,node2.absY(),2,root);
             this.node1.connect(n);
             this.node2.connect(n);
@@ -196,6 +199,7 @@ var simulationArea = {
 }
 
 function update() {
+  play();
     simulationArea.clear();
      dots(10);
     //  play();
@@ -571,7 +575,7 @@ function Node(x,y,type,parent){
   this.updatePosition = function() {
       if (simulationArea.mouseDown && (this.clicked)) {
         this.count+=1;
-        if(this.prev=='a' && this.count>=20)
+        if(this.prev=='a' && this.count>=10)
         {
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY))
           {
