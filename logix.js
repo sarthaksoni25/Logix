@@ -4,14 +4,38 @@ var b1;
 var width;
 var height;
 unit=10
-
+var root={
+  element:new Element(0,0,"root")
+}
 function setup() {
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
   inputs=[];
   andGates=[];
   outputs=[];
-  objects=[inputs,andGates,outputs];
+  nodes=[];//intermediate nodes only
+  allNodes=[];
+  objects=[inputs,andGates,outputs,nodes];
+  // i1=new Input(100,100);
+  // i2=new Input(100,200);
+  // i3=new Input(100,300);
+  // i4=new Input(100,400);
+  a1=new AndGate(200,150);
+  // a2=new AndGate(200,350);
+  // a3=new AndGate(300,250);
+  // o1=new Output(400,250);
+  // i1.output1.connections.push(a1.inp1);
+  // i2.output1.connections.push(a1.inp2);
+  // i4.output1.connections.push(a2.inp2);
+  // i3.output1.connections.push(a2.inp1);
+  // a1.output1.connections.push(a3.inp1);
+  // a2.output1.connections.push(a3.inp2);
+  // a3.output1.connections.push(o1.inp1);
+  // o2=new Output(300,150);
+  // o3=new Output(300,350);
+  // a2.output1.connections.push(o3.inp1);
+  // a1.output1.connections.push(o2.inp1);
+  // setInterval(play,50);
   simulationArea.setup();
 }
 
@@ -34,7 +58,6 @@ function play(){
    	elem.resolve();
   }
 
-  console.log(a1.output1.value);
 }
 
 
@@ -56,12 +79,15 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseX = (e.clientX - rect.left)*scale;
             simulationArea.mouseY = (e.clientY - rect.top)*scale;
-            //console.log(simulationArea.mouseX,simulationArea.mouseY);
+            simulationArea.mouseX = Math.round(simulationArea.mouseX/unit)*unit;
+            simulationArea.mouseY = Math.round(simulationArea.mouseY/unit)*unit;
         });
         window.addEventListener('mousedown', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left)*scale;
             simulationArea.mouseDownY = (e.clientY - rect.top)*scale;
+            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX/unit)*unit;
+            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY/unit)*unit;
             simulationArea.mouseDown = true;
         });
         window.addEventListener('touchstart', function(e) {
@@ -71,7 +97,6 @@ var simulationArea = {
             simulationArea.mouseDownY = (e.touches[0].clientY-rect.top)*scale;
             simulationArea.mouseX = (e.touches[0].clientX- rect.left)*scale;
             simulationArea.mouseY = (e.touches[0].clientY- rect.top)*scale;
-            //console.log(simulationArea.mouseDownX+":"+simulationArea.mouseDownY);
             simulationArea.mouseDown = true;
         });
         window.addEventListener('touchend', function(e) {
@@ -86,6 +111,9 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left)*scale;
             simulationArea.mouseDownY = (e.clientY - rect.top)*scale;
+            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX/unit)*unit;
+            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY/unit)*unit;
+
             simulationArea.mouseDown = false;
         });
         window.addEventListener('touchmove', function (e) {
@@ -143,7 +171,6 @@ function AndGate(x,y){
 
   this.resolve=function(){
     if(this.isResolvable()==false){
-      console.log("FAIL");
       return;
     }
     this.output1.value=this.inp1.value&this.inp2.value;
@@ -151,6 +178,9 @@ function AndGate(x,y){
   }
 
   this.update=function(){
+    this.inp1.updatePosition();
+    this.inp2.updatePosition();
+    this.output1.updatePosition();
     this.element.updatePosition();
     ctx = simulationArea.context;
     ctx.strokeStyle = ("rgba(0,0,0,1)");
@@ -189,6 +219,8 @@ function Input(x,y){
     this.output1.value=this.state;
   }
   this.update=function(){
+
+    this.output1.updatePosition();
     this.element.updatePosition();
     ctx = simulationArea.context;
     ctx.strokeStyle = ("rgba(0,0,0,1)");
@@ -204,7 +236,6 @@ function Input(x,y){
     if(simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked){
     	this.toggleState();
     	this.wasClicked=true;
-    	console.log(this.state);
     	}
     ctx.font="20px Georgia";
     ctx.fillText(this.state.toString(),xx-5,yy+5);
@@ -215,7 +246,7 @@ function Input(x,y){
 
 function Output(x,y){
   this.element=new Element(x,y,"output");
-  this.inp1=new Node(10,0,0,this);
+  this.inp1=new Node(-10,0,0,this);
   this.state=-1;
   this.inp1.value=this.state;
   outputs.push(this);
@@ -229,6 +260,8 @@ function Output(x,y){
   }
 
   this.update=function(){
+
+    this.inp1.updatePosition();
     this.element.updatePosition();
     ctx = simulationArea.context;
     ctx.strokeStyle = ("rgba(0,0,0,1)");
@@ -269,10 +302,9 @@ function Element(x,y,type){
   }
 }
 
-
-
 //output node=1
 //input node=0
+//intermediate node =2
 function Node(x,y,type,parent){
   this.parent=parent;
   this.x=x;
@@ -280,36 +312,136 @@ function Node(x,y,type,parent){
   this.type=type;
   this.connections=new Array();
   this.value=-1;
+  this.radius=5;
+  this.clicked=false;
+  this.wasClicked=false;
+  if(this.type==2)nodes.push(this);
+  allNodes.push(this);
+
+  this.absX=function(){
+    return this.x+this.parent.element.x;
+  }
+  this.absY=function(){
+    return this.y+this.parent.element.y;
+  }
   this.reset=function(){
     this.value=-1;
   }
 
+  this.connect=function(n){
+    this.connections.push(n);
+    n.connections.push(this);
+  }
+
   this.resolve=function(){
     if(this.value==-1){
-      console.log("FATAL ERROR");
       return;
     }
 
     if(this.type==1){
       for(var i=0;i<this.connections.length;i++){
         this.connections[i].value=this.value;
-        // console.log(this.connections[i]);
         simulationArea.stack.push(this.connections[i]);
       }
     }
     else if(this.type==0){
       if(this.parent.isResolvable())
         simulationArea.stack.push(this.parent);
+    }else if(this.type==2){
+      for(var i=0;i<this.connections.length;i++){
+        if(this.connections[i].value==-1){
+        this.connections[i].value=this.value;
+        simulationArea.stack.push(this.connections[i]);
+      }
     }
-
+  }
   }
   this.update=function(){
+      if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
+      if(this.clicked){
+        if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
+            ctx.beginPath();
+            ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
+            ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        else{
+          ctx.beginPath();
+          ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
+          ctx.lineTo(this.x+this.parent.element.x,simulationArea.mouseY);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
+
       ctx.fillStyle ="green";
       ctx.beginPath();
       ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 3, 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.fill();
+      if(this.isHover() && !simulationArea.selected){
+        ctx.strokeStyle ="green";
+        ctx.beginPath();
+        ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 8, 0, Math.PI * 2, false);
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+
+  }
+  this.updatePosition = function() {
+      if (simulationArea.mouseDown && (this.clicked)) {
+        if(this.type==2){
+          // this.x = simulationArea.mouseX;
+          // this.y = simulationArea.mouseY;
+          return true;
+        }
+      } else if (simulationArea.mouseDown && !simulationArea.selected) {
+          simulationArea.selected = this.clicked = this.hover = this.isClicked();
+          this.wasClicked|=this.clicked;
+          return this.clicked;
+      } else if(!simulationArea.mouseDown){
+          if (this.clicked) simulationArea.selected = false;
+          this.clicked = false;
+      }
+      if(this.wasClicked&&!this.clicked){
+
+        this.wasClicked=false;
+        var n;
+        var x,y;
+        if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
+          x=simulationArea.mouseX;
+          y=this.absY();
+        }else{
+          y=simulationArea.mouseY;
+          x=this.absX();
+        }
+        for(var i=0;i<allNodes.length;i++){
+          if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
+            n=allNodes[i];
+
+            break;
+          }
+        }
+        if(n==undefined)
+          n=new Node(x,y,2,root);
+        this.connect(n);
+      }
+      return false;
+  }
+  this.isClicked = function() {
+      if (Math.pow(this.x+this.parent.element.x - simulationArea.mouseDownX, 2) + Math.pow(this.y +this.parent.element.y- simulationArea.mouseDownY, 2) < Math.pow(this.radius * 2, 2)) {
+          return true;
+      }
+      return false;
+  }
+  this.isHover = function() {
+      if (Math.pow(this.x +this.parent.element.x- simulationArea.mouseX, 2) + Math.pow(this.y +this.parent.element.y- simulationArea.mouseY, 2) < Math.pow(this.radius * 2, 2)) {
+          return true;
+      }
+      return false;
   }
 
 }
@@ -325,10 +457,8 @@ function Button(x, y, radius, color1, color2) {
 
     this.update = function() {
 
-        // //console.log((this.clicked || (this.isHover() && !simulationArea.selected)));
         if (this.clicked || (this.isHover() && !simulationArea.selected)) {
 
-           // console.log("check");
             var ctx = simulationArea.context;
             ctx.fillStyle = this.color2;
             ctx.beginPath();

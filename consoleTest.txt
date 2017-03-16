@@ -10,7 +10,7 @@ i1.output1.connections.push(a1.inp1);
 i2.output1.connections.push(a1.inp2);
 i4.output1.connections.push(a2.inp2);
 i3.output1.connections.push(a2.inp1);
-a1.output1.connections.push(a3.inp1);
+a1.output1.connections.push(a3.i np1);
 a2.output1.connections.push(a3.inp2);
 a3.output1.connections.push(o1.inp1);
 o2=new Output(300,150);
