@@ -20,7 +20,7 @@ function setup() {
   // i2=new Input(100,200);
   // i3=new Input(100,300);
   // i4=new Input(100,400);
-  a1=new AndGate(200,150);
+  //a1=new AndGate(200,150);
   // a2=new AndGate(200,350);
   // a3=new AndGate(300,250);
   // o1=new Output(400,250);
