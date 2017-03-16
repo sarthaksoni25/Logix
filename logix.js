@@ -202,6 +202,49 @@ function AndGate(x,y){
   }
 }
 
+function OrGate(x,y){
+  this.element=new Element(x,y,"and");
+  this.inp1=new Node(-10,-10,0,this);
+  this.inp2=new Node(-10,+10,0,this);
+  this.output1=new Node(20,0,1,this);
+  andGates.push(this);
+  this.isResolvable=function(){
+    return this.inp1.value!=-1 && this.inp2.value!=-1;
+  }
+
+  this.resolve=function(){
+    if(this.isResolvable()==false){
+      return;
+    }
+    this.output1.value=this.inp1.value&this.inp2.value;
+    simulationArea.stack.push(this.output1);
+  }
+
+  this.update=function(){
+    this.inp1.updatePosition();
+    this.inp2.updatePosition();
+    this.output1.updatePosition();
+    this.element.updatePosition();
+    ctx = simulationArea.context;
+    ctx.strokeStyle = ("rgba(0,0,0,1)");
+    ctx.lineWidth=3*scale;
+    ctx.beginPath();
+    var xx=this.element.x;
+    var yy=this.element.y;
+    ctx.moveTo(xx-10, yy-20);
+    ctx.lineTo(xx, yy-20);
+    ctx.arc(xx,yy,20,-Math.PI/2,Math.PI/2);
+    ctx.lineTo(xx-10,yy+20);
+    ctx.lineTo(xx-10, yy-20);
+    ctx.closePath();
+    ctx.stroke();
+    this.element.update();
+    this.inp1.update();
+    this.inp2.update();
+    this.output1.update();
+  }
+}
+
 
 function Input(x,y){
   this.element=new Element(x,y,"input");
