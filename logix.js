@@ -12,18 +12,6 @@ function setup() {
   andGates=[];
   outputs=[];
   objects=[inputs,andGates,outputs];
-  a1=new AndGate(400,400);
-  i1=new Input(500,500);
-  i2=new Input(500,500);
-  o1=new Output(300,300);
-  //i1.toggleState();
-  i2.toggleState();
-  i1.output1.connections.push(a1.inp1);
-  i2.output1.connections.push(a1.inp2);
-  a1.inp1.connections.push(i1.output1);
-  a1.inp2.connections.push(i2.output1);
-  a1.output1.connections.push(o1.inp1);
-  console.log(inputs);
   simulationArea.setup();
 }
 
