@@ -88,9 +88,9 @@ function Wire(node1,node2){
   if(this.x1==this.x2)this.type="vertical";
   wires.push(this);
   this.update=function(){
+
+    if(this.node1.deleted||this.node2.deleted)this.delete();
     if(simulationArea.mouseDown==false){
-
-
 
       if(this.type=="horizonatal"){
         if(node1.absY()!=this.y1){
@@ -517,6 +517,19 @@ function Node(x,y,type,parent){
   }
   }
   this.update=function(){
+
+      if(this.type==2){
+        if(this.connections.length==2 && simulationArea.mouseDown==false){
+          if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
+            this.connections[0].connections.clean(this);
+            this.connections[1].connections.clean(this);
+            allNodes.clean(this);
+            nodes.clean(this);
+            this.deleted=true;
+            this.connections[0].connect(this.connections[1]);
+          }
+        }
+      }
       if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
 
