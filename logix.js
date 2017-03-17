@@ -88,10 +88,22 @@ function Wire(node1,node2){
   if(this.x1==this.x2)this.type="vertical";
   wires.push(this);
   this.update=function(){
+    console.log(this.node1.absX(),this.node1.absY(),this.node2.absX(),this.node2.absY(),this.type);
+    console.log(simulationArea.mouseX,simulationArea.mouseY);
+    console.log(simulationArea.mouseDown,simulationArea.selected==false,this.checkWithin(simulationArea.mouseX,simulationArea.mouseY));
+    if(simulationArea.mouseDown==true && simulationArea.selected==false && this.checkWithin(simulationArea.mouseDownX,simulationArea.mouseDownY)){
+
+      var n=new Node(simulationArea.mouseDownX,simulationArea.mouseDownY,2,root);
+      this.converge(n);
+      n.clicked=true;
+      n.wasClicked=true;
+      // n.count=-20;
+      simulationArea.selected=true;
+
+    }
 
     if(this.node1.deleted||this.node2.deleted)this.delete();
     if(simulationArea.mouseDown==false){
-
       if(this.type=="horizontal"){
         if(node1.absY()!=this.y1){
             var n=new Node(node1.absX(),this.y1,2,root);
@@ -124,6 +136,7 @@ function Wire(node1,node2){
             this.converge(n);
         }
       }
+
   }
 
     ctx=simulationArea.context;
@@ -133,14 +146,16 @@ function Wire(node1,node2){
   }
 
   this.checkConvergence=function(n){
-
-    if((this.type=="horizontal") && (wires[wires.length-1].type=='vertical') && (this.node1.absX()<this.node2.absX()) && (n.absX()>this.node1.absX()) && (n.absX()<this.node2.absX()) && (n.absY()===this.node2.absY()))
+    return this.checkWithin(n.absX(),n.absY());
+  }
+  this.checkWithin=function(x,y){
+    if((this.type=="horizontal") && (this.node1.absX()<this.node2.absX()) && (x>this.node1.absX()) && (x<this.node2.absX()) && (y===this.node2.absY()))
       return true;
-    else if((this.type=="horizontal") && (wires[wires.length-1].type=='vertical') && (this.node1.absX()>this.node2.absX()) && (n.absX()<this.node1.absX()) && (n.absX()>this.node2.absX()) && (n.absY()===this.node2.absY()))
+    else if((this.type=="horizontal")  && (this.node1.absX()>this.node2.absX()) && (x<this.node1.absX()) && (x>this.node2.absX()) && (y===this.node2.absY()))
       return true;
-    else if((this.type=='vertical') && (wires[wires.length-1].type=='horizontal') && (this.node1.absY()<this.node2.absY()) && (n.absY()>this.node1.absY()) && (n.absY()<this.node2.absY()) && (n.absX()===this.node2.absX()))
+    else if((this.type=='vertical')  && (this.node1.absY()<this.node2.absY()) && (y>this.node1.absY()) && (y<this.node2.absY()) && (x===this.node2.absX()))
         return true;
-    else if((this.type=='vertical') && (wires[wires.length-1].type=='horizontal') && (this.node1.absY()>this.node2.absY()) && (n.absY()<this.node1.absY()) && (n.absY()>this.node2.absY()) && (n.absX()===this.node2.absX()))
+    else if((this.type=='vertical')  && (this.node1.absY()>this.node2.absY()) && (y<this.node1.absY()) && (y>this.node2.absY()) && (x===this.node2.absX()))
           return true
     return false;
 
@@ -544,18 +559,7 @@ function Node(x,y,type,parent){
   }
   this.update=function(){
 
-      if(this.type==2){
-        if(this.connections.length==2 && simulationArea.mouseDown==false){
-          if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
-            this.connections[0].connections.clean(this);
-            this.connections[1].connections.clean(this);
-            allNodes.clean(this);
-            nodes.clean(this);
-            this.deleted=true;
-            this.connections[0].connect(this.connections[1]);
-          }
-        }
-      }
+
       if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
 
@@ -609,7 +613,18 @@ function Node(x,y,type,parent){
         ctx.stroke();
       }
 
-
+      if(this.type==2){
+        if(this.connections.length==2 && simulationArea.mouseDown==false){
+          if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
+            this.connections[0].connections.clean(this);
+            this.connections[1].connections.clean(this);
+            allNodes.clean(this);
+            nodes.clean(this);
+            this.deleted=true;
+            this.connections[0].connect(this.connections[1]);
+          }
+        }
+      }
   }
   this.updatePosition = function() {
       if (simulationArea.mouseDown && (this.clicked)) {
