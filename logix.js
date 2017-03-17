@@ -575,7 +575,7 @@ function Node(x,y,type,parent){
   this.updatePosition = function() {
       if (simulationArea.mouseDown && (this.clicked)) {
         this.count+=1;
-        if(this.prev=='a' && this.count>=10)
+        if(this.prev=='a' && this.count>=20)
         {
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY))
           {
@@ -599,7 +599,6 @@ function Node(x,y,type,parent){
           this.clicked = false;
       }
       if(this.wasClicked&&!this.clicked){
-
         this.wasClicked=false;
         var n,n1;
         var x,y,x1,y1,flag=-1;
@@ -608,13 +607,26 @@ function Node(x,y,type,parent){
         if(this.prev=='x'){
           x=x1;
           y=this.absY();
+          console.log(this.prev);
           flag=0;
         }else if(this.prev=='y'){
           y=y1;
           x=this.absX();
           flag=1;
+          console.log(this.prev);
         }
-        if(this.prev!='a'){
+        else if(this.prev=='a'){
+          console.log(this.prev);
+          if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
+            x=x1;
+            y=this.absY();
+          }
+          else{
+            y=y1;
+            x=this.absX();
+          }
+        }
+
         for(var i=0;i<allNodes.length;i++){
           if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
             n=allNodes[i];
@@ -622,7 +634,7 @@ function Node(x,y,type,parent){
             break;
           }
         }
-      }
+
         if(n==undefined)
           n=new Node(x,y,2,root);
         this.prev='a';
@@ -646,6 +658,7 @@ function Node(x,y,type,parent){
         }
         if(n1==undefined)
           n1=new Node(x,y,2,root);
+
           n.connect(n1);
         }
       }
