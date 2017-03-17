@@ -80,7 +80,7 @@ function play(){
 function Wire(node1,node2){
   this.node1=node1;
   this.node2=node2;
-  this.type="horizonatal";
+  this.type="horizontal";
   this.x1=node1.absX();
   this.y1=node1.absY();
   this.x2=node2.absX();
@@ -92,32 +92,36 @@ function Wire(node1,node2){
     if(this.node1.deleted||this.node2.deleted)this.delete();
     if(simulationArea.mouseDown==false){
 
-      if(this.type=="horizonatal"){
+      if(this.type=="horizontal"){
         if(node1.absY()!=this.y1){
             var n=new Node(node1.absX(),this.y1,2,root);
-            this.node1.connect(n);
-            this.node2.connect(n);
-            this.delete();
+            // this.node1.connect(n);
+            // this.node2.connect(n);
+            // this.delete();
+            this.converge(n);
         }
         else if(node2.absY()!=this.y2){
             var n=new Node(node2.absX(),this.y2,2,root);
-            this.node1.connect(n);
-            this.node2.connect(n);
-            this.delete();
+            // this.node1.connect(n);
+            // this.node2.connect(n);
+            // this.delete();
+            this.converge(n);
         }
       }
       else if(this.type=="vertical"){
         if(node1.absX()!=this.x1){
             var n=new Node(this.x1,node1.absY(),2,root);
-            this.node1.connect(n);
-            this.node2.connect(n);
-            this.delete();
+            // this.node1.connect(n);
+            // this.node2.connect(n);
+            // this.delete();
+            this.converge(n);
         }
         else if(node2.absX()!=this.x2){
             var n=new Node(this.x2,node2.absY(),2,root);
-            this.node1.connect(n);
-            this.node2.connect(n);
-            this.delete();
+            // this.node1.connect(n);
+            // this.node2.connect(n);
+            // this.delete();
+            this.converge(n);
         }
       }
   }
@@ -127,12 +131,34 @@ function Wire(node1,node2){
     ctx.lineTo(this.node2.absX(),this.node2.absY());
     ctx.stroke();
   }
+
+  this.checkConvergence=function(n){
+
+    if((this.type=="horizontal") && (wires[wires.length-1].type=='vertical') && (this.node1.absX()<this.node2.absX()) && (n.absX()>this.node1.absX()) && (n.absX()<this.node2.absX()) && (n.absY()===this.node2.absY()))
+      return true;
+    else if((this.type=="horizontal") && (wires[wires.length-1].type=='vertical') && (this.node1.absX()>this.node2.absX()) && (n.absX()<this.node1.absX()) && (n.absX()>this.node2.absX()) && (n.absY()===this.node2.absY()))
+      return true;
+    else if((this.type=='vertical') && (wires[wires.length-1].type=='horizontal') && (this.node1.absY()<this.node2.absY()) && (n.absY()>this.node1.absY()) && (n.absY()<this.node2.absY()) && (n.absX()===this.node2.absX()))
+        return true;
+    else if((this.type=='vertical') && (wires[wires.length-1].type=='horizontal') && (this.node1.absY()>this.node2.absY()) && (n.absY()<this.node1.absY()) && (n.absY()>this.node2.absY()) && (n.absX()===this.node2.absX()))
+          return true
+    return false;
+
+  }
+  this.converge=function(n){
+      //console.log(1111);
+      this.node1.connect(n);
+      this.node2.connect(n);
+      this.delete();
+
+  }
   this.delete=function(){
     this.node1.connections.clean(this.node2);
     this.node2.connections.clean(this.node1);
     wires.clean(this);
   }
 }
+
 window.onresize = resetup;
 
 window.addEventListener('orientationchange', resetup);
@@ -643,15 +669,25 @@ function Node(x,y,type,parent){
         for(var i=0;i<allNodes.length;i++){
           if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
             n=allNodes[i];
-
+            this.connect(n);
             break;
           }
         }
 
-        if(n==undefined)
+        if(n==undefined){
           n=new Node(x,y,2,root);
+          this.connect(n);
+          for(var i=0;i<wires.length-1;i++){
+            if(wires[i].checkConvergence(n)){
+
+              //console.log();
+                wires[i].converge(n);
+                console.log(1111);
+             }
+          }
+        }
         this.prev='a';
-        this.connect(n);
+
 
         if(flag==0 && (this.y+this.parent.element.y - simulationArea.mouseY)!=0){
           y=y1;
@@ -665,14 +701,22 @@ function Node(x,y,type,parent){
         for(var i=0;i<allNodes.length;i++){
           if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
             n1=allNodes[i];
-
+            n.connect(n1);
             break;
           }
         }
-        if(n1==undefined)
+        if(n1==undefined){
           n1=new Node(x,y,2,root);
-
           n.connect(n1);
+          for(var i=0;i<wires.length-1;i++){
+            if(wires[i].checkConvergence(n1)){
+              //console.log();
+                wires[i].converge(n1);
+                console.log(1111);
+             }
+          }
+        }
+
         }
       }
 
