@@ -88,9 +88,9 @@ function Wire(node1,node2){
   if(this.x1==this.x2)this.type="vertical";
   wires.push(this);
   this.update=function(){
-    console.log(this.node1.absX(),this.node1.absY(),this.node2.absX(),this.node2.absY(),this.type);
-    console.log(simulationArea.mouseX,simulationArea.mouseY);
-    console.log(simulationArea.mouseDown,simulationArea.selected==false,this.checkWithin(simulationArea.mouseX,simulationArea.mouseY));
+    //console.log(this.node1.absX(),this.node1.absY(),this.node2.absX(),this.node2.absY(),this.type);
+    //console.log(simulationArea.mouseX,simulationArea.mouseY);
+    //console.log(simulationArea.mouseDown,simulationArea.selected==false,this.checkWithin(simulationArea.mouseX,simulationArea.mouseY));
     if(simulationArea.mouseDown==true && simulationArea.selected==false && this.checkWithin(simulationArea.mouseDownX,simulationArea.mouseDownY)){
 
       var n=new Node(simulationArea.mouseDownX,simulationArea.mouseDownY,2,root);
@@ -161,7 +161,7 @@ function Wire(node1,node2){
 
   }
   this.converge=function(n){
-      //console.log(1111);
+      ////console.log(1111);
       this.node1.connect(n);
       this.node2.connect(n);
       this.delete();
@@ -363,6 +363,7 @@ function NotGate(x,y){
   this.inp1=new Node(-10,0,0,this);
   this.output1=new Node(20,0,1,this);
   notGates.push(this);
+  
   this.isResolvable=function(){
     return this.inp1.value!=-1 ;
   }
@@ -654,6 +655,9 @@ function Node(x,y,type,parent){
       }
       if(this.wasClicked&&!this.clicked){
         this.wasClicked=false;
+        if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY())
+          return;
+
         var n,n1;
         var x,y,x1,y1,flag=-1;
         x1=simulationArea.mouseX;
@@ -661,16 +665,16 @@ function Node(x,y,type,parent){
         if(this.prev=='x'){
           x=x1;
           y=this.absY();
-          console.log(this.prev);
+          //console.log(this.prev);
           flag=0;
         }else if(this.prev=='y'){
           y=y1;
           x=this.absX();
           flag=1;
-          console.log(this.prev);
+          //console.log(this.prev);
         }
         else if(this.prev=='a'){
-          console.log(this.prev);
+          //console.log(this.prev);
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
             x=x1;
             y=this.absY();
@@ -695,9 +699,9 @@ function Node(x,y,type,parent){
           for(var i=0;i<wires.length-1;i++){
             if(wires[i].checkConvergence(n)){
 
-              //console.log();
+              ////console.log();
                 wires[i].converge(n);
-                console.log(1111);
+                //console.log(1111);
              }
           }
         }
@@ -725,9 +729,9 @@ function Node(x,y,type,parent){
           n.connect(n1);
           for(var i=0;i<wires.length-1;i++){
             if(wires[i].checkConvergence(n1)){
-              //console.log();
+              ////console.log();
                 wires[i].converge(n1);
-                console.log(1111);
+                //console.log(1111);
              }
           }
         }
