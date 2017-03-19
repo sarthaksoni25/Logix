@@ -355,7 +355,7 @@ function SevenSegDisplay(x, y){
     this.dot.updatePosition();
     this.element.updatePosition();
     ctx = simulationArea.context;
-    
+
     var xx=this.element.x;
     var yy=this.element.y;
     ctx.beginPath();
@@ -366,35 +366,35 @@ function SevenSegDisplay(x, y){
 
     if(this.b.value == 1)
     	this.drawSegment(20, -5, 20, -35, 'red');
-    else 
+    else
     	this.drawSegment(20, -5, 20, -35, 'black');
     if(this.c.value == 1)
     	this.drawSegment(20, 5, 20, 35, 'red');
-    else 
+    else
     	this.drawSegment(20, 5, 20, 35, 'black');
     if(this.f.value == 1)
     	this.drawSegment(-20, -5, -20, -35, 'red');
-    else 
+    else
     	this.drawSegment(-20, -5, -20, -35, 'black');
     if(this.e.value == 1)
     	this.drawSegment(-20, 5, -20, 35, 'red');
-    else 
+    else
     	this.drawSegment(-20, 5, -20, 35, 'black');
     if(this.a.value == 1)
     	this.drawSegment(-15, -40, 15, -40, 'red');
-    else 
+    else
     	this.drawSegment(-15, -40, 15, -40, 'black');
     if(this.g.value == 1)
     	this.drawSegment(-15, 0, 15, 0, 'red');
-    else 
+    else
     	this.drawSegment(-15, 0, 15, 0, 'black');
     if(this.d.value == 1)
     	this.drawSegment(-15, 40, 15, 40, 'red');
-    else 
+    else
     	this.drawSegment(-15, 40, 15, 40, 'black');
 	ctx.beginPath();
 	if(this.dot.value==1)
-		ctx.strokeStyle='red';    
+		ctx.strokeStyle='red';
 	else
 		ctx.strokeStyle='black';
 	ctx.rect(xx+20,yy+40,2,2);
@@ -459,7 +459,7 @@ function NotGate(x,y){
   this.inp1=new Node(-10,0,0,this);
   this.output1=new Node(20,0,1,this);
   notGates.push(this);
-  
+
   this.isResolvable=function(){
     return this.inp1.value!=-1 ;
   }
@@ -928,6 +928,9 @@ function addInput(){
 function addOutput(){
   var a=new Output(200,150);
 }
+function addSevenSeg(){
+  var a=new SevenSegDisplay(400,150);
+}
 
 document.getElementById("playButton").addEventListener("click", play);
 document.getElementById("andButton").addEventListener("click", addAnd);
@@ -935,3 +938,4 @@ document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);
+document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
