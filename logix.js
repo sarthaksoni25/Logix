@@ -22,13 +22,14 @@ function setup() {
   height = window.innerHeight*scale;
   inputs=[];
   andGates=[];
+  sevenseg=[];
   orGates=[];
   notGates=[];
   outputs=[];
   nodes=[];//intermediate nodes only
   allNodes=[];
   wires=[];
-  objects=[wires,inputs,andGates,orGates,notGates,outputs,nodes];
+  objects=[wires,inputs,andGates,sevenseg,orGates,notGates,outputs,nodes];
   // i1=new Input(100,100);
   // i2=new Input(100,200);
   // i3=new Input(100,300);
@@ -312,6 +313,101 @@ function AndGate(x,y){
     this.inp1.update();
     this.inp2.update();
     this.output1.update();
+  }
+}
+
+function SevenSegDisplay(x, y){
+  this.element=new Element(x,y,"SevenSegmentDisplay");
+  this.g=new Node(-20,-50,0,this);
+  this.f=new Node(-10,-50,0,this);
+  this.a=new Node(+10, -50,0,this);
+  this.b=new Node(+20,-50,0,this);
+  this.e=new Node(-20,+50,0,this);
+  this.d=new Node(-10,+50,0,this);
+  this.c=new Node(+10,+50,0,this);
+  this.dot=new Node(+20,+50,0,this);
+
+  sevenseg.push(this);
+  this.isResolvable=function(){
+    return this.a.value!=-1 && this.b.value!=-1 && this.c.value!=-1 && this.d.value!=-1 && this.e.value!=-1 && this.f.value!=-1 && this.g.value!=-1 && this.dot.value!=-1;
+  }
+
+  this.resolve=function(){
+
+  }
+  this.drawSegment = function(x1,y1,x2,y2,color){
+  	ctx=simulationArea.context;
+  	ctx.beginPath();
+  	ctx.strokeStyle=color;
+  	ctx.lineWidth=5*scale;
+  	ctx.moveTo(this.element.x+x1,this.element.y+y1);
+  	ctx.lineTo(this.element.x+x2,this.element.y+y2);
+  	ctx.stroke();
+  }
+  this.update=function(){
+    this.a.updatePosition();
+    this.b.updatePosition();
+    this.c.updatePosition();
+    this.d.updatePosition();
+    this.e.updatePosition();
+    this.f.updatePosition();
+    this.g.updatePosition();
+    this.dot.updatePosition();
+    this.element.updatePosition();
+    ctx = simulationArea.context;
+    
+    var xx=this.element.x;
+    var yy=this.element.y;
+    ctx.beginPath();
+    ctx.strokeStyle = "black";
+    ctx.lineWidth=3*scale;
+    ctx.rect(xx-30,yy-50,60,100);
+    ctx.stroke();
+
+    if(this.b.value == 1)
+    	this.drawSegment(20, -5, 20, -35, 'red');
+    else 
+    	this.drawSegment(20, -5, 20, -35, 'black');
+    if(this.c.value == 1)
+    	this.drawSegment(20, 5, 20, 35, 'red');
+    else 
+    	this.drawSegment(20, 5, 20, 35, 'black');
+    if(this.f.value == 1)
+    	this.drawSegment(-20, -5, -20, -35, 'red');
+    else 
+    	this.drawSegment(-20, -5, -20, -35, 'black');
+    if(this.e.value == 1)
+    	this.drawSegment(-20, 5, -20, 35, 'red');
+    else 
+    	this.drawSegment(-20, 5, -20, 35, 'black');
+    if(this.a.value == 1)
+    	this.drawSegment(-15, -40, 15, -40, 'red');
+    else 
+    	this.drawSegment(-15, -40, 15, -40, 'black');
+    if(this.g.value == 1)
+    	this.drawSegment(-15, 0, 15, 0, 'red');
+    else 
+    	this.drawSegment(-15, 0, 15, 0, 'black');
+    if(this.d.value == 1)
+    	this.drawSegment(-15, 40, 15, 40, 'red');
+    else 
+    	this.drawSegment(-15, 40, 15, 40, 'black');
+	ctx.beginPath();
+	if(this.dot.value==1)
+		ctx.strokeStyle='red';    
+	else
+		ctx.strokeStyle='black';
+	ctx.rect(xx+20,yy+40,2,2);
+	ctx.stroke();
+    this.element.update();
+    this.a.update();
+    this.b.update();
+    this.c.update();
+    this.d.update();
+    this.e.update();
+    this.f.update();
+    this.g.update();
+    this.dot.update();
   }
 }
 
