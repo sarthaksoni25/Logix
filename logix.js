@@ -3,6 +3,7 @@ scale=1;
 var b1;
 var width;
 var height;
+uniqueIdCounter=0;
 unit=10
 Array.prototype.clean = function(deleteValue) {
   for (var i = 0; i < this.length; i++) {
@@ -274,6 +275,8 @@ function dots(scale){
 }
 
 function AndGate(x,y){
+  this.id='and'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.element=new Element(x,y,"and");
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
@@ -313,6 +316,8 @@ function AndGate(x,y){
     this.inp1.update();
     this.inp2.update();
     this.output1.update();
+    if(this.element.b.isHover())
+      console.log(this.id);
   }
 }
 
@@ -412,6 +417,8 @@ function SevenSegDisplay(x, y){
 }
 
 function OrGate(x,y){
+  this.id='or'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.element=new Element(x,y,"or");
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
@@ -451,10 +458,14 @@ function OrGate(x,y){
     this.inp1.update();
     this.inp2.update();
     this.output1.update();
+    if(this.element.b.isHover())
+      console.log(this.id);
   }
 }
 
 function NotGate(x,y){
+  this.id='not'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.element=new Element(x,y,"not");
   this.inp1=new Node(-10,0,0,this);
   this.output1=new Node(20,0,1,this);
@@ -494,11 +505,15 @@ function NotGate(x,y){
     this.element.update();
     this.inp1.update();
     this.output1.update();
+    if(this.element.b.isHover())
+      console.log(this.id);
   }
 }
 
 
 function Input(x,y){
+  this.id='input'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.element=new Element(x,y,"input");
   this.output1=new Node(10,0,1,this);
   this.state=0;
@@ -536,10 +551,14 @@ function Input(x,y){
     ctx.fillText(this.state.toString(),xx-5,yy+5);
     this.element.update();
     this.output1.update();
+    if(this.element.b.isHover())
+      console.log(this.id);
   }
 }
 
 function Output(x,y){
+  this.id='output'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.element=new Element(x,y,"output");
   this.inp1=new Node(-10,0,0,this);
   this.state=-1;
@@ -575,6 +594,8 @@ function Output(x,y){
       ctx.fillText(this.state.toString(),xx-5,yy+5);
     this.element.update();
     this.inp1.update();
+    if(this.element.b.isHover())
+      console.log(this.id);
   }
 }
 
@@ -601,6 +622,8 @@ function Element(x,y,type){
 //input node=0
 //intermediate node =2
 function Node(x,y,type,parent){
+  this.id='node'+uniqueIdCounter;
+  uniqueIdCounter++;
   this.parent=parent;
   this.x=x;
   this.y=y;
@@ -656,7 +679,8 @@ function Node(x,y,type,parent){
   }
   this.update=function(){
 
-
+    if(this.isHover())
+      console.log(this.id);
       if(this.type==2)this.updatePosition();
       var ctx = simulationArea.context;
 
@@ -724,6 +748,7 @@ function Node(x,y,type,parent){
       }
   }
   this.updatePosition = function() {
+
       if (simulationArea.mouseDown && (this.clicked)) {
         this.count+=1;
         if(this.prev=='a' && this.count>=20)
@@ -749,6 +774,7 @@ function Node(x,y,type,parent){
           if (this.clicked) simulationArea.selected = false;
           this.clicked = false;
       }
+
       if(this.wasClicked&&!this.clicked){
         this.wasClicked=false;
         if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY())
