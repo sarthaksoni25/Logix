@@ -1,4 +1,4 @@
-	data={};
+data={};
 scale=1;
 var b1;
 var width;
@@ -33,26 +33,6 @@ function setup() {
   wires=[];
   powers=[];
   objects=[wires,inputs,grounds,powers,andGates,sevenseg,orGates,notGates,outputs,nodes];
-  // i1=new Input(100,100);
-  // i2=new Input(100,200);
-  // i3=new Input(100,300);
-  // i4=new Input(100,400);
-  //a1=new AndGate(200,150);
-  // a2=new AndGate(200,350);
-  // a3=new AndGate(300,250);
-  // o1=new Output(400,250);
-  // i1.output1.connections.push(a1.inp1);
-  // i2.output1.connections.push(a1.inp2);
-  // i4.output1.connections.push(a2.inp2);
-  // i3.output1.connections.push(a2.inp1);
-  // a1.output1.connections.push(a3.inp1);
-  // a2.output1.connections.push(a3.inp2);
-  // a3.output1.connections.push(o1.inp1);
-  // o2=new Output(300,150);
-  // o3=new Output(300,350);
-  // a2.output1.connections.push(o3.inp1);
-  // a1.output1.connections.push(o2.inp1);
-  // setInterval(play,50);
   simulationArea.setup();
 }
 
@@ -97,18 +77,12 @@ function Wire(node1,node2){
   if(this.x1==this.x2)this.type="vertical";
   wires.push(this);
   this.update=function(){
-    //console.log(this.node1.absX(),this.node1.absY(),this.node2.absX(),this.node2.absY(),this.type);
-    //console.log(simulationArea.mouseX,simulationArea.mouseY);
-    //console.log(simulationArea.mouseDown,simulationArea.selected==false,this.checkWithin(simulationArea.mouseX,simulationArea.mouseY));
     if(simulationArea.mouseDown==true && simulationArea.selected==false && this.checkWithin(simulationArea.mouseDownX,simulationArea.mouseDownY)){
-
       var n=new Node(simulationArea.mouseDownX,simulationArea.mouseDownY,2,root);
       this.converge(n);
       n.clicked=true;
       n.wasClicked=true;
-      // n.count=-20;
       simulationArea.selected=true;
-
     }
 
     if(this.node1.deleted||this.node2.deleted)this.delete();
@@ -116,32 +90,20 @@ function Wire(node1,node2){
       if(this.type=="horizontal"){
         if(node1.absY()!=this.y1){
             var n=new Node(node1.absX(),this.y1,2,root);
-            // this.node1.connect(n);
-            // this.node2.connect(n);
-            // this.delete();
             this.converge(n);
         }
         else if(node2.absY()!=this.y2){
             var n=new Node(node2.absX(),this.y2,2,root);
-            // this.node1.connect(n);
-            // this.node2.connect(n);
-            // this.delete();
             this.converge(n);
         }
       }
       else if(this.type=="vertical"){
         if(node1.absX()!=this.x1){
             var n=new Node(this.x1,node1.absY(),2,root);
-            // this.node1.connect(n);
-            // this.node2.connect(n);
-            // this.delete();
             this.converge(n);
         }
         else if(node2.absX()!=this.x2){
             var n=new Node(this.x2,node2.absY(),2,root);
-            // this.node1.connect(n);
-            // this.node2.connect(n);
-            // this.delete();
             this.converge(n);
         }
       }
@@ -170,12 +132,11 @@ function Wire(node1,node2){
 
   }
   this.converge=function(n){
-      ////console.log(1111);
       this.node1.connect(n);
       this.node2.connect(n);
       this.delete();
-
   }
+
   this.delete=function(){
     this.node1.connections.clean(this.node2);
     this.node2.connections.clean(this.node1);
@@ -252,7 +213,6 @@ function update() {
   play();
     simulationArea.clear();
      dots(10);
-    //  play();
      for(var i=0;i<objects.length;i++)
         for(var j=0;j<objects[i].length;j++)
           objects[i][j].update();
@@ -875,16 +835,13 @@ function Node(x,y,type,parent){
         if(this.prev=='x'){
           x=x1;
           y=this.absY();
-          //console.log(this.prev);
           flag=0;
         }else if(this.prev=='y'){
           y=y1;
           x=this.absX();
           flag=1;
-          //console.log(this.prev);
         }
         else if(this.prev=='a'){
-          //console.log(this.prev);
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
             x=x1;
             y=this.absY();
@@ -908,10 +865,7 @@ function Node(x,y,type,parent){
           this.connect(n);
           for(var i=0;i<wires.length-1;i++){
             if(wires[i].checkConvergence(n)){
-
-              ////console.log();
                 wires[i].converge(n);
-                //console.log(1111);
              }
           }
         }
@@ -939,9 +893,7 @@ function Node(x,y,type,parent){
           n.connect(n1);
           for(var i=0;i<wires.length-1;i++){
             if(wires[i].checkConvergence(n1)){
-              ////console.log();
                 wires[i].converge(n1);
-                //console.log(1111);
              }
           }
         }
