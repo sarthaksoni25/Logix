@@ -574,7 +574,7 @@ function Ground(x,y){
   console.log(this);
   this.wasClicked=false;
   this.resolve=function(){
-  	this.output1.value=this.state;	
+  	this.output1.value=this.state;
     this.output1.resolve();
   }
 
@@ -614,7 +614,7 @@ function Power(x,y){
   console.log(this);
   this.wasClicked=false;
   this.resolve=function(){
-  	this.output1.value=this.state;	
+  	this.output1.value=this.state;
     this.output1.resolve();
   }
 
@@ -1030,6 +1030,12 @@ function distance(x1, y1, x2, y2) {
 function addAnd(){
   var a=new AndGate(200,150);
 }
+function addPower(){
+  var p=new Power(200,150);
+}
+function addGround(){
+  var g=new Ground(200,150);
+}
 function addOr(){
   var or=new OrGate(200,150);
 }
@@ -1046,7 +1052,8 @@ function addSevenSeg(){
   var a=new SevenSegDisplay(400,150);
 }
 
-document.getElementById("playButton").addEventListener("click", play);
+document.getElementById("powerButton").addEventListener("click", addPower);
+document.getElementById("groundButton").addEventListener("click", addGround);
 document.getElementById("andButton").addEventListener("click", addAnd);
 document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
