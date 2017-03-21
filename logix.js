@@ -42,11 +42,7 @@ function resetup(){
   simulationArea.setup();
 }
 
-var canvas = document.getElementById("myCanvas");
-
-
 function play(){
-
   for(var i=0;i<allNodes.length;i++)
     if(allNodes[i].parent.element.type!="input")allNodes[i].reset();
   for(var i=0;i<inputs.length;i++){
@@ -156,7 +152,8 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 20);
+        this.interval = setInterval(update, 50);
+        this.interval = setInterval(play, 300);
         window.addEventListener('mousemove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseX = (e.clientX - rect.left)*scale;
@@ -210,7 +207,7 @@ var simulationArea = {
 }
 
 function update() {
-  play();
+  // play();
     simulationArea.clear();
      dots(10);
      for(var i=0;i<objects.length;i++)
@@ -477,7 +474,6 @@ function NotGate(x,y){
   }
 }
 
-
 function Input(x,y){
   this.id='input'+uniqueIdCounter;
   uniqueIdCounter++;
@@ -523,6 +519,7 @@ function Input(x,y){
       console.log(this.id);
   }
 }
+
 function Ground(x,y){
   this.id='ground'+uniqueIdCounter;
   uniqueIdCounter++;
@@ -563,6 +560,7 @@ function Ground(x,y){
       console.log(this.id);
   }
 }
+
 function Power(x,y){
   this.id='power'+uniqueIdCounter;
   uniqueIdCounter++;
@@ -707,16 +705,11 @@ function Node(x,y,type,parent){
       return;
     }
 
-    if(this.type==1){
-      for(var i=0;i<this.connections.length;i++){
-        this.connections[i].value=this.value;
-        simulationArea.stack.push(this.connections[i]);
-      }
-    }
     else if(this.type==0){
       if(this.parent.isResolvable())
         simulationArea.stack.push(this.parent);
-    }else if(this.type==2){
+    }
+		else if(this.type==1 || this.type==2){
       for(var i=0;i<this.connections.length;i++){
         if(this.connections[i].value==-1){
         this.connections[i].value=this.value;
@@ -729,8 +722,9 @@ function Node(x,y,type,parent){
 
     if(this.isHover())
       console.log(this.id);
-      if(this.type==2)this.updatePosition();
-      var ctx = simulationArea.context;
+    if(this.type==2)this.updatePosition();
+
+			var ctx = simulationArea.context;
 
       if(this.clicked){
         if(this.prev=='x')
@@ -774,7 +768,8 @@ function Node(x,y,type,parent){
       ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 3, 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.fill();
-      if(this.isHover() && !simulationArea.selected){
+
+			if(this.isHover() && !simulationArea.selected){
         ctx.strokeStyle ="green";
         ctx.beginPath();
         ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 8, 0, Math.PI * 2, false);
@@ -782,24 +777,33 @@ function Node(x,y,type,parent){
         ctx.stroke();
       }
 
-      if(this.type==2){
-        if(this.connections.length==2 && simulationArea.mouseDown==false){
-          if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
-            this.connections[0].connections.clean(this);
-            this.connections[1].connections.clean(this);
-            allNodes.clean(this);
-            nodes.clean(this);
-            this.deleted=true;
-            this.connections[0].connect(this.connections[1]);
-          }
-        }
-      }
+
   }
   this.updatePosition = function() {
 
       if (simulationArea.mouseDown && (this.clicked)) {
-        this.count+=1;
-        if(this.prev=='a' && this.count>=20)
+        // this.count+=1;
+
+        if(this.type==2){
+					console.log(this.absY(),simulationArea.mouseDownY,simulationArea.mouseDownX-this.parent.element.x);
+					if(this.connections.length==1&&this.connections[0].absX()==simulationArea.mouseX&&this.absX()==simulationArea.mouseX){
+						this.y=simulationArea.mouseY-this.parent.element.y;
+						this.prev='a';
+					}
+					else if(this.connections.length==1&&this.connections[0].absY()==simulationArea.mouseY&&this.absY()==simulationArea.mouseY){
+						this.x=simulationArea.mouseX-this.parent.element.x;
+						this.prev='a';
+					}
+					if(this.connections.length==1&&this.connections[0].absX()==this.absX()&&this.connections[0].absY()==this.absY()){
+						this.deleted=true;
+						this.connections[0].clicked=true;
+						this.connections[0].wasClicked=true;
+						this.connections[0].connections.clean(this);
+						nodes.clean(this);
+						allNodes.clean(this);
+					}
+        }
+				if(this.prev=='a' && distance(simulationArea.mouseX,simulationArea.mouseY,this.absX(),this.absY())>=10)
         {
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY))
           {
@@ -809,24 +813,23 @@ function Node(x,y,type,parent){
             this.prev='y';
           }
         }
-        if(this.type==2){
-          // this.x = simulationArea.mouseX;
-          // this.y = simulationArea.mouseY;
-          return true;
-        }
       } else if (simulationArea.mouseDown && !simulationArea.selected) {
           simulationArea.selected = this.clicked = this.hover = this.isClicked();
           this.wasClicked|=this.clicked;
+					this.prev='a';
           return this.clicked;
       } else if(!simulationArea.mouseDown){
           if (this.clicked) simulationArea.selected = false;
           this.clicked = false;
+					this.count=0;
       }
 
       if(this.wasClicked&&!this.clicked){
         this.wasClicked=false;
-        if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY())
+        if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY()){
+
           return;
+				}
 
         var n,n1;
         var x,y,x1,y1,flag=-1;
@@ -841,16 +844,7 @@ function Node(x,y,type,parent){
           x=this.absX();
           flag=1;
         }
-        else if(this.prev=='a'){
-          if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
-            x=x1;
-            y=this.absY();
-          }
-          else{
-            y=y1;
-            x=this.absX();
-          }
-        }
+				if(this.type=='a')return; // this should never happen!!
 
         for(var i=0;i<allNodes.length;i++){
           if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
@@ -862,7 +856,7 @@ function Node(x,y,type,parent){
 
         if(n==undefined){
           n=new Node(x,y,2,root);
-          this.connect(n);
+					this.connect(n);
           for(var i=0;i<wires.length-1;i++){
             if(wires[i].checkConvergence(n)){
                 wires[i].converge(n);
@@ -901,19 +895,28 @@ function Node(x,y,type,parent){
         }
       }
 
+			if(this.type==2){
+        if(this.connections.length==2 && simulationArea.mouseDown==false){
+          if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
+            this.connections[0].connections.clean(this);
+            this.connections[1].connections.clean(this);
+            allNodes.clean(this);
+            nodes.clean(this);
+            this.deleted=true;
+            this.connections[0].connect(this.connections[1]);
+          }
+        }
+      }
+
       return false;
   }
   this.isClicked = function() {
-      if (Math.pow(this.x+this.parent.element.x - simulationArea.mouseDownX, 2) + Math.pow(this.y +this.parent.element.y- simulationArea.mouseDownY, 2) < Math.pow(this.radius * 2, 2)) {
-          return true;
-      }
+			if(distance(this.absX(),this.absY(),simulationArea.mouseDownX,simulationArea.mouseDownY)<=this.radius*1.5)return true;
       return false;
   }
   this.isHover = function() {
-      if (Math.pow(this.x +this.parent.element.x- simulationArea.mouseX, 2) + Math.pow(this.y +this.parent.element.y- simulationArea.mouseY, 2) < Math.pow(this.radius * 2, 2)) {
-          return true;
-      }
-      return false;
+		if(distance(this.absX(),this.absY(),simulationArea.mouseX,simulationArea.mouseY)<=this.radius*1.5)return true;
+		return false;
   }
 
 }
@@ -962,16 +965,12 @@ function Button(x, y, radius, color1, color2) {
         return false;
     }
     this.isClicked = function() {
-        if (Math.pow(this.x - simulationArea.mouseDownX, 2) + Math.pow(this.y - simulationArea.mouseDownY, 2) < Math.pow(this.radius * 3, 2)) {
-            return true;
-        }
+				if(distance(this.x,this.y,simulationArea.mouseDownX,simulationArea.mouseDownY)<this.radius*3)return true;
         return false;
     }
     this.isHover = function() {
-        if (Math.pow(this.x - simulationArea.mouseX, 2) + Math.pow(this.y - simulationArea.mouseY, 2) < Math.pow(this.radius * 2, 2)) {
-            return true;
-        }
-        return false;
+			if(distance(this.x,this.y,simulationArea.mouseX,simulationArea.mouseY)<this.radius*3)return true;
+			return false;
     }
 }
 
