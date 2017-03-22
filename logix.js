@@ -335,58 +335,26 @@ function SevenSegDisplay(x, y){
 
     var xx=this.element.x;
     var yy=this.element.y;
-    ctx.beginPath();
+
+		ctx.beginPath();
     ctx.strokeStyle = "black";
     ctx.lineWidth=3*scale;
-    ctx.rect(xx-30,yy-50,60,100);
+		ctx.rect(xx-30,yy-50,60,100);
     ctx.stroke();
 
-		// ["grey","black","red"][this.b.value==1]
-    // if(this.b.value == 1)
-    // 	this.drawSegment(20, -5, 20, -35, 'red');
-    // else
-    // 	this.drawSegment(20, -5, 20, -35, 'black');
-    	this.drawSegment(20, -5, 20, -35, ["grey","black","red"][this.b.value+1]);
+		this.drawSegment(20, -5, 20, -35, ["grey","black","red"][this.b.value+1]);
+  	this.drawSegment(20, 5, 20, 35, ["grey","black","red"][this.c.value+1]);
+  	this.drawSegment(-20, -5, -20, -35, ["grey","black","red"][this.f.value+1]);
+  	this.drawSegment(-20, 5, -20, 35, ["grey","black","red"][this.e.value+1]);
+		this.drawSegment(-15, -40, 15, -40, ["grey","black","red"][this.a.value+1]);
+  	this.drawSegment(-15, 0, 15, 0, ["grey","black","red"][this.g.value+1]);
+  	this.drawSegment(-15, 40, 15, 40, ["grey","black","red"][this.d.value+1]);
 
-    // if(this.c.value == 1)
-    // 	this.drawSegment(20, 5, 20, 35, 'red');
-    // else
-    // 	this.drawSegment(20, 5, 20, 35, 'black');
-    	this.drawSegment(20, 5, 20, 35, ["grey","black","red"][this.c.value+1]);
-
-
-    // if(this.f.value == 1)
-    // 	this.drawSegment(-20, -5, -20, -35, 'red');
-    // else
-    // 	this.drawSegment(-20, -5, -20, -35, 'black');
-    	this.drawSegment(-20, -5, -20, -35, ["grey","black","red"][this.f.value+1]);
-
-    // if(this.e.value == 1)
-    // 	this.drawSegment(-20, 5, -20, 35, 'red');
-    // else
-    // 	this.drawSegment(-20, 5, -20, 35, 'black');
-    	this.drawSegment(-20, 5, -20, 35, ["grey","black","red"][this.e.value+1]);
-
-    // if(this.a.value == 1)
-    // 	this.drawSegment(-15, -40, 15, -40, 'red');
-    // else
-    // 	this.drawSegment(-15, -40, 15, -40, 'black');
-    	this.drawSegment(-15, -40, 15, -40, ["grey","black","red"][this.a.value+1]);
-    // if(this.g.value == 1)
-    // 	this.drawSegment(-15, 0, 15, 0, 'red');
-    // else
-    // 	this.drawSegment(-15, 0, 15, 0, 'black');
-    	this.drawSegment(-15, 0, 15, 0, ["grey","black","red"][this.g.value+1]);
-    // if(this.d.value == 1)
-    // 	this.drawSegment(-15, 40, 15, 40, 'red');
-    // else
-    // 	this.drawSegment(-15, 40, 15, 40, 'black');
-    	this.drawSegment(-15, 40, 15, 40, ["grey","black","red"][this.d.value+1]);
-
-	ctx.beginPath();
+		ctx.beginPath();
 		ctx.strokeStyle=["grey","black","red"][this.dot.value+1];
-	ctx.rect(xx+20,yy+40,2,2);
-	ctx.stroke();
+		ctx.rect(xx+20,yy+40,2,2);
+		ctx.stroke();
+
     this.element.update();
     this.a.update();
     this.b.update();
@@ -748,53 +716,25 @@ function Node(x,y,type,parent){
       if(this.clicked){
         if(this.prev=='x')
         {
-          // ctx.beginPath();
-          // ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
-          // ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
-          // ctx.lineTo(simulationArea.mouseX,simulationArea.mouseY);
-          // ctx.stroke();
 					drawLine(ctx,this.absX(),this.absY(),simulationArea.mouseX,this.absY(),"black",3*scale);
 					drawLine(ctx,simulationArea.mouseX,this.absY(),simulationArea.mouseX,simulationArea.mouseY,"black",3*scale);
         }
         else if(this.prev=='y')
         {
-          // ctx.beginPath();
-          // ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
-          // ctx.lineTo(this.x+this.parent.element.x,simulationArea.mouseY);
-          // ctx.lineTo(simulationArea.mouseX,simulationArea.mouseY);
-          // ctx.stroke();
-					//
-
 					drawLine(ctx,this.absX(),this.absY(),this.absX(),simulationArea.mouseY,"black",3*scale);
 					drawLine(ctx,this.absX(),simulationArea.mouseY,simulationArea.mouseX,simulationArea.mouseY,"black",3*scale);
         }
         else{
           if(Math.abs(this.x+this.parent.element.x - simulationArea.mouseX)>Math.abs(this.y+this.parent.element.y - simulationArea.mouseY)){
-              // ctx.beginPath();
-              // ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
-              // ctx.lineTo(simulationArea.mouseX,this.y+this.parent.element.y);
-              // ctx.closePath();
-              // ctx.stroke();
-							//
 							drawLine(ctx,this.absX(),this.absY(),simulationArea.mouseX,this.absY(),"black",3*scale);
           }
           else{
-            // ctx.beginPath();
-            // ctx.moveTo(this.x+this.parent.element.x,this.y+this.parent.element.y);
-            // ctx.lineTo(this.x+this.parent.element.x,simulationArea.mouseY);
-            // ctx.closePath();
-            // ctx.stroke();
 						drawLine(ctx,this.absX(),this.absY(),this.absX(),simulationArea.mouseY,"black",3*scale);
           }
         }
 
       }
 			if(this.type!=2){
-      // ctx.fillStyle ="green";
-      // ctx.beginPath();
-      // ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 3, 0, Math.PI * 2, false);
-      // ctx.closePath();
-      // ctx.fill();
 			drawCircle(ctx,this.absX(),this.absY(),3,"green");
 		}
 
@@ -962,25 +902,9 @@ function Button(x, y, radius, color1, color2) {
 				var ctx = simulationArea.context;
         if (this.clicked || (this.isHover() && !simulationArea.selected)) {
 
-            // var ctx = simulationArea.context;
-            // ctx.fillStyle = this.color2;
-            // ctx.beginPath();
-            // ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-            // ctx.closePath();
-            // ctx.fill();
 						drawCircle(ctx,this.x,this.y,this.radius,this.color2);
 						return true;
         }
-				// else {
-				//
-        //     var ctx = simulationArea.context;
-        //     ctx.fillStyle =this.color1;
-        //     ctx.beginPath();
-        //     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        //     ctx.closePath();
-        //     ctx.fill();
-				// 		drawCircle;
-        // }
 				return false;
 
     }
