@@ -19,6 +19,7 @@ var root={
   element:new Element(0,0,"root")
 }
 function setup() {
+  toBeUpdated=false;
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
   inputs=[];
@@ -141,6 +142,7 @@ function Wire(node1,node2){
   }
 
   this.delete=function(){
+		toBeUpdated=true;
     this.node1.connections.clean(this.node2);
     this.node2.connections.clean(this.node1);
     wires.clean(this);
@@ -155,6 +157,7 @@ var simulationArea = {
     canvas: document.getElementById("simulationArea"),
     selected: false,
     hover: false,
+		lastSelected:undefined,
     stack:[],
     setup: function() {
         this.canvas.width = width;
@@ -169,7 +172,13 @@ var simulationArea = {
             simulationArea.mouseX = Math.round(simulationArea.mouseX/unit)*unit;
             simulationArea.mouseY = Math.round(simulationArea.mouseY/unit)*unit;
         });
+				window.addEventListener('keydown', function (e) {
+            if(e.keyCode==8&&simulationArea.lastSelected!=undefined){
+							simulationArea.lastSelected.delete();
+						}
+        })
         window.addEventListener('mousedown', function(e) {
+					  simulationArea.lastSelected=undefined;
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left)*scale;
             simulationArea.mouseDownY = (e.clientY - rect.top)*scale;
@@ -216,13 +225,17 @@ var simulationArea = {
 
 function update() {
   // play();
+
+
      var updated=false;
      simulationArea.hover=false;
      for(var i=0;i<objects.length;i++)
         for(var j=0;j<objects[i].length;j++)
           updated|=objects[i][j].update();
+    toBeUpdated|=updated;
 		// console.log(updated);
-		if(updated){
+		if(toBeUpdated){
+      toBeUpdated=false;
 			play();
 		}
 
@@ -825,7 +838,7 @@ function Node(x,y,type,parent){
 			drawCircle(ctx,this.absX(),this.absY(),3,"green");
 		}
 
-			if(this.isHover() && !simulationArea.selected){
+			if(simulationArea.lastSelected==this||(this.isHover() && !simulationArea.selected)){
         ctx.strokeStyle ="green";
         ctx.beginPath();
         ctx.lineWidth=3*scale;
@@ -868,12 +881,12 @@ function Node(x,y,type,parent){
 						updated=true;
 					}
 					if(this.connections.length==1&&this.connections[0].absX()==this.absX()&&this.connections[0].absY()==this.absY()){
-						this.deleted=true;
 						this.connections[0].clicked=true;
 						this.connections[0].wasClicked=true;
-						this.connections[0].connections.clean(this);
-						nodes.clean(this);
-						allNodes.clean(this);
+						// this.connections[0].connections.clean(this);
+						// nodes.clean(this);
+						// allNodes.clean(this);
+            this.delete();
 						updated=true;
 					}
         }
@@ -898,7 +911,6 @@ function Node(x,y,type,parent){
           this.clicked = false;
 					this.count=0;
       }
-
       if(this.wasClicked&&!this.clicked){
         this.wasClicked=false;
         if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY()){
@@ -968,24 +980,38 @@ function Node(x,y,type,parent){
 
         }
 				updated=true;
+
+				simulationArea.lastSelected=undefined;
       }
 
 			if(this.type==2){
         if(this.connections.length==2 && simulationArea.mouseDown==false){
           if((this.connections[0].absX()==this.connections[1].absX())||(this.connections[0].absY()==this.connections[1].absY())){
-            this.connections[0].connections.clean(this);
-            this.connections[1].connections.clean(this);
-            allNodes.clean(this);
-            nodes.clean(this);
-            this.deleted=true;
+            // this.connections[0].connections.clean(this);
+            // this.connections[1].connections.clean(this);
+            // allNodes.clean(this);
+            // nodes.clean(this);
+            // this.deleted=true;
             this.connections[0].connect(this.connections[1]);
+            this.delete();
             updated=true;
           }
         }
-
+				else if(this.connections.length==0)this.delete();
       }
 
+      if(this.clicked&&this.type==2)simulationArea.lastSelected=this;
       return updated;
+  }
+  this.delete=function(){
+		toBeUpdated=true;
+    this.deleted=true;
+    allNodes.clean(this);
+    nodes.clean(this);
+		if(simulationArea.lastSelected==this)simulationArea.lastSelected=undefined;
+    for(var i=0;i<this.connections.length;i++){
+      this.connections[i].connections.clean(this);
+    }
   }
   this.isClicked = function() {
 			if(distance(this.absX(),this.absY(),simulationArea.mouseDownX,simulationArea.mouseDownY)<=this.radius*1.5)return true;
@@ -1098,6 +1124,8 @@ function drawCircle(ctx,x1,y1,r,color){
 	ctx.closePath();
 	ctx.fill();
 }
+
+
 
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("groundButton").addEventListener("click", addGround);
