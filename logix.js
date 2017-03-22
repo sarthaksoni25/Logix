@@ -272,7 +272,7 @@ function dots(scale){
 function AndGate(x,y){
   this.id='and'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"and",25);
+  this.element=new Element(x,y,"and",25,this);
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
   this.output1=new Node(20,0,1,this);
@@ -313,7 +313,7 @@ function AndGate(x,y){
     ctx.lineTo(xx-10,yy+20);
     ctx.lineTo(xx-10, yy-20);
     ctx.closePath();
-		if(this.element.b.hover)ctx.fill();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
     // this.element.update();
 
@@ -327,7 +327,7 @@ function AndGate(x,y){
 }
 
 function SevenSegDisplay(x, y){
-  this.element=new Element(x,y,"SevenSegmentDisplay",50);
+  this.element=new Element(x,y,"SevenSegmentDisplay",50,this);
   this.g=new Node(-20,-50,0,this);
   this.f=new Node(-10,-50,0,this);
   this.a=new Node(+10, -50,0,this);
@@ -380,7 +380,7 @@ function SevenSegDisplay(x, y){
     ctx.lineWidth=3*scale;
 		ctx.rect(xx-30,yy-50,60,100);
 		ctx.fillStyle = "rgba(100, 100, 100,0.5)";
-		if(this.element.b.hover)ctx.fill();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
 
 		this.drawSegment(20, -5, 20, -35, ["grey","black","red"][this.b.value+1]);
@@ -411,7 +411,7 @@ function SevenSegDisplay(x, y){
 function OrGate(x,y){
   this.id='or'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"or",25);
+  this.element=new Element(x,y,"or",25,this);
   this.inp1=new Node(-10,-10,0,this);
   this.inp2=new Node(-10,+10,0,this);
   this.output1=new Node(20,0,1,this);
@@ -450,7 +450,7 @@ function OrGate(x,y){
     ctx.bezierCurveTo(xx+15,yy+10,xx,yy+20,xx-10,yy+20);
     ctx.bezierCurveTo(xx,yy,xx,yy,xx-10,yy-20);
     ctx.closePath();
-		if(this.element.b.hover)ctx.fill();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
 		this.inp1.draw();
     this.inp2.draw();
@@ -463,7 +463,7 @@ function OrGate(x,y){
 function NotGate(x,y){
   this.id='not'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"not",15);
+  this.element=new Element(x,y,"not",15,this);
   this.inp1=new Node(-10,0,0,this);
   this.output1=new Node(20,0,1,this);
   notGates.push(this);
@@ -502,7 +502,7 @@ function NotGate(x,y){
     ctx.arc(xx+15,yy,5,-Math.PI,Math.PI);
     ctx.lineTo(xx-10,yy+10);
     ctx.closePath();
-		if(this.element.b.hover)ctx.fill();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
     this.inp1.draw();
     this.output1.draw();
@@ -514,7 +514,7 @@ function NotGate(x,y){
 function Input(x,y){
   this.id='input'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"input",15);
+  this.element=new Element(x,y,"input",15,this);
   this.output1=new Node(10,0,1,this);
   this.state=0;
   this.output1.value=this.state;
@@ -559,7 +559,7 @@ function Input(x,y){
 		var xx=this.element.x;
 		var yy=this.element.y;
 		ctx.rect(xx-10,yy-10,20,20);
-    if(this.element.b.hover)ctx.fill();
+    if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
 		ctx.stroke();
 
     ctx.beginPath();
@@ -572,12 +572,17 @@ function Input(x,y){
     this.output1.draw();
 
 	}
+	this.delete=function(){
+		this.output1.delete();
+		simulationArea.lastSelected=undefined;
+		inputs.clean(this);
+	}
 }
 
 function Ground(x,y){
   this.id='ground'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"ground",15);
+  this.element=new Element(x,y,"ground",15,this);
   this.output1=new Node(0,-10,1,this);
   this.state=0;
   this.output1.value=this.state;
@@ -601,7 +606,7 @@ function Ground(x,y){
     ctx = simulationArea.context;
 
     ctx.beginPath();
-    ctx.strokeStyle = ["black","brown"][this.element.b.hover+0];
+    ctx.strokeStyle = ["black","brown"][this.element.b.hover];
     ctx.lineWidth=3*scale;
     var xx=this.element.x;
     var yy=this.element.y;
@@ -626,7 +631,7 @@ function Ground(x,y){
 function Power(x,y){
   this.id='power'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"power",15);
+  this.element=new Element(x,y,"power",15,this);
   this.output1=new Node(0,20,1,this);
   this.state=1;
   this.output1.value=this.state;
@@ -662,7 +667,7 @@ function Power(x,y){
     ctx.lineTo(xx+10,yy+10);
     // ctx.moveTo(xx+10, yy+10);
     ctx.lineTo(xx,yy);
-		if(this.element.b.hover)ctx.fill();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.moveTo(xx, yy+10);
     ctx.lineTo(xx,yy+20);
 
@@ -679,7 +684,7 @@ function Output(x,y){
 
   this.id='output'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"output",15);
+  this.element=new Element(x,y,"output",15,this);
   this.inp1=new Node(-10,0,0,this);
   this.state=-1;
   this.inp1.value=this.state;
@@ -713,7 +718,7 @@ function Output(x,y){
     var xx=this.element.x;
     var yy=this.element.y;
     ctx.arc(xx,yy,10,0,2*Math.PI);
-    if(this.element.b.hover)ctx.fill();
+    if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
 
     ctx.beginPath();
@@ -730,7 +735,7 @@ function Output(x,y){
   }
 }
 
-function Element(x,y,type,r){
+function Element(x,y,type,r,parent){
   this.type=type;
   this.x=x;
   this.y=y;
@@ -739,6 +744,7 @@ function Element(x,y,type,r){
   this.update=function(){
 		var updated=false;
     updated|=this.b.update();
+    if(this.b.clicked)simulationArea.lastSelected=parent;
     // this.b.x=Math.round(this.b.x/unit)*unit;
     // this.b.y=Math.round(this.b.y/unit)*unit;
     this.x=this.b.x;
