@@ -833,6 +833,9 @@ function Node(x,y,type,parent){
   this.absY=function(){
     return this.y+this.parent.element.y;
   }
+  this.prevx=this.absX();
+  this.prevy=this.absY();
+
   this.reset=function(){
     this.value=-1;
   }
@@ -905,7 +908,17 @@ function Node(x,y,type,parent){
 
   }
   this.update = function() {
-
+    if(!this.clicked){
+      var px=this.prevx;
+      var py=this.prevy;
+      this.prevx=this.absX();
+      this.prevy=this.absY();
+      if(this.absX()!=px||this.absY()!=py){
+        updated=true;
+        this.nodeConnect();
+        return updated;
+      }
+  }
 		 var updated=false;
 		 if(!simulationArea.mouseDown)this.hover=false;
 		 if ((this.clicked||!simulationArea.hover)&&this.isHover()) {
@@ -920,7 +933,7 @@ function Node(x,y,type,parent){
       if (simulationArea.mouseDown && (this.clicked)) {
 
         if(this.type==2){
-					console.log(this.absY(),simulationArea.mouseDownY,simulationArea.mouseDownX-this.parent.element.x);
+					//console.log(this.absY(),simulationArea.mouseDownY,simulationArea.mouseDownX-this.parent.element.x);
 					if(this.absX()==simulationArea.mouseX&&this.absY()==simulationArea.mouseY){
 						updated=false;
 						this.prev='a';
@@ -967,28 +980,9 @@ function Node(x,y,type,parent){
 					this.count=0;
       }
       if(this.wasClicked&&!this.clicked){
-
         this.wasClicked=false;
         if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY()){
-          var x=this.absX();
-          var y=this.absY();
-          var n;
-          for(var i=0;i<allNodes.length;i++){
-            if(this!=allNodes[i]&&x==allNodes[i].absX()&&y==allNodes[i].absY()){
-              n=allNodes[i];
-              this.connect(n);
-              break;
-            }
-          }
-
-          if(n==undefined){
-            for(var i=0;i<wires.length-1;i++){
-              if(wires[i].checkConvergence(this)){
-                  wires[i].converge(this);
-               }
-            }
-          }
-
+          this.nodeConnect();
           return updated;
 				}
 
@@ -1077,6 +1071,9 @@ function Node(x,y,type,parent){
 
       if(this.clicked&&this.type==2)simulationArea.lastSelected=this;
       return updated;
+
+
+
   }
   this.delete=function(){
 		toBeUpdated=true;
@@ -1096,7 +1093,27 @@ function Node(x,y,type,parent){
 		if(distance(this.absX(),this.absY(),simulationArea.mouseX,simulationArea.mouseY)<=this.radius*1.5)return true;
 		return false;
   }
+  this.nodeConnect = function(){
+    var x=this.absX();
+    var y=this.absY();
+    var n;
+    for(var i=0;i<allNodes.length;i++){
+      if(this!=allNodes[i]&&x==allNodes[i].absX()&&y==allNodes[i].absY()){
+        n=allNodes[i];
+        this.connect(n);
+        break;
+      }
+    }
 
+    if(n==undefined){
+      for(var i=0;i<wires.length-1;i++){
+        if(wires[i].checkConvergence(this)){
+            wires[i].converge(this);
+         }
+      }
+    }
+
+  }
 }
 
 function Button(x, y, radius) {
