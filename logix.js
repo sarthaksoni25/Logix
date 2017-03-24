@@ -19,7 +19,7 @@ var root={
   element:new Element(0,0,"root")
 }
 function setup() {
-  toBeUpdated=false;
+  toBeUpdated=true;
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
   inputs=[];
@@ -609,6 +609,7 @@ function Input(x,y){
 		this.output1.delete();
 		simulationArea.lastSelected=undefined;
 		inputs.clean(this);
+
 	}
 }
 
@@ -966,8 +967,28 @@ function Node(x,y,type,parent){
 					this.count=0;
       }
       if(this.wasClicked&&!this.clicked){
+
         this.wasClicked=false;
         if(simulationArea.mouseDownX==this.absX()&&simulationArea.mouseDownY==this.absY()){
+          var x=this.absX();
+          var y=this.absY();
+          var n;
+          for(var i=0;i<allNodes.length;i++){
+            if(this!=allNodes[i]&&x==allNodes[i].absX()&&y==allNodes[i].absY()){
+              n=allNodes[i];
+              this.connect(n);
+              break;
+            }
+          }
+
+          if(n==undefined){
+            for(var i=0;i<wires.length-1;i++){
+              if(wires[i].checkConvergence(this)){
+                  wires[i].converge(this);
+               }
+            }
+          }
+
           return updated;
 				}
 
