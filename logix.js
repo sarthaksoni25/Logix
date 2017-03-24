@@ -179,6 +179,7 @@ var simulationArea = {
         })
         window.addEventListener('mousedown', function(e) {
 					  simulationArea.lastSelected=undefined;
+					  simulationArea.selected=false;
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left)*scale;
             simulationArea.mouseDownY = (e.clientY - rect.top)*scale;
@@ -324,6 +325,13 @@ function AndGate(x,y){
     if(this.element.b.hover)
       console.log(this.id);
   }
+  this.delete=function(){
+		this.output1.delete();
+    this.inp1.delete();
+    this.inp2.delete();
+		simulationArea.lastSelected=undefined;
+		andGates.clean(this);
+	}
 }
 
 function SevenSegDisplay(x, y){
@@ -406,6 +414,17 @@ function SevenSegDisplay(x, y){
     this.g.draw();
     this.dot.draw();
   }
+  this.delete=function(){
+		this.a.delete();
+    this.b.delete();
+    this.c.delete();
+    this.d.delete();
+    this.e.delete();
+    this.f.delete();
+    this.g.delete();
+		simulationArea.lastSelected=undefined;
+		sevenseg.clean(this);
+	}
 }
 
 function OrGate(x,y){
@@ -458,6 +477,13 @@ function OrGate(x,y){
     if(this.element.b.isHover())
       console.log(this.id);
   }
+  this.delete=function(){
+		this.output1.delete();
+    this.inp1.delete();
+    this.inp2.delete();
+		simulationArea.lastSelected=undefined;
+		orGates.clean(this);
+	}
 }
 
 function NotGate(x,y){
@@ -509,6 +535,13 @@ function NotGate(x,y){
     if(this.element.b.isHover())
       console.log(this.id);
   }
+  this.delete=function(){
+		this.output1.delete();
+    this.inp1.delete();
+		simulationArea.lastSelected=undefined;
+		notGates.clean(this);
+	}
+
 }
 
 function Input(x,y){
@@ -626,6 +659,11 @@ function Ground(x,y){
     if(this.element.b.hover)
       console.log(this.id);
   }
+  this.delete=function(){
+		this.output1.delete();
+		simulationArea.lastSelected=undefined;
+		grounds.clean(this);
+	}
 }
 
 function Power(x,y){
@@ -678,6 +716,11 @@ function Power(x,y){
     if(this.element.b.hover)
       console.log(this.id);
   }
+  this.delete=function(){
+		this.output1.delete();
+		simulationArea.lastSelected=undefined;
+		powers.clean(this);
+	}
 }
 
 function Output(x,y){
@@ -733,6 +776,11 @@ function Output(x,y){
     this.element.draw();
     this.inp1.draw();
   }
+  this.delete=function(){
+		this.inp1.delete();
+		simulationArea.lastSelected=undefined;
+		outputs.clean(this);
+	}
 }
 
 function Element(x,y,type,r,parent){
