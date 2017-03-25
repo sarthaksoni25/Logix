@@ -47,8 +47,10 @@ function resetup(){
 
 function play(){
   console.log("simulatoin");
+
   for(var i=0;i<allNodes.length;i++)
     if(allNodes[i].parent.element.type!="input")allNodes[i].reset();
+
   for(var i=0;i<inputs.length;i++){
     simulationArea.stack.push(inputs[i]);
   }
@@ -1384,9 +1386,15 @@ function Node(x,y,type,parent){
     }
 
     if(n==undefined){
-      for(var i=0;i<wires.length-1;i++){
+      for(var i=0;i<wires.length;i++){
         if(wires[i].checkConvergence(this)){
-            wires[i].converge(this);
+            var n=this;
+            if(this.type!=2){
+              n=new Node(this.absX(),this.absY(),2,root);
+              this.connect(n);
+            }
+            wires[i].converge(n);
+            break;
          }
       }
     }
