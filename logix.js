@@ -26,6 +26,8 @@ function setup() {
   grounds=[];
   andGates=[];
   sevenseg=[];
+  clocks=[];
+  flipflops=[];
   orGates=[];
   notGates=[];
   outputs=[];
@@ -33,7 +35,7 @@ function setup() {
   allNodes=[];
   wires=[];
   powers=[];
-  objects=[wires,inputs,grounds,powers,andGates,sevenseg,orGates,notGates,outputs,nodes];
+  objects=[wires,inputs,clocks,flipflops,grounds,powers,andGates,sevenseg,orGates,notGates,outputs,nodes];
   simulationArea.setup();
 }
 
@@ -56,13 +58,18 @@ function play(){
   for(var i=0;i<powers.length;i++){
     simulationArea.stack.push(powers[i]);
   }
+  for(var i=0;i<clocks.length;i++){
+    simulationArea.stack.push(clocks[i]);
+  }
+  for(var i=0;i<outputs.length;i++){
+    simulationArea.stack.push(outputs[i]);
+  }
   while(simulationArea.stack.length){
     var elem=simulationArea.stack.pop();
    	elem.resolve();
   }
 
 }
-
 
 function Wire(node1,node2){
   this.node1=node1;
@@ -157,6 +164,7 @@ var simulationArea = {
     canvas: document.getElementById("simulationArea"),
     selected: false,
     hover: false,
+    clockState:0,
 		lastSelected:undefined,
     stack:[],
     setup: function() {
@@ -164,6 +172,7 @@ var simulationArea = {
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
         this.interval = setInterval(update, 50);
+        this.ClockInterval=setInterval(clockTick,2000);
         // this.interval = setInterval(play, 300);
         window.addEventListener('mousemove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -224,6 +233,14 @@ var simulationArea = {
     }
 }
 
+function clockTick(){
+  for(var i=0;i<clocks.length;i++)
+    clocks[i].toggleState();
+  if(clocks.length){
+  play();
+}
+}
+
 function update() {
   // play();
 
@@ -248,7 +265,6 @@ function update() {
 
 
 }
-
 
 function dots(scale){
   var canvasWidth = simulationArea.canvas.width;
@@ -677,6 +693,204 @@ function Input(x,y){
 	}
 }
 
+function FlipFlop(x,y){
+  this.id='FlipFlip'+uniqueIdCounter;
+  uniqueIdCounter++;
+  this.element=new Element(x,y,"FlipFlip",40,this);
+  this.clockInp=new Node(-20,-10,0,this);
+  this.dInp=new Node(-20,+10,0,this);
+  this.qOutput=new Node(20,-10,1,this);
+  this.masterState=0;
+  this.slaveState=0;
+  this.prevClockState=0;
+  flipflops.push(this);
+  this.wasClicked=false;
+
+  this.isResolvable=function(){
+
+    // if(this.clockInp.value==-1)return false;
+    // if(this.clockInp.value==0 && this.dInp.value!=this.masterState)return true;
+    // if(this.clockInp.value==1 &&)return true;
+    // return false;
+    return true;
+    // if(this.clockInp.value!=-1){
+    //   if(this.clockInp.value==0&&this.dInp.value!=-1)return true;
+    //   if(this.clockInp.value==1)return true;
+    //   return false;
+    // }
+    // return false;
+  }
+  this.resolve=function(){
+    if(this.clockInp.value==this.prevClockState){
+      if(this.clockInp.value==0 && this.dInp.value!=-1){
+        this.masterState=this.dInp.value;
+      }
+    }
+    else if(this.clockInp.value!=-1) {
+      if(this.clockInp.value==1 ){
+        this.slaveState=this.masterState;
+      }
+      else if(this.clockInp.value==0&& this.dInp.value!=-1){
+        this.masterState=this.dInp.value;
+      }
+      this.prevClockState=this.clockInp.value;
+    }
+
+    if(this.qOutput.value!=this.slaveState){
+  		this.qOutput.value=this.slaveState;
+      this.qOutput.resolve();
+      console.log("hit",this.slaveState);
+    }
+  }
+
+  this.update=function(){
+		var updated=false;
+    updated|=this.dInp.update();
+    updated|=this.clockInp.update();
+    updated|=this.qOutput.update();
+    updated|=this.element.update();
+
+    if(simulationArea.mouseDown==false)
+		this.wasClicked=false;
+
+		if(simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked){
+    	// this.toggleState();
+    	this.wasClicked=true;
+    	}
+
+
+    if(this.element.b.hover)
+      console.log(this.id);
+		return updated;
+
+  }
+	this.draw=function(){
+
+		ctx = simulationArea.context;
+		ctx.beginPath();
+		ctx.strokeStyle = ("rgba(0,0,0,1)");
+    ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+		ctx.lineWidth=3*scale;
+		var xx=this.element.x;
+		var yy=this.element.y;
+		ctx.rect(xx-20,yy-20,40,40);
+    ctx.moveTo(xx-20,yy-15);
+    ctx.lineTo(xx-15,yy-10);
+    ctx.lineTo(xx-20,yy-5);
+
+    if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
+		ctx.stroke();
+
+    ctx.beginPath();
+		ctx.font="20px Georgia";
+    ctx.fillStyle="green";
+    ctx.fillText(this.slaveState.toString(),xx-5,yy+5);
+    ctx.stroke();
+
+		this.dInp.draw();
+		this.qOutput.draw();
+    this.clockInp.draw();
+
+	}
+	this.delete=function(){
+    this.dInp.delete();
+		this.qOutput.delete();
+    this.clockInp.delete();
+		simulationArea.lastSelected=undefined;
+		flipflops.clean(this);
+
+	}
+}
+
+function Clock(x,y,f){
+  this.id='clock'+uniqueIdCounter;
+  this.f=f;
+  this.timeInterval=1000/f;
+  uniqueIdCounter++;
+  this.element=new Element(x,y,"clock",15,this);
+  this.output1=new Node(10,0,1,this);
+  this.state=0;
+  this.output1.value=this.state;
+  clocks.push(this);
+  this.wasClicked=false;
+  this.interval=null;
+
+  this.resolve=function(){
+		this.output1.value=this.state;
+    this.output1.resolve();
+  }
+
+  this.toggleState=function(){
+    this.state=(this.state+1)%2;
+    this.output1.value=this.state;
+  }
+  this.update=function(){
+		var updated=false;
+    updated|=this.output1.update();
+    updated|=this.element.update();
+
+    if(simulationArea.mouseDown==false)
+		this.wasClicked=false;
+
+		if(simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked){
+    	this.toggleState();
+    	this.wasClicked=true;
+    	}
+
+    if(this.element.b.hover)
+      console.log(this.id);
+		return updated;
+
+  }
+	this.draw=function(){
+
+		ctx = simulationArea.context;
+		ctx.beginPath();
+		ctx.strokeStyle = ("rgba(0,0,0,1)");
+    ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+		ctx.lineWidth=3*scale;
+		var xx=this.element.x;
+		var yy=this.element.y;
+		ctx.rect(xx-10,yy-10,20,20);
+    if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
+		ctx.stroke();
+
+    ctx.beginPath();
+		// ctx.font="20px Georgia";
+    // ctx.fillStyle="green";
+    // ctx.fillText(this.state.toString(),xx-5,yy+5);
+    ctx.strokeStyle = ["DarkGreen","Lime"][this.state];
+		ctx.lineWidth=2*scale;
+    if(this.state==0){
+    ctx.moveTo(xx-6,yy);
+    ctx.lineTo(xx-6,yy+6);
+    ctx.lineTo(xx,yy+6);
+    ctx.lineTo(xx,yy-6);
+    ctx.lineTo(xx+6,yy-6);
+    ctx.lineTo(xx+6,yy);
+
+  }
+    else{
+      ctx.moveTo(xx-6,yy);
+      ctx.lineTo(xx-6,yy-6);
+      ctx.lineTo(xx,yy-6);
+      ctx.lineTo(xx,yy+6);
+      ctx.lineTo(xx+6,yy+6);
+      ctx.lineTo(xx+6,yy);
+    }ctx.stroke();
+
+		this.element.draw();
+    this.output1.draw();
+
+	}
+	this.delete=function(){
+		this.output1.delete();
+		simulationArea.lastSelected=undefined;
+		clocks.clean(this);
+
+	}
+}
+
 function Ground(x,y){
   this.id='ground'+uniqueIdCounter;
   uniqueIdCounter++;
@@ -820,7 +1034,7 @@ function Output(x,y){
 
     ctx = simulationArea.context;
     ctx.strokeStyle = ("rgba(0,0,0,1)");
-    ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+    ctx.fillStyle = "rgba(255, 255, 32,0.6)";
     ctx.lineWidth=3*scale;
     ctx.beginPath();
     var xx=this.element.x;
@@ -921,7 +1135,7 @@ function Node(x,y,type,parent){
     }
 		else if(this.type==1 || this.type==2){
       for(var i=0;i<this.connections.length;i++){
-        if(this.connections[i].value==-1){
+        if(this.connections[i].value!=this.value){
         this.connections[i].value=this.value;
         simulationArea.stack.push(this.connections[i]);
       }
@@ -1239,7 +1453,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 function addAnd(){
-  var a=new AndGate(200,150,5);
+  var a=new AndGate(200,150,2);
 }
 function addPower(){
   var p=new Power(200,150);
@@ -1248,7 +1462,7 @@ function addGround(){
   var g=new Ground(200,150);
 }
 function addOr(){
-  var or=new OrGate(200,150,3);
+  var or=new OrGate(200,150,2);
 }
 function addNot(){
   var npt=new NotGate(200,150);
@@ -1258,6 +1472,12 @@ function addInput(){
 }
 function addOutput(){
   var a=new Output(200,150);
+}
+function addFlipflop(){
+  var a=new FlipFlop(200,150);
+}
+function addClock(){
+  var a=new Clock(200,150,2);
 }
 function addSevenSeg(){
   var a=new SevenSegDisplay(400,150);
@@ -1290,4 +1510,6 @@ document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);
+document.getElementById("clockButton").addEventListener("click", addClock);
+document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
