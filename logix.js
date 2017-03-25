@@ -270,32 +270,60 @@ function dots(scale){
 
 }
 
-function AndGate(x,y){
+function AndGate(x,y,inputs){
   this.id='and'+uniqueIdCounter;
   uniqueIdCounter++;
   this.element=new Element(x,y,"and",25,this);
-  this.inp1=new Node(-10,-10,0,this);
-  this.inp2=new Node(-10,+10,0,this);
+  this.inp=[];
+  if(inputs%2==1){
+    for(var i=0;i<inputs/2-1;i++){
+      var a=new Node(-10,-10*(i+1),0,this);
+      this.inp.push(a);
+    }
+    var a=new Node(-10,0,0,this);
+    this.inp.push(a);
+    for(var i=inputs/2+1;i<inputs;i++){
+      var a=new Node(-10,10*(i+1-inputs/2-1),0,this);
+      this.inp.push(a);
+    }
+  }
+  else{
+    for(var i=0;i<inputs/2;i++){
+      var a=new Node(-10,-10*(i+1),0,this);
+      this.inp.push(a);
+    }
+    for(var i=inputs/2;i<inputs;i++){
+      var a=new Node(-10,10*(i+1-inputs/2),0,this);
+      this.inp.push(a);
+    }
+  }
   this.output1=new Node(20,0,1,this);
   andGates.push(this);
   this.isResolvable=function(){
-    return this.inp1.value!=-1 && this.inp2.value!=-1;
+    var res1=true;
+    for(var i=0;i<inputs;i++)
+      res1=res1&&(this.inp[i].value!=-1);
+    return res1;
   }
 
   this.resolve=function(){
+    var result=true;
     if(this.isResolvable()==false){
       return;
     }
-    this.output1.value=this.inp1.value&this.inp2.value;
+    for(var i=0;i<inputs;i++)
+      result=result&&(this.inp[i].value);
+    this.output1.value=result;
     simulationArea.stack.push(this.output1);
   }
   this.update=function(){
     var updated=false;
+    for(var j=0;j<inputs;j++){
+      updated|=this.inp[j].update();
+    }
     updated|=this.output1.update();
-    updated|=this.inp1.update();
-    updated|=this.inp2.update();
     updated|=this.element.update();
-    return updated;
+     return updated;
   }
 
   this.draw=function(){
@@ -318,8 +346,9 @@ function AndGate(x,y){
     ctx.stroke();
     // this.element.update();
 
-    this.inp1.draw();
-    this.inp2.draw();
+    for(var i=0;i<inputs;i++)
+      this.inp[i].draw();
+
     this.output1.draw();
 
     if(this.element.b.hover)
@@ -327,14 +356,15 @@ function AndGate(x,y){
   }
   this.delete=function(){
 		this.output1.delete();
-    this.inp1.delete();
-    this.inp2.delete();
+    for(var i=0;i<inputs;i++){
+    this.inp[i].delete();
+  }
 		simulationArea.lastSelected=undefined;
 		andGates.clean(this);
 	}
 }
 
-function SevenSegDisplay(x, y){
+function SevenSegDisplay(x, y, inputs){
   this.element=new Element(x,y,"SevenSegmentDisplay",50,this);
   this.g=new Node(-20,-50,0,this);
   this.f=new Node(-10,-50,0,this);
@@ -427,30 +457,62 @@ function SevenSegDisplay(x, y){
 	}
 }
 
-function OrGate(x,y){
+function OrGate(x,y,inputs){
   this.id='or'+uniqueIdCounter;
   uniqueIdCounter++;
   this.element=new Element(x,y,"or",25,this);
-  this.inp1=new Node(-10,-10,0,this);
-  this.inp2=new Node(-10,+10,0,this);
+  this.inp=[];
+  if(inputs%2==1){
+    for(var i=0;i<inputs/2-1;i++){
+      var a=new Node(-10,-10*(i+1),0,this);
+      this.inp.push(a);
+    }
+    var a=new Node(-10,0,0,this);
+    this.inp.push(a);
+    for(var i=inputs/2+1;i<inputs;i++){
+      var a=new Node(-10,10*(i+1-inputs/2-1),0,this);
+      this.inp.push(a);
+    }
+  }
+  else{
+    for(var i=0;i<inputs/2;i++){
+      var a=new Node(-10,-10*(i+1),0,this);
+      this.inp.push(a);
+    }
+    for(var i=inputs/2;i<inputs;i++){
+      var a=new Node(-10,10*(i+1-inputs/2),0,this);
+      this.inp.push(a);
+    }
+  }
   this.output1=new Node(20,0,1,this);
   orGates.push(this);
+
   this.isResolvable=function(){
-    return this.inp1.value!=-1 && this.inp2.value!=-1;
+    var res1=true;
+    for(var i=0;i<inputs;i++)
+      res1=res1&&(this.inp[i].value!=-1);
+
+    return res1;
   }
 
   this.resolve=function(){
+    var result=false;
     if(this.isResolvable()==false){
       return;
     }
-    this.output1.value=this.inp1.value|this.inp2.value;
+
+    for(var i=0;i<inputs;i++)
+      result=result||(this.inp[i].value);
+
+    this.output1.value=result;
     simulationArea.stack.push(this.output1);
   }
 	this.update=function(){
     var updated=false;
     updated|=this.output1.update();
-    updated|=this.inp1.update();
-    updated|=this.inp2.update();
+    for(var j=0;j<inputs;j++){
+      updated|=this.inp[j].update();
+    }
     updated|=this.element.update();
     return updated;
   }
@@ -471,16 +533,18 @@ function OrGate(x,y){
     ctx.closePath();
 		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
     ctx.stroke();
-		this.inp1.draw();
-    this.inp2.draw();
+
+    for(var i=0;i<inputs;i++)
+      this.inp[i].draw();
+
     this.output1.draw();;
     if(this.element.b.isHover())
       console.log(this.id);
   }
   this.delete=function(){
 		this.output1.delete();
-    this.inp1.delete();
-    this.inp2.delete();
+    for(var i=0;i<inputs;i++)
+      this.inp[i].delete();
 		simulationArea.lastSelected=undefined;
 		orGates.clean(this);
 	}
@@ -908,7 +972,7 @@ function Node(x,y,type,parent){
 
   }
   this.update = function() {
-    if(!this.clicked){
+    if(!this.clicked && !simulationArea.mouseDown){
       var px=this.prevx;
       var py=this.prevy;
       this.prevx=this.absX();
@@ -1175,7 +1239,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 function addAnd(){
-  var a=new AndGate(200,150);
+  var a=new AndGate(200,150,5);
 }
 function addPower(){
   var p=new Power(200,150);
@@ -1184,7 +1248,7 @@ function addGround(){
   var g=new Ground(200,150);
 }
 function addOr(){
-  var or=new OrGate(200,150);
+  var or=new OrGate(200,150,3);
 }
 function addNot(){
   var npt=new NotGate(200,150);
