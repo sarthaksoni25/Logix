@@ -896,7 +896,7 @@ function Clock(x,y,f){
 function Ground(x,y){
   this.id='ground'+uniqueIdCounter;
   uniqueIdCounter++;
-  this.element=new Element(x,y,"ground",15,this);
+  this.element=new Element(x,y,"ground",20,this);
   this.output1=new Node(0,-10,1,this);
   this.state=0;
   this.output1.value=this.state;
@@ -920,7 +920,7 @@ function Ground(x,y){
     ctx = simulationArea.context;
 
     ctx.beginPath();
-    ctx.strokeStyle = ["black","brown"][this.element.b.hover];
+    ctx.strokeStyle = ["black","brown"][this.element.b.hover+0];
     ctx.lineWidth=3*scale;
     var xx=this.element.x;
     var yy=this.element.y;
