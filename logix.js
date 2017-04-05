@@ -15,27 +15,36 @@ Array.prototype.clean = function(deleteValue) {
   return this;
 };
 
+function Scope(){
+  this.inputs=[];
+  this.grounds=[];
+  this.andGates=[];
+  this.sevenseg=[];
+  this.clocks=[];
+  this.flipflops=[];
+  this.subCircuits=[];
+  this.orGates=[];
+  this.notGates=[];
+  this.outputs=[];
+  this.nodes=[];//intermediate nodes only
+  this.allNodes=[];
+  this.wires=[];
+  this.powers=[];
+  this.objects=[this.wires,this.inputs,this.clocks,this.flipflops,this.subCircuits,this.grounds,this.powers,this.andGates,this.sevenseg,this.orGates,this.notGates,this.outputs,this.nodes];
+}
+globalScope=new Scope();
+
 var root={
-  element:new Element(0,0,"root")
+  element:new Element(0,0,"root"),
+  scope:globalScope,
+
 }
 function setup() {
   toBeUpdated=true;
   width = window.innerWidth*scale;
   height = window.innerHeight*scale;
-  inputs=[];
-  grounds=[];
-  andGates=[];
-  sevenseg=[];
-  clocks=[];
-  flipflops=[];
-  orGates=[];
-  notGates=[];
-  outputs=[];
-  nodes=[];//intermediate nodes only
-  allNodes=[];
-  wires=[];
-  powers=[];
-  objects=[wires,inputs,clocks,flipflops,grounds,powers,andGates,sevenseg,orGates,notGates,outputs,nodes];
+
+
   simulationArea.setup();
 }
 
@@ -48,23 +57,23 @@ function resetup(){
 function play(){
   console.log("simulatoin");
 
-  for(var i=0;i<allNodes.length;i++)
-    if(allNodes[i].parent.element.type!="input")allNodes[i].reset();
+  for(var i=0;i<globalScope.allNodes.length;i++)
+    if(globalScope.allNodes[i].parent.element.type!="input")globalScope.allNodes[i].reset();
 
-  for(var i=0;i<inputs.length;i++){
-    simulationArea.stack.push(inputs[i]);
+  for(var i=0;i<globalScope.inputs.length;i++){
+    simulationArea.stack.push(globalScope.inputs[i]);
   }
-  for(var i=0;i<grounds.length;i++){
-    simulationArea.stack.push(grounds[i]);
+  for(var i=0;i<globalScope.grounds.length;i++){
+    simulationArea.stack.push(globalScope.grounds[i]);
   }
-  for(var i=0;i<powers.length;i++){
-    simulationArea.stack.push(powers[i]);
+  for(var i=0;i<globalScope.powers.length;i++){
+    simulationArea.stack.push(globalScope.powers[i]);
   }
-  for(var i=0;i<clocks.length;i++){
-    simulationArea.stack.push(clocks[i]);
+  for(var i=0;i<globalScope.clocks.length;i++){
+    simulationArea.stack.push(globalScope.clocks[i]);
   }
-  for(var i=0;i<outputs.length;i++){
-    simulationArea.stack.push(outputs[i]);
+  for(var i=0;i<globalScope.outputs.length;i++){
+    simulationArea.stack.push(globalScope.outputs[i]);
   }
   while(simulationArea.stack.length){
     var elem=simulationArea.stack.pop();
@@ -73,8 +82,9 @@ function play(){
 
 }
 
-function Wire(node1,node2){
+function Wire(node1,node2,scope){
   this.node1=node1;
+  this.scope=scope;
   this.node2=node2;
   this.type="horizontal";
   this.x1=node1.absX();
@@ -82,7 +92,7 @@ function Wire(node1,node2){
   this.x2=node2.absX();
   this.y2=node2.absY();
   if(this.x1==this.x2)this.type="vertical";
-  wires.push(this);
+  this.scope.wires.push(this);
 	this.update=function(){
     var updated=false;
 		if(simulationArea.mouseDown==true && simulationArea.selected==false && this.checkWithin(simulationArea.mouseDownX,simulationArea.mouseDownY)){
@@ -154,7 +164,7 @@ function Wire(node1,node2){
 		toBeUpdated=true;
     this.node1.connections.clean(this.node2);
     this.node2.connections.clean(this.node1);
-    wires.clean(this);
+    this.scope.wires.clean(this);
   }
 }
 
@@ -236,11 +246,11 @@ var simulationArea = {
 }
 
 function clockTick(){
-  for(var i=0;i<clocks.length;i++)
-    clocks[i].toggleState();
-  if(clocks.length){
+  for(var i=0;i<globalScope.clocks.length;i++)
+    globalScope.clocks[i].toggleState();
+  if(globalScope.clocks.length){
   play();
-}
+  }
 }
 
 function update() {
@@ -249,9 +259,9 @@ function update() {
 
      var updated=false;
      simulationArea.hover=false;
-     for(var i=0;i<objects.length;i++)
-        for(var j=0;j<objects[i].length;j++)
-          updated|=objects[i][j].update();
+     for(var i=0;i<globalScope.objects.length;i++)
+        for(var j=0;j<globalScope.objects[i].length;j++)
+          updated|=globalScope.objects[i][j].update();
     toBeUpdated|=updated;
 		// console.log(updated);
 		if(toBeUpdated){
@@ -261,9 +271,9 @@ function update() {
 
 		simulationArea.clear();
 		dots(10);
-		for(var i=0;i<objects.length;i++)
-				for(var j=0;j<objects[i].length;j++)
-				  updated|=objects[i][j].draw();
+		for(var i=0;i<globalScope.objects.length;i++)
+				for(var j=0;j<globalScope.objects[i].length;j++)
+				  updated|=globalScope.objects[i][j].draw();
 
 
 }
@@ -288,7 +298,9 @@ function dots(scale){
 
 }
 
-function AndGate(x,y,inputs){
+function AndGate(x,y,scope,inputs=2){
+  console.log(scope)
+  this.scope=scope;
   this.id='and'+uniqueIdCounter;
   uniqueIdCounter++;
   this.element=new Element(x,y,"and",25,this);
@@ -316,7 +328,7 @@ function AndGate(x,y,inputs){
     }
   }
   this.output1=new Node(20,0,1,this);
-  andGates.push(this);
+  scope.andGates.push(this);
   this.isResolvable=function(){
     var res1=true;
     for(var i=0;i<inputs;i++)
@@ -382,8 +394,98 @@ function AndGate(x,y,inputs){
 	}
 }
 
-function SevenSegDisplay(x, y, inputs){
+function SubCircuit(x,y,scope=globalScope){
+  this.scope=scope;
+  this.localScope=new Scope();
+  this.id='subCircuits'+uniqueIdCounter;
+  uniqueIdCounter++;
+  this.element=new Element(x,y,"subCircuit",35,this);
+  this.scope.subCircuits.push(this);
+  this.inputNodes=[];
+  this.outputNodes=[];
+
+
+  this.buildCircuit=function(){
+    var i1=new Input(0,0,this.localScope);
+    var i2=new Input(0,0,this.localScope);
+    var o1=new Output(0,0,this.localScope);
+    var a1=new AndGate(0,0,this.localScope,2);
+    i1.output1.connect(a1.inp[0]);
+    i2.output1.connect(a1.inp[1]);
+    a1.output1.connect(o1.inp1);
+    this.inputNodes.push(new Node(-30,-10,0,this));
+    this.inputNodes.push(new Node(-30, 10,0,this));
+    this.outputNodes.push(new Node(30, 0,1,this));
+  }
+  this.buildCircuit();
+  this.isResolvable=function(){
+    for(i=0;i<this.inputNodes.length;i++){
+      if(this.inputNodes[i].isResolvable==false)return false;
+    }
+    return true;
+  }
+
+  this.resolve=function(){
+    for(i=0;i<this.localScope.inputs.length;i++){
+      this.localScope.inputs[i].state=this.inputNodes[i].value;
+    }
+    for(i=0;i<this.localScope.inputs.length;i++){
+      this.localScope.inputs[i].resolve();
+    }
+    for(i=0;i<this.localScope.outputs.length;i++){
+      this.outputNodes[i].value=this.localScope.outputs[i].state;
+    }
+    for(i=0;i<this.localScope.outputs.length;i++){
+      this.outputNodes[i].resolve();
+    }
+
+  }
+  this.update=function(){
+    var updated=false;
+    for(var i=0;i<this.inputNodes.length;i++)
+      updated|=this.inputNodes[i].update();
+    for(var i=0;i<this.outputNodes.length;i++)
+      updated|=this.outputNodes[i].update();
+    updated|=this.element.update();
+    return updated;
+  }
+
+  this.draw=function(){
+
+    ctx = simulationArea.context;
+
+    ctx.beginPath();
+		ctx.lineWidth=3*scale;
+		ctx.strokeStyle = "black";//("rgba(0,0,0,1)");
+		ctx.fillStyle = "rgba(255, 255, 32,0.5)";
+    var xx=this.element.x;
+    var yy=this.element.y;
+    ctx.rect(xx-30,yy-20,60,40);
+    ctx.closePath();
+		if(this.element.b.hover||simulationArea.lastSelected==this)ctx.fill();
+    ctx.stroke();
+    // this.element.update();
+
+    for(var i=0;i<this.inputNodes.length;i++)
+      this.inputNodes[i].draw();
+    for(var i=0;i<this.outputNodes.length;i++)
+      this.outputNodes[i].draw();
+    if(this.element.b.hover)
+      console.log(this.id);
+  }
+  this.delete=function(){
+		this.output1.delete();
+    for(var i=0;i<inputs;i++){
+    this.inp[i].delete();
+  }
+		simulationArea.lastSelected=undefined;
+		andGates.clean(this);
+	}
+}
+
+function SevenSegDisplay(x, y, scope=globalScope){
   this.element=new Element(x,y,"SevenSegmentDisplay",50,this);
+  this.scope=scope;
   this.g=new Node(-20,-50,0,this);
   this.f=new Node(-10,-50,0,this);
   this.a=new Node(+10, -50,0,this);
@@ -393,7 +495,8 @@ function SevenSegDisplay(x, y, inputs){
   this.c=new Node(+10,+50,0,this);
   this.dot=new Node(+20,+50,0,this);
 
-  sevenseg.push(this);
+
+  scope.sevenseg.push(this);
 
   this.isResolvable=function(){
     return this.a.value!=-1 && this.b.value!=-1 && this.c.value!=-1 && this.d.value!=-1 && this.e.value!=-1 && this.f.value!=-1 && this.g.value!=-1 && this.dot.value!=-1;
@@ -471,13 +574,14 @@ function SevenSegDisplay(x, y, inputs){
     this.f.delete();
     this.g.delete();
 		simulationArea.lastSelected=undefined;
-		sevenseg.clean(this);
+		scope.sevenseg.clean(this);
 	}
 }
 
-function OrGate(x,y,inputs){
+function OrGate(x,y,scope=globalScope,inputs=2){
   this.id='or'+uniqueIdCounter;
   uniqueIdCounter++;
+  this.scope=scope;
   this.element=new Element(x,y,"or",25,this);
   this.inp=[];
   if(inputs%2==1){
@@ -503,7 +607,7 @@ function OrGate(x,y,inputs){
     }
   }
   this.output1=new Node(20,0,1,this);
-  orGates.push(this);
+  scope.orGates.push(this);
 
   this.isResolvable=function(){
     var res1=true;
@@ -564,17 +668,18 @@ function OrGate(x,y,inputs){
     for(var i=0;i<inputs;i++)
       this.inp[i].delete();
 		simulationArea.lastSelected=undefined;
-		orGates.clean(this);
+		scope.orGates.clean(this);
 	}
 }
 
-function NotGate(x,y){
+function NotGate(x,y,scope=globalScope){
   this.id='not'+uniqueIdCounter;
   uniqueIdCounter++;
+  this.scope=scope;
   this.element=new Element(x,y,"not",15,this);
   this.inp1=new Node(-10,0,0,this);
   this.output1=new Node(20,0,1,this);
-  notGates.push(this);
+  scope.notGates.push(this);
 
   this.isResolvable=function(){
     return this.inp1.value!=-1 ;
@@ -621,24 +726,26 @@ function NotGate(x,y){
 		this.output1.delete();
     this.inp1.delete();
 		simulationArea.lastSelected=undefined;
-		notGates.clean(this);
+		scope.notGates.clean(this);
 	}
 
 }
 
-function Input(x,y){
+function Input(x,y,scope=globalScope){
   this.id='input'+uniqueIdCounter;
   uniqueIdCounter++;
+  this.scope=scope;
   this.element=new Element(x,y,"input",15,this);
   this.output1=new Node(10,0,1,this);
   this.state=0;
   this.output1.value=this.state;
-  inputs.push(this);
+  scope.inputs.push(this);
   this.wasClicked=false;
 
   this.resolve=function(){
 		this.output1.value=this.state;
-    this.output1.resolve();
+    simulationArea.stack.push(this.output1);
+
   }
 
   this.toggleState=function(){
@@ -690,14 +797,15 @@ function Input(x,y){
 	this.delete=function(){
 		this.output1.delete();
 		simulationArea.lastSelected=undefined;
-		inputs.clean(this);
+		scope.inputs.clean(this);
 
 	}
 }
 
-function FlipFlop(x,y){
+function FlipFlop(x,y,scope=globalScope){
   this.id='FlipFlip'+uniqueIdCounter;
   uniqueIdCounter++;
+  this.scope=scope;
   this.element=new Element(x,y,"FlipFlip",40,this);
   this.clockInp=new Node(-20,-10,0,this);
   this.dInp=new Node(-20,+10,0,this);
@@ -705,22 +813,11 @@ function FlipFlop(x,y){
   this.masterState=0;
   this.slaveState=0;
   this.prevClockState=0;
-  flipflops.push(this);
+  scope.flipflops.push(this);
   this.wasClicked=false;
 
   this.isResolvable=function(){
-
-    // if(this.clockInp.value==-1)return false;
-    // if(this.clockInp.value==0 && this.dInp.value!=this.masterState)return true;
-    // if(this.clockInp.value==1 &&)return true;
-    // return false;
     return true;
-    // if(this.clockInp.value!=-1){
-    //   if(this.clockInp.value==0&&this.dInp.value!=-1)return true;
-    //   if(this.clockInp.value==1)return true;
-    //   return false;
-    // }
-    // return false;
   }
   this.resolve=function(){
     if(this.clockInp.value==this.prevClockState){
@@ -740,7 +837,7 @@ function FlipFlop(x,y){
 
     if(this.qOutput.value!=this.slaveState){
   		this.qOutput.value=this.slaveState;
-      this.qOutput.resolve();
+      simulationArea.stack.push(this.qOutput);
       console.log("hit",this.slaveState);
     }
   }
@@ -799,27 +896,28 @@ function FlipFlop(x,y){
 		this.qOutput.delete();
     this.clockInp.delete();
 		simulationArea.lastSelected=undefined;
-		flipflops.clean(this);
+		scope.flipflops.clean(this);
 
 	}
 }
 
-function Clock(x,y,f){
+function Clock(x,y,f,scope=globalScope){
   this.id='clock'+uniqueIdCounter;
   this.f=f;
+  this.scope=scope;
   this.timeInterval=1000/f;
   uniqueIdCounter++;
   this.element=new Element(x,y,"clock",15,this);
   this.output1=new Node(10,0,1,this);
   this.state=0;
   this.output1.value=this.state;
-  clocks.push(this);
+  scope.clocks.push(this);
   this.wasClicked=false;
   this.interval=null;
 
   this.resolve=function(){
 		this.output1.value=this.state;
-    this.output1.resolve();
+    simulationArea.stack.push(this.output1);
   }
 
   this.toggleState=function(){
@@ -888,24 +986,27 @@ function Clock(x,y,f){
 	this.delete=function(){
 		this.output1.delete();
 		simulationArea.lastSelected=undefined;
-		clocks.clean(this);
+		scope.clocks.clean(this);
 
 	}
 }
 
-function Ground(x,y){
+function Ground(x,y,scope=globalScope){
   this.id='ground'+uniqueIdCounter;
   uniqueIdCounter++;
+  this.scope=scope;
   this.element=new Element(x,y,"ground",20,this);
   this.output1=new Node(0,-10,1,this);
   this.state=0;
+
   this.output1.value=this.state;
-  grounds.push(this);
+  scope.grounds.push(this);
   console.log(this);
   this.wasClicked=false;
   this.resolve=function(){
   	this.output1.value=this.state;
-    this.output1.resolve();
+    simulationArea.stack.push(this.output1);
+
   }
 
   this.update=function(){
@@ -943,23 +1044,25 @@ function Ground(x,y){
   this.delete=function(){
 		this.output1.delete();
 		simulationArea.lastSelected=undefined;
-		grounds.clean(this);
+		scope.grounds.clean(this);
 	}
 }
 
-function Power(x,y){
+function Power(x,y,scope=globalScope){
   this.id='power'+uniqueIdCounter;
+  this.scope=scope;
   uniqueIdCounter++;
   this.element=new Element(x,y,"power",15,this);
   this.output1=new Node(0,20,1,this);
   this.state=1;
+
   this.output1.value=this.state;
-  powers.push(this);
+  scope.powers.push(this);
   this.wasClicked=false;
 
   this.resolve=function(){
   	this.output1.value=this.state;
-    this.output1.resolve();
+    simulationArea.stack.push(this.output1);
   }
 
 	this.update=function(){
@@ -1000,19 +1103,19 @@ function Power(x,y){
   this.delete=function(){
 		this.output1.delete();
 		simulationArea.lastSelected=undefined;
-		powers.clean(this);
+		scope.powers.clean(this);
 	}
 }
 
-function Output(x,y){
-
+function Output(x,y,scope=globalScope){
+  this.scope=scope;
   this.id='output'+uniqueIdCounter;
   uniqueIdCounter++;
   this.element=new Element(x,y,"output",15,this);
   this.inp1=new Node(-10,0,0,this);
   this.state=-1;
   this.inp1.value=this.state;
-  outputs.push(this);
+  this.scope.outputs.push(this);
 
   this.resolve=function(){
   	this.state=this.inp1.value;
@@ -1060,7 +1163,7 @@ function Output(x,y){
   this.delete=function(){
 		this.inp1.delete();
 		simulationArea.lastSelected=undefined;
-		outputs.clean(this);
+		this.scope.outputs.clean(this);
 	}
 }
 
@@ -1104,8 +1207,8 @@ function Node(x,y,type,parent){
   this.wasClicked=false;
   this.prev='a';
   this.count=0;
-  if(this.type==2)nodes.push(this);
-  allNodes.push(this);
+  if(this.type==2)this.parent.scope.nodes.push(this);
+  parent.scope.allNodes.push(this);
 
   this.absX=function(){
     return this.x+this.parent.element.x;
@@ -1121,7 +1224,7 @@ function Node(x,y,type,parent){
   }
 
   this.connect=function(n){
-    var w=new Wire(this,n);
+    var w=new Wire(this,n,this.parent.scope);
     this.connections.push(n);
     n.connections.push(this);
   }
@@ -1281,9 +1384,9 @@ function Node(x,y,type,parent){
         }
 				if(this.type=='a')return; // this should never happen!!
 
-        for(var i=0;i<allNodes.length;i++){
-          if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
-            n=allNodes[i];
+        for(var i=0;i<this.parent.scope.allNodes.length;i++){
+          if(x==this.parent.scope.allNodes[i].absX()&&y==this.parent.scope.allNodes[i].absY()){
+            n=this.parent.scope.allNodes[i];
             this.connect(n);
             break;
           }
@@ -1292,9 +1395,9 @@ function Node(x,y,type,parent){
         if(n==undefined){
           n=new Node(x,y,2,root);
 					this.connect(n);
-          for(var i=0;i<wires.length-1;i++){
-            if(wires[i].checkConvergence(n)){
-                wires[i].converge(n);
+          for(var i=0;i<this.parent.scope.wires.length-1;i++){
+            if(this.parent.scope.wires[i].checkConvergence(n)){
+                this.parent.scope.wires[i].converge(n);
              }
           }
         }
@@ -1310,9 +1413,9 @@ function Node(x,y,type,parent){
           flag=2;
         }
         if(flag==2){
-        for(var i=0;i<allNodes.length;i++){
-          if(x==allNodes[i].absX()&&y==allNodes[i].absY()){
-            n1=allNodes[i];
+        for(var i=0;i<this.parent.scope.allNodes.length;i++){
+          if(x==this.parent.scope.allNodes[i].absX()&&y==this.parent.scope.allNodes[i].absY()){
+            n1=this.parent.scope.allNodes[i];
             n.connect(n1);
             break;
           }
@@ -1320,9 +1423,9 @@ function Node(x,y,type,parent){
         if(n1==undefined){
           n1=new Node(x,y,2,root);
           n.connect(n1);
-          for(var i=0;i<wires.length-1;i++){
-            if(wires[i].checkConvergence(n1)){
-                wires[i].converge(n1);
+          for(var i=0;i<this.parent.scope.wires.length;i++){
+            if(this.parent.scope.wires[i].checkConvergence(n1)){
+                this.parent.scope.wires[i].converge(n1);
              }
           }
         }
@@ -1358,8 +1461,8 @@ function Node(x,y,type,parent){
   this.delete=function(){
 		toBeUpdated=true;
     this.deleted=true;
-    allNodes.clean(this);
-    nodes.clean(this);
+    this.parent.scope.allNodes.clean(this);
+    this.parent.scope.nodes.clean(this);
 		if(simulationArea.lastSelected==this)simulationArea.lastSelected=undefined;
     for(var i=0;i<this.connections.length;i++){
       this.connections[i].connections.clean(this);
@@ -1377,23 +1480,23 @@ function Node(x,y,type,parent){
     var x=this.absX();
     var y=this.absY();
     var n;
-    for(var i=0;i<allNodes.length;i++){
-      if(this!=allNodes[i]&&x==allNodes[i].absX()&&y==allNodes[i].absY()){
-        n=allNodes[i];
+    for(var i=0;i<this.parent.scope.allNodes.length;i++){
+      if(this!=this.parent.scope.allNodes[i]&&x==this.parent.scope.allNodes[i].absX()&&y==this.parent.scope.allNodes[i].absY()){
+        n=this.parent.scope.allNodes[i];
         this.connect(n);
         break;
       }
     }
 
     if(n==undefined){
-      for(var i=0;i<wires.length;i++){
-        if(wires[i].checkConvergence(this)){
+      for(var i=0;i<this.parent.scope.wires.length;i++){
+        if(this.parent.scope.wires[i].checkConvergence(this)){
             var n=this;
             if(this.type!=2){
               n=new Node(this.absX(),this.absY(),2,root);
               this.connect(n);
             }
-            wires[i].converge(n);
+            this.parent.scope.wires[i].converge(n);
             break;
          }
       }
@@ -1461,7 +1564,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 function addAnd(){
-  var a=new AndGate(200,150,2);
+  var a=new AndGate(200,150,globalScope,2);
 }
 function addPower(){
   var p=new Power(200,150);
@@ -1470,7 +1573,7 @@ function addGround(){
   var g=new Ground(200,150);
 }
 function addOr(){
-  var or=new OrGate(200,150,2);
+  var or=new OrGate(200,150);
 }
 function addNot(){
   var npt=new NotGate(200,150);
@@ -1489,6 +1592,9 @@ function addClock(){
 }
 function addSevenSeg(){
   var a=new SevenSegDisplay(400,150);
+}
+function addSubCircuit(){
+  var a=new SubCircuit(400,150);
 }
 
 function drawLine(ctx,x1,y1,x2,y2,color,width){
@@ -1521,3 +1627,4 @@ document.getElementById("outputButton").addEventListener("click", addOutput);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
+document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
