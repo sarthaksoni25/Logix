@@ -16,6 +16,7 @@ Array.prototype.clean = function(deleteValue) {
 };
 
 function Scope(){
+  this.stack=[];
   this.inputs=[];
   this.grounds=[];
   this.andGates=[];
@@ -55,28 +56,28 @@ function resetup(){
 }
 
 function play(){
-  console.log("simulatoin");
+  console.log("simulation");
 
   for(var i=0;i<globalScope.allNodes.length;i++)
-    if(globalScope.allNodes[i].parent.element.type!="input")globalScope.allNodes[i].reset();
+    globalScope.allNodes[i].reset();
 
   for(var i=0;i<globalScope.inputs.length;i++){
-    simulationArea.stack.push(globalScope.inputs[i]);
+    globalScope.stack.push(globalScope.inputs[i]);
   }
   for(var i=0;i<globalScope.grounds.length;i++){
-    simulationArea.stack.push(globalScope.grounds[i]);
+    globalScope.stack.push(globalScope.grounds[i]);
   }
   for(var i=0;i<globalScope.powers.length;i++){
-    simulationArea.stack.push(globalScope.powers[i]);
+    globalScope.stack.push(globalScope.powers[i]);
   }
   for(var i=0;i<globalScope.clocks.length;i++){
-    simulationArea.stack.push(globalScope.clocks[i]);
+    globalScope.stack.push(globalScope.clocks[i]);
   }
   for(var i=0;i<globalScope.outputs.length;i++){
-    simulationArea.stack.push(globalScope.outputs[i]);
+    globalScope.stack.push(globalScope.outputs[i]);
   }
-  while(simulationArea.stack.length){
-    var elem=simulationArea.stack.pop();
+  while(globalScope.stack.length){
+    var elem=globalScope.stack.pop();
    	elem.resolve();
   }
 
@@ -344,7 +345,7 @@ function AndGate(x,y,scope,inputs=2){
     for(var i=0;i<inputs;i++)
       result=result&&(this.inp[i].value);
     this.output1.value=result;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
   }
   this.update=function(){
     var updated=false;
@@ -426,17 +427,22 @@ function SubCircuit(x,y,scope=globalScope){
   }
 
   this.resolve=function(){
+    // console.log("HOT");
     for(i=0;i<this.localScope.inputs.length;i++){
       this.localScope.inputs[i].state=this.inputNodes[i].value;
     }
     for(i=0;i<this.localScope.inputs.length;i++){
-      this.localScope.inputs[i].resolve();
+      this.localScope.stack.push(this.localScope.inputs[i]);
+    }
+    while(this.localScope.stack.length){
+      var e=this.localScope.stack.pop();
+      e.resolve();
     }
     for(i=0;i<this.localScope.outputs.length;i++){
       this.outputNodes[i].value=this.localScope.outputs[i].state;
     }
     for(i=0;i<this.localScope.outputs.length;i++){
-      this.outputNodes[i].resolve();
+      this.scope.stack.push(this.outputNodes[i]);
     }
 
   }
@@ -627,7 +633,7 @@ function OrGate(x,y,scope=globalScope,inputs=2){
       result=result||(this.inp[i].value);
 
     this.output1.value=result;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
   }
 	this.update=function(){
     var updated=false;
@@ -690,7 +696,7 @@ function NotGate(x,y,scope=globalScope){
       return;
     }
     this.output1.value=(this.inp1.value+1)%2;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
   }
 	this.update=function(){
 		var updated=false;
@@ -744,7 +750,7 @@ function Input(x,y,scope=globalScope){
 
   this.resolve=function(){
 		this.output1.value=this.state;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
 
   }
 
@@ -837,7 +843,7 @@ function FlipFlop(x,y,scope=globalScope){
 
     if(this.qOutput.value!=this.slaveState){
   		this.qOutput.value=this.slaveState;
-      simulationArea.stack.push(this.qOutput);
+      this.scope.stack.push(this.qOutput);
       console.log("hit",this.slaveState);
     }
   }
@@ -917,7 +923,7 @@ function Clock(x,y,f,scope=globalScope){
 
   this.resolve=function(){
 		this.output1.value=this.state;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
   }
 
   this.toggleState=function(){
@@ -1005,7 +1011,7 @@ function Ground(x,y,scope=globalScope){
   this.wasClicked=false;
   this.resolve=function(){
   	this.output1.value=this.state;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
 
   }
 
@@ -1062,7 +1068,7 @@ function Power(x,y,scope=globalScope){
 
   this.resolve=function(){
   	this.output1.value=this.state;
-    simulationArea.stack.push(this.output1);
+    this.scope.stack.push(this.output1);
   }
 
 	this.update=function(){
@@ -1205,6 +1211,7 @@ function Node(x,y,type,parent){
   this.clicked=false;
 	this.hover=false;
   this.wasClicked=false;
+  this.scope=this.parent.scope;
   this.prev='a';
   this.count=0;
   if(this.type==2)this.parent.scope.nodes.push(this);
@@ -1236,13 +1243,13 @@ function Node(x,y,type,parent){
 
     else if(this.type==0){
       if(this.parent.isResolvable())
-        simulationArea.stack.push(this.parent);
+        this.scope.stack.push(this.parent);
     }
 		else if(this.type==1 || this.type==2){
       for(var i=0;i<this.connections.length;i++){
         if(this.connections[i].value!=this.value){
         this.connections[i].value=this.value;
-        simulationArea.stack.push(this.connections[i]);
+        this.scope.stack.push(this.connections[i]);
       }
     }
   }
