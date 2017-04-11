@@ -1,4 +1,3 @@
-data={"inputs":[{"x":250,"y":160,"output1":0},{"x":250,"y":190,"output1":1}],"outputs":[{"x":400,"y":170,"inp1":7},{"x":760,"y":200,"inp1":39}],"allNodes":[{"x":10,"y":0,"type":1,"connections":[8]},{"x":10,"y":0,"type":1,"connections":[10]},{"x":300,"y":190,"type":2,"connections":[6,10]},{"x":-10,"y":-10,"type":0,"connections":[16]},{"x":-10,"y":10,"type":0,"connections":[6]},{"x":20,"y":0,"type":1,"connections":[7]},{"x":300,"y":180,"type":2,"connections":[2,4]},{"x":-10,"y":0,"type":0,"connections":[5]},{"x":280,"y":160,"type":2,"connections":[0,9,16]},{"x":280,"y":220,"type":2,"connections":[8,12]},{"x":290,"y":190,"type":2,"connections":[1,2,11]},{"x":290,"y":250,"type":2,"connections":[10,14,25]},{"x":-10,"y":0,"type":0,"connections":[9]},{"x":20,"y":0,"type":1,"connections":[29]},{"x":-10,"y":0,"type":0,"connections":[11]},{"x":20,"y":0,"type":1,"connections":[19]},{"x":300,"y":160,"type":2,"connections":[3,8,17]},{"x":300,"y":130,"type":2,"connections":[16,18]},{"x":450,"y":130,"type":2,"connections":[17,24]},{"x":460,"y":250,"type":2,"connections":[15,20]},{"x":460,"y":190,"type":2,"connections":[19,22]},{"x":-10,"y":-10,"type":0,"connections":[24]},{"x":-10,"y":10,"type":0,"connections":[20]},{"x":20,"y":0,"type":1,"connections":[36]},{"x":450,"y":170,"type":2,"connections":[18,21]},{"x":290,"y":290,"type":2,"connections":[11,26]},{"x":520,"y":290,"type":2,"connections":[25,27]},{"x":520,"y":250,"type":2,"connections":[26,28]},{"x":530,"y":250,"type":2,"connections":[27,32]},{"x":-10,"y":-10,"type":0,"connections":[13]},{"x":-10,"y":10,"type":0,"connections":[32]},{"x":20,"y":0,"type":1,"connections":[37]},{"x":530,"y":240,"type":2,"connections":[28,30]},{"x":-10,"y":-10,"type":0,"connections":[36]},{"x":-10,"y":10,"type":0,"connections":[38]},{"x":20,"y":0,"type":1,"connections":[39]},{"x":600,"y":190,"type":2,"connections":[33,23]},{"x":680,"y":230,"type":2,"connections":[31,38]},{"x":680,"y":210,"type":2,"connections":[34,37]},{"x":-10,"y":0,"type":0,"connections":[35]}],"andGates":[{"x":340,"y":170,"inputs":2,"inp":[3,4],"output1":5},{"x":580,"y":180,"inputs":2,"inp":[21,22],"output1":23},{"x":580,"y":230,"inputs":2,"inp":[29,30],"output1":31}],"orGates":[{"x":710,"y":200,"inputs":2,"inp":[33,34],"output1":35}],"notGates":[{"x":330,"y":220,"output1":13,"inp1":12},{"x":330,"y":250,"output1":15,"inp1":14}],"sevenseg":[],"grounds":[],"powers":[],"nodes":[2,6,8,9,10,11,16,17,18,19,20,24,25,26,27,28,32,36,37,38]};
 
 scale = 1;
 var b1;
@@ -549,15 +548,17 @@ function AndGate(x, y, scope, inputs = 2) {
     }
 }
 
-function loadSubCircuit(data, scope) {
-    var v = new SubCircuit(data["x"], data["y"], scope, data["dataHash"]);
-    for (var i = 0; i < v.inputNodes.length; i++) v.inputNodes[i] = replace(v.inputNodes[i], data["inputNodes"][i]);
-    for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
+function loadSubCircuit(savedData, scope) {
+    var v = new SubCircuit(savedData["x"], savedData["y"], scope, savedData);
+    // for (var i = 0; i < v.inputNodes.length; i++) v.inputNodes[i] = replace(v.inputNodes[i], data["inputNodes"][i]);
+    // for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
 }
 
 
-function SubCircuit(x, y, scope = globalScope, dataHash = undefined) {
+function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
 
+
+    this.savedData=savedData;
     this.scope = scope;
     this.localScope = new Scope();
     this.id = 'subCircuits' + uniqueIdCounter;
@@ -569,16 +570,28 @@ function SubCircuit(x, y, scope = globalScope, dataHash = undefined) {
     this.width = 0;
     this.height = 0;
     // this.deleted=false;
-    this.dataHash = dataHash;
-    if (this.dataHash == undefined) {
+    if(savedData!=undefined)
+        this.dataHash = savedData["dataHash"];
+    else
         this.dataHash = prompt("Enter Hash: ");
-    }
+
     var http = new XMLHttpRequest();
     http.open("POST", "./index.php", true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     var params = "retrieve=" + this.dataHash; // probably use document.getElementById(...).value
     http.send(params);
-    http.parent=this;
+    http.parent = this;
+    if(this.savedData!=undefined){
+
+        for(var i=0;i<this.savedData["inputNodes"].length;i++){
+            this.inputNodes.push(this.scope.allNodes[this.savedData["inputNodes"][i]]);
+            this.inputNodes[i].parent=this;
+        }
+        for(var i=0;i<this.savedData["outputNodes"].length;i++){
+            this.outputNodes.push(this.scope.allNodes[this.savedData["outputNodes"][i]]);
+            this.outputNodes[i].parent=this;
+        }
+    }
     http.onload = function() {
         console.log(this.parent);
         if (http.responseText == "ERROR") {
@@ -591,11 +604,11 @@ function SubCircuit(x, y, scope = globalScope, dataHash = undefined) {
         }
     }
 
-    this.saveObject=function(){
+    this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            dataHash:this.dataHash,
+            dataHash: this.dataHash,
             inputNodes: this.inputNodes.map(findNodes),
             outputNodes: this.outputNodes.map(findNodes),
         }
@@ -606,53 +619,52 @@ function SubCircuit(x, y, scope = globalScope, dataHash = undefined) {
         this.width = 60;
         this.height = (Math.max(this.localScope.inputs.length, this.localScope.outputs.length) + 2) * 10;
 
-        if (this.localScope.inputs.length % 2 == 1) {
-            for (var i = this.localScope.inputs.length / 2 - 2; i >= 0; i--) {
-                var a = new Node(-30, -10 * (i + 1), 0, this);
+
+        if(this.savedData==undefined){
+            if (this.localScope.inputs.length % 2 == 1) {
+                for (var i = this.localScope.inputs.length / 2 - 2; i >= 0; i--) {
+                    var a = new Node(-30, -10 * (i + 1), 0, this);
+                    this.inputNodes.push(a);
+                }
+                var a = new Node(-30, 0, 0, this);
                 this.inputNodes.push(a);
+                for (var i = this.localScope.inputs.length / 2 + 1; i < this.localScope.inputs.length; i++) {
+                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1), 0, this);
+                    this.inputNodes.push(a);
+                }
+            } else {
+                for (var i = 0; i < this.localScope.inputs.length / 2; i++) {
+                    var a = new Node(-30, -10 * (i + 1), 0, this);
+                    this.inputNodes.push(a);
+                }
+                for (var i = this.localScope.inputs.length / 2; i < this.localScope.inputs.length; i++) {
+                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length / 2), 0, this);
+                    this.inputNodes.push(a);
+                }
             }
-            var a = new Node(-30, 0, 0, this);
-            this.inputNodes.push(a);
-            for (var i = this.localScope.inputs.length / 2 + 1; i < this.localScope.inputs.length; i++) {
-                var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1), 0, this);
-                this.inputNodes.push(a);
-            }
-        } else {
-            for (var i = 0; i < this.localScope.inputs.length / 2; i++) {
-                var a = new Node(-30, -10 * (i + 1), 0, this);
-                this.inputNodes.push(a);
-            }
-            for (var i = this.localScope.inputs.length / 2; i < this.localScope.inputs.length; i++) {
-                var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length / 2), 0, this);
-                this.inputNodes.push(a);
-            }
-        }
-        if (this.localScope.outputs.length % 2 == 1) {
-            for (var i = this.localScope.outputs.length / 2 - 2; i >= 0; i--) {
-                var a = new Node(30, -10 * (i + 1), 1, this);
+            if (this.localScope.outputs.length % 2 == 1) {
+                for (var i = this.localScope.outputs.length / 2 - 2; i >= 0; i--) {
+                    var a = new Node(30, -10 * (i + 1), 1, this);
+                    this.outputNodes.push(a);
+                }
+                var a = new Node(30, 0, 1, this);
                 this.outputNodes.push(a);
-            }
-            var a = new Node(30, 0, 1, this);
-            this.outputNodes.push(a);
-            for (var i = this.localScope.outputs.length / 2 + 1; i < this.localScope.outputs.length; i++) {
-                var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this);
-                this.outputNodes.push(a);
-            }
-        } else {
-            for (var i = 0; i < this.localScope.outputs.length / 2; i++) {
-                var a = new Node(30, -10 * (i + 1), 1, this);
-                this.outputNodes.push(a);
-            }
-            for (var i = this.localScope.outputs.length / 2; i < this.localScope.outputs.length; i++) {
-                var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length / 2), 1, this);
-                this.outputNodes.push(a);
+                for (var i = this.localScope.outputs.length / 2 + 1; i < this.localScope.outputs.length; i++) {
+                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this);
+                    this.outputNodes.push(a);
+                }
+            } else {
+                for (var i = 0; i < this.localScope.outputs.length / 2; i++) {
+                    var a = new Node(30, -10 * (i + 1), 1, this);
+                    this.outputNodes.push(a);
+                }
+                for (var i = this.localScope.outputs.length / 2; i < this.localScope.outputs.length; i++) {
+                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length / 2), 1, this);
+                    this.outputNodes.push(a);
+                }
             }
         }
 
-        //
-        // this.inputNodes.push(new Node(-30,-10,0,this));
-        // this.inputNodes.push(new Node(-30, 10,0,this));
-        // this.outputNodes.push(new Node(30, 0,1,this));
     }
     this.isResolvable = function() {
         for (i = 0; i < this.inputNodes.length; i++) {
@@ -671,13 +683,8 @@ function SubCircuit(x, y, scope = globalScope, dataHash = undefined) {
         }
         while (this.localScope.stack.length) {
             var el = this.localScope.stack.pop();
+            el.resolve();
 
-            try {
-                el.resolve();
-                }
-                catch (e) {
-                    console.log(el);
-    }
         }
         for (i = 0; i < this.localScope.outputs.length; i++) {
             this.outputNodes[i].value = this.localScope.outputs[i].state;
@@ -1599,8 +1606,8 @@ function Node(x, y, type, parent) {
 
     this.prevx = this.absX();
     this.prevy = this.absY();
-    this.isResolvable=function(){
-        return this.value!=-1;
+    this.isResolvable = function() {
+        return this.value != -1;
     }
     this.reset = function() {
         this.value = -1;
@@ -1998,3 +2005,4 @@ document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
+document.getElementById("saveButton").addEventListener("click", Save);
