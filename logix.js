@@ -285,7 +285,6 @@ function Wire(node1, node2, scope) {
 
 window.onresize = resetup;
 
-
 window.addEventListener('orientationchange', resetup);
 
 var simulationArea = {
@@ -536,7 +535,7 @@ function AndGate(x, y, scope, inputs = 2) {
         this.output1.draw();
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -570,9 +569,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
     this.width = 0;
     this.height = 0;
     // this.deleted=false;
-    if(savedData!=undefined)
-        this.dataHash = savedData["dataHash"];
-    else
+    if(savedData==undefined)
         this.dataHash = prompt("Enter Hash: ");
 
     var http = new XMLHttpRequest();
@@ -581,8 +578,11 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
     var params = "retrieve=" + this.dataHash; // probably use document.getElementById(...).value
     http.send(params);
     http.parent = this;
+    
     if(this.savedData!=undefined){
-
+        this.height=savedData["height"];
+        this.height=savedData["width"];
+        this.dataHash = savedData["dataHash"];
         for(var i=0;i<this.savedData["inputNodes"].length;i++){
             this.inputNodes.push(this.scope.allNodes[this.savedData["inputNodes"][i]]);
             this.inputNodes[i].parent=this;
@@ -609,6 +609,8 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
             x: this.element.x,
             y: this.element.y,
             dataHash: this.dataHash,
+            height:this.height,
+            width:this.width,
             inputNodes: this.inputNodes.map(findNodes),
             outputNodes: this.outputNodes.map(findNodes),
         }
@@ -616,20 +618,21 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
     }
     this.buildCircuit = function() {
         load(this.localScope, this.data);
+        toBeUpdated=true;
         this.width = 60;
-        this.height = (Math.max(this.localScope.inputs.length, this.localScope.outputs.length) + 2) * 10;
-
+        this.height = Math.floor((Math.max(this.localScope.inputs.length, this.localScope.outputs.length) + 2)/2)*20;
 
         if(this.savedData==undefined){
             if (this.localScope.inputs.length % 2 == 1) {
-                for (var i = this.localScope.inputs.length / 2 - 2; i >= 0; i--) {
+                for (var i = this.localScope.inputs.length / 2 - 1.5; i >= 0; i--) {
+                    console.log(i);
                     var a = new Node(-30, -10 * (i + 1), 0, this);
                     this.inputNodes.push(a);
                 }
                 var a = new Node(-30, 0, 0, this);
                 this.inputNodes.push(a);
-                for (var i = this.localScope.inputs.length / 2 + 1; i < this.localScope.inputs.length; i++) {
-                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1), 0, this);
+                for (var i = this.localScope.inputs.length / 2+.5; i < this.localScope.inputs.length; i++) {
+                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1.5), 0, this);
                     this.inputNodes.push(a);
                 }
             } else {
@@ -643,7 +646,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
                 }
             }
             if (this.localScope.outputs.length % 2 == 1) {
-                for (var i = this.localScope.outputs.length / 2 - 2; i >= 0; i--) {
+                for (var i = this.localScope.outputs.length / 2 - 1; i >= 0; i--) {
                     var a = new Node(30, -10 * (i + 1), 1, this);
                     this.outputNodes.push(a);
                 }
@@ -725,7 +728,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
         for (var i = 0; i < this.outputNodes.length; i++)
             this.outputNodes[i].draw();
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.scope.subCircuits.clean(this);
@@ -958,7 +961,7 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
 
         this.output1.draw();;
         if (this.element.b.isHover())
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1033,7 +1036,7 @@ function NotGate(x, y, scope = globalScope) {
         this.inp1.draw();
         this.output1.draw();
         if (this.element.b.isHover())
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1095,7 +1098,7 @@ function Input(x, y, scope = globalScope) {
 
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
         return updated;
 
     }
@@ -1185,7 +1188,7 @@ function FlipFlop(x, y, scope = globalScope) {
 
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
         return updated;
 
     }
@@ -1264,7 +1267,7 @@ function Clock(x, y, f, scope = globalScope) {
         }
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
         return updated;
 
     }
@@ -1377,7 +1380,7 @@ function Ground(x, y, scope = globalScope) {
         this.output1.draw();
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1448,7 +1451,7 @@ function Power(x, y, scope = globalScope) {
         this.element.draw();
         this.output1.draw();
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1496,7 +1499,7 @@ function Output(x, y, scope = globalScope) {
         updated |= this.element.update();
 
         if (this.element.b.hover)
-            console.log(this.id);
+            console.log(this,this.id);
         return updated;
     }
     this.draw = function() {
@@ -1634,7 +1637,7 @@ function Node(x, y, type, parent) {
     }
     this.draw = function() {
         if (this.isHover())
-            console.log(this.id);
+            console.log(this,this.id);
         var ctx = simulationArea.context;
 
         if (this.clicked) {
