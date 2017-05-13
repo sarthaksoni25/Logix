@@ -314,6 +314,18 @@ var simulationArea = {
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
                 simulationArea.lastSelected.delete();
             }
+            if(e.keyCode==37&&simulationArea.lastSelected!=undefined){
+							newDirection(simulationArea.lastSelected,'right');
+						}
+            if(e.keyCode==38&&simulationArea.lastSelected!=undefined){
+							newDirection(simulationArea.lastSelected,'down');
+						}
+            if(e.keyCode==39&&simulationArea.lastSelected!=undefined){
+							newDirection(simulationArea.lastSelected,'left');
+						}
+            if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
+						 newDirection(simulationArea.lastSelected,'up');
+						}
         })
         window.addEventListener('mousedown', function(e) {
             simulationArea.lastSelected = undefined;
@@ -441,32 +453,37 @@ function loadAnd(data, scope) {
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
-function AndGate(x, y, scope, inputs = 2) {
+function AndGate(list) {
+    this.func=AndGate;
+    [x, y, scope, inputLength, dir] = list;
     console.log(scope)
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
     uniqueIdCounter++;
     this.element = new Element(x, y, "and", 25, this);
     this.inp = [];
-    this.inputs = inputs;
-    if (inputs % 2 == 1) {
-        for (var i = 0; i < inputs / 2 - 1; i++) {
+    this.direction=dir;
+    this.list=list;
+
+    this.inputs = inputLength;
+    if (inputLength % 2 == 1) {
+        for (var i = 0; i < inputLength / 2 - 1; i++) {
             var a = new Node(-10, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
         var a = new Node(-10, 0, 0, this);
         this.inp.push(a);
-        for (var i = inputs / 2 + 1; i < inputs; i++) {
-            var a = new Node(-10, 10 * (i + 1 - inputs / 2 - 1), 0, this);
+        for (var i = inputLength / 2 + 1; i < inputLength; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputLength / 2 - 1), 0, this);
             this.inp.push(a);
         }
     } else {
-        for (var i = 0; i < inputs / 2; i++) {
+        for (var i = 0; i < inputLength / 2; i++) {
             var a = new Node(-10, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
-        for (var i = inputs / 2; i < inputs; i++) {
-            var a = new Node(-10, 10 * (i + 1 - inputs / 2), 0, this);
+        for (var i = inputLength / 2; i < inputLength; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputLength / 2), 0, this);
             this.inp.push(a);
         }
     }
@@ -485,7 +502,7 @@ function AndGate(x, y, scope, inputs = 2) {
     }
     this.isResolvable = function() {
         var res1 = true;
-        for (var i = 0; i < inputs; i++)
+        for (var i = 0; i < inputLength; i++)
             res1 = res1 && (this.inp[i].value != -1);
         return res1;
     }
@@ -495,14 +512,14 @@ function AndGate(x, y, scope, inputs = 2) {
         if (this.isResolvable() == false) {
             return;
         }
-        for (var i = 0; i < inputs; i++)
+        for (var i = 0; i < inputLength; i++)
             result = result && (this.inp[i].value);
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
     this.update = function() {
         var updated = false;
-        for (var j = 0; j < inputs; j++) {
+        for (var j = 0; j < inputLength; j++) {
             updated |= this.inp[j].update();
         }
         updated |= this.output1.update();
@@ -520,17 +537,19 @@ function AndGate(x, y, scope, inputs = 2) {
         ctx.fillStyle = "rgba(255, 255, 32,0.5)";
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.moveTo(xx - 10, yy - 20);
-        ctx.lineTo(xx, yy - 20);
-        ctx.arc(xx, yy, 20, -Math.PI / 2, Math.PI / 2);
-        ctx.lineTo(xx - 10, yy + 20);
-        ctx.lineTo(xx - 10, yy - 20);
+
+        moveTo(ctx,xx,yy,0,0,-10,-20,this.direction,scale);
+        lineTo(ctx,xx,yy,0,0,0,-20,this.direction,scale);
+        arc(ctx,xx,yy,0,0,20,(-Math.PI/2),(Math.PI/2),this.direction,scale,0,0);
+        lineTo(ctx,xx,yy,0,0,-10,20,this.direction,scale);
+        lineTo(ctx,xx,yy,0,0,-10,-20,this.direction,scale);
         ctx.closePath();
+
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
         // this.element.update();
 
-        for (var i = 0; i < inputs; i++)
+        for (var i = 0; i < inputLength; i++)
             this.inp[i].draw();
 
         this.output1.draw();
@@ -540,7 +559,7 @@ function AndGate(x, y, scope, inputs = 2) {
     }
     this.delete = function() {
         this.output1.delete();
-        for (var i = 0; i < inputs; i++) {
+        for (var i = 0; i < inputLength; i++) {
             this.inp[i].delete();
         }
         simulationArea.lastSelected = undefined;
@@ -975,11 +994,15 @@ function loadNot(data, scope) {
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function NotGate(x, y, scope = globalScope) {
+function NotGate(list) {
+    this.func=NotGate;
+    [x, y, scope, dir]=list;
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "not", 15, this);
+    this.direction=dir;
+    this.list=list;
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     scope.notGates.push(this);
@@ -1023,10 +1046,10 @@ function NotGate(x, y, scope = globalScope) {
         var yy = this.element.y;
         ctx.beginPath();
         ctx.fillStyle = "rgba(255, 255, 32,1)";
-        ctx.moveTo(xx - 10, yy - 10);
-        ctx.lineTo(xx + 10, yy);
-        ctx.arc(xx + 15, yy, 5, -Math.PI, Math.PI);
-        ctx.lineTo(xx - 10, yy + 10);
+        moveTo(ctx,xx,yy,0,0,-10,-10,this.direction,scale);
+        lineTo(ctx,xx,yy,0,0,10,0,this.direction,scale);
+        arc(ctx,xx,yy,0,0,5,2*(Math.PI),0,this.direction,scale,15,0);
+        lineTo(ctx,xx,yy,0,0,-10,10,this.direction,scale);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1050,10 +1073,14 @@ function loadInput(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Input(x, y, scope = globalScope) {
+function Input(list) {
+    this.func=Input;
+    [x, y, scope, dir] = list;
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
+    this.list=list;
+    this.direction=dir;
     this.element = new Element(x, y, "input", 15, this);
     this.output1 = new Node(10, 0, 1, this);
     this.state = 0;
@@ -1108,7 +1135,8 @@ function Input(x, y, scope = globalScope) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.rect(xx - 10, yy - 10, 20, 20);
+
+        rect(ctx,0,0,xx-10,yy-10,20,20,scale);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1130,7 +1158,11 @@ function Input(x, y, scope = globalScope) {
     }
 }
 
-function FlipFlop(x, y, scope = globalScope) {
+function FlipFlop(list) {
+    this.func = FlipFlop;
+    [x, y, scope, dir] = list;
+    this.direction = dir;
+    this.list = list;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -1198,10 +1230,11 @@ function FlipFlop(x, y, scope = globalScope) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.rect(xx - 20, yy - 20, 40, 40);
-        ctx.moveTo(xx - 20, yy - 15);
-        ctx.lineTo(xx - 15, yy - 10);
-        ctx.lineTo(xx - 20, yy - 5);
+        rect(ctx,0,0,xx - 20, yy - 20, 40, 40);
+        moveTo(ctx,xx,yy,0,0,-20,-15,this.direction,scale);
+        lineTo(ctx,xx,yy,0,0,-15,-10,this.direction,scale);
+        lineTo(ctx,xx,yy,0,0,-20,-5,this.direction,scale);
+
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1227,7 +1260,11 @@ function FlipFlop(x, y, scope = globalScope) {
     }
 }
 
-function Clock(x, y, f, scope = globalScope) {
+function Clock(list) {
+    [x, y, f, scope , dir] = list;
+    this.func = Clock;
+    this.direction=dir;
+    this.list=list;
     this.id = 'clock' + uniqueIdCounter;
     this.f = f;
     this.scope = scope;
@@ -1277,7 +1314,7 @@ function Clock(x, y, f, scope = globalScope) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.rect(xx - 10, yy - 10, 20, 20);
+        rect(ctx,0,0,xx - 10, yy - 10, 20, 20);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1323,6 +1360,7 @@ function loadGround(data, scope) {
 }
 
 function Ground(x, y, scope = globalScope) {
+
     this.id = 'ground' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -1361,16 +1399,18 @@ function Ground(x, y, scope = globalScope) {
         ctx.beginPath();
         ctx.strokeStyle = ["black", "brown"][this.element.b.hover + 0];
         ctx.lineWidth = 3 * scale;
+        var ox=0;
+        var oy=0;
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.moveTo(xx, yy - 10);
-        ctx.lineTo(xx, yy);
-        ctx.moveTo(xx - 10, yy);
-        ctx.lineTo(xx + 10, yy);
-        ctx.moveTo(xx - 6, yy + 5);
-        ctx.lineTo(xx + 6, yy + 5);
-        ctx.moveTo(xx - 2.5, yy + 10);
-        ctx.lineTo(xx + 2.5, yy + 10);
+        ctx.moveTo(xx+ ox, yy +oy - 10);
+        ctx.lineTo(xx+ ox, yy +oy);
+        ctx.moveTo(xx+ ox - 10, yy +oy);
+        ctx.lineTo(xx+ ox + 10, yy +oy);
+        ctx.moveTo(xx+ ox - 6, yy +oy + 5);
+        ctx.lineTo(xx+ ox + 6, yy +oy + 5);
+        ctx.moveTo(xx+ ox - 2.5, yy +oy + 10);
+        ctx.lineTo(xx+ ox + 2.5, yy +oy + 10);
         ctx.stroke();
 
         this.element.draw();
@@ -1463,12 +1503,16 @@ function loadOutput(data, scope) {
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function Output(x, y, scope = globalScope) {
+function Output(list) {
+    this.func=Output;
+    [x, y, scope, dir] = list;
     this.scope = scope;
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
+    this.list=list;
+    this.direction=dir;
     this.element = new Element(x, y, "output", 15, this);
-    this.inp1 = new Node(-10, 0, 0, this);
+    this.inp1 = new Node(10, 0, 0, this);
     this.state = -1;
     this.inp1.value = this.state;
     this.scope.outputs.push(this);
@@ -1569,8 +1613,20 @@ function Node(x, y, type, parent) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
-    this.x = x;
-    this.y = y;
+
+    this.leftx=x*scale;
+    this.lefty=y*scale;
+
+    if(type!=2){
+      [X,Y]=rotate(this.leftx,this.lefty,this.parent.direction);
+      this.x=X;
+      this.y=Y;
+    }
+    else{
+      this.x=x;
+      this.y=y;
+    }
+
     this.type = type;
     this.connections = new Array();
     this.value = -1;
@@ -1657,12 +1713,12 @@ function Node(x, y, type, parent) {
         }
 
         if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
-            ctx.strokeStyle = "green";
-            ctx.beginPath();
-            ctx.lineWidth = 3 * scale;
-            ctx.arc(this.x + this.parent.element.x, this.y + this.parent.element.y, 8, 0, Math.PI * 2, false);
-            ctx.closePath();
-            ctx.stroke();
+          ctx.strokeStyle ="green";
+          ctx.beginPath();
+          ctx.lineWidth= 3 * scale;
+          ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 8, 0, Math.PI * 2, false);
+          ctx.closePath();
+          ctx.stroke();
         }
 
 
@@ -1932,7 +1988,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 function addAnd() {
-    var a = new AndGate(200, 150, globalScope, 2);
+    var a = new AndGate([200, 150, globalScope, 2, 'left']);
 }
 
 function addPower() {
@@ -1948,23 +2004,23 @@ function addOr() {
 }
 
 function addNot() {
-    var npt = new NotGate(200, 150);
+    var npt = new NotGate([200, 150, globalScope, 'left']);
 }
 
 function addInput() {
-    var a = new Input(200, 150);
+    var a = new Input([200, 150, globalScope, 'left']);
 }
 
 function addOutput() {
-    var a = new Output(200, 150);
+    var a = new Output([200, 150, globalScope, 'left']);
 }
 
 function addFlipflop() {
-    var a = new FlipFlop(200, 150);
+    var a = new FlipFlop([200, 150, globalScope, 'left']);
 }
 
 function addClock() {
-    var a = new Clock(200, 150, 2);
+    var a = new Clock([200, 150, 2, globalScope, 'left']);
 }
 
 function addSevenSeg() {
@@ -1975,7 +2031,70 @@ function addSubCircuit() {
     var a = new SubCircuit(400, 150);
 }
 
+
+function moveTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
+  [newX,newY]=rotate(x1,y1,dir);
+  newX = newX*scale;
+  newY = newY*scale;
+  ctx.moveTo(xx+ox+newX,yy+oy+newY);
+}
+function lineTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
+  [newX,newY]=rotate(x1,y1,dir);
+  newX = newX*scale;
+  newY = newY*scale;
+  ctx.lineTo(xx+ox+newX,yy+oy+newY);
+}
+function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x of origin, xx- x of element , sx - shift in x from element
+
+  [Sx,Sy]= rotate(sx,sy,dir);
+  Sx = Sx*scale;
+  Sy = Sy*scale;
+  [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
+  ctx.arc(xx+ox+Sx,yy+oy+Sy,radius,newStart,newStop,counterClock);
+}
+function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
+  x1 = x1*scale;
+  y1 = y1*scale;
+  x2 = x2*scale;
+  y2 = y2*scale;
+  ctx.rect(ox + x1, oy + y1, ox + x2, oy + y2);
+}
+function newDirection(obj,dir){
+  var newFunction=obj.func;
+  obj.list.pop();
+  obj.list.push(dir);
+  obj.list[0]=obj.element.x;
+  obj.list[1]=obj.element.y;
+  var b= new newFunction(obj.list);
+  obj.delete();
+  simulationArea.lastSelected=b;
+}
+function rotate(x1,y1,dir){
+  if(dir=='right')
+    return [-x1,y1];
+  else if(dir=='up')
+    return [y1,x1];
+  else if(dir=='down')
+    return [y1,-x1];
+  else
+    return [x1,y1];
+}
+function rotateAngle(start,stop,dir){
+  if(dir=='right')
+    return [start,stop,true];
+  else if(dir=='up')
+    return [start-Math.PI/2,stop-Math.PI/2,true];
+  else if(dir=='down')
+    return [start-Math.PI/2,stop-Math.PI/2,false];
+  else
+    return [start,stop,false];
+}
+
 function drawLine(ctx, x1, y1, x2, y2, color, width) {
+    x1*=scale;
+    y1*=scale;
+    x2*=scale;
+    y2*=scale;
     ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineCap = "round";
@@ -1986,7 +2105,7 @@ function drawLine(ctx, x1, y1, x2, y2, color, width) {
 }
 
 function drawCircle(ctx, x1, y1, r, color) {
-
+    r = r*scale;
     ctx.beginPath();
     ctx.fillStyle = color;
     ctx.arc(x1, y1, r, 0, Math.PI * 2, false);
