@@ -1,4 +1,5 @@
-
+ox=100;
+oy=0;
 scale = 1;
 var b1;
 var width;
@@ -538,11 +539,11 @@ function AndGate(list) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        moveTo(ctx,xx,yy,0,0,-10,-20,this.direction,scale);
-        lineTo(ctx,xx,yy,0,0,0,-20,this.direction,scale);
-        arc(ctx,xx,yy,0,0,20,(-Math.PI/2),(Math.PI/2),this.direction,scale,0,0);
-        lineTo(ctx,xx,yy,0,0,-10,20,this.direction,scale);
-        lineTo(ctx,xx,yy,0,0,-10,-20,this.direction,scale);
+        moveTo(ctx,xx,yy,ox,oy,-10,-20,this.direction,scale);
+        lineTo(ctx,xx,yy,ox,oy,0,-20,this.direction,scale);
+        arc(ctx,xx,yy,ox,oy,20,(-Math.PI/2),(Math.PI/2),this.direction,scale,0,0);
+        lineTo(ctx,xx,yy,ox,oy,-10,20,this.direction,scale);
+        lineTo(ctx,xx,yy,ox,oy,-10,-20,this.direction,scale);
         ctx.closePath();
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -808,8 +809,8 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.beginPath();
         ctx.strokeStyle = color;
         ctx.lineWidth = 5 * scale;
-        ctx.moveTo(this.element.x + x1, this.element.y + y1);
-        ctx.lineTo(this.element.x + x2, this.element.y + y2);
+        ctx.moveTo(this.element.x + x1 +ox, this.element.y + y1+oy);
+        ctx.lineTo(this.element.x + x2 +ox, this.element.y + y2+oy);
         ctx.stroke();
     }
 
@@ -835,7 +836,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.beginPath();
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3 * scale;
-        ctx.rect(xx - 30, yy - 50, 60, 100);
+        ctx.rect(xx - 30 +ox, yy - 50+oy, 60, 100);
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1046,10 +1047,10 @@ function NotGate(list) {
         var yy = this.element.y;
         ctx.beginPath();
         ctx.fillStyle = "rgba(255, 255, 32,1)";
-        moveTo(ctx,xx,yy,0,0,-10,-10,this.direction,scale);
-        lineTo(ctx,xx,yy,0,0,10,0,this.direction,scale);
-        arc(ctx,xx,yy,0,0,5,2*(Math.PI),0,this.direction,scale,15,0);
-        lineTo(ctx,xx,yy,0,0,-10,10,this.direction,scale);
+        moveTo(ctx,xx,yy,ox,oy,-10,-10,this.direction,scale);
+        lineTo(ctx,xx,yy,ox,oy,10,0,this.direction,scale);
+        arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
+        lineTo(ctx,xx,yy,ox,oy,-10,10,this.direction,scale);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1133,8 +1134,8 @@ function Input(list) {
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.lineWidth = 3 * scale;
-        var xx = this.element.x;
-        var yy = this.element.y;
+        var xx = this.element.x+ox;
+        var yy = this.element.y+oy;
 
         rect(ctx,0,0,xx-10,yy-10,20,20,scale);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -1230,10 +1231,10 @@ function FlipFlop(list) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x;
         var yy = this.element.y;
-        rect(ctx,0,0,xx - 20, yy - 20, 40, 40);
-        moveTo(ctx,xx,yy,0,0,-20,-15,this.direction,scale);
-        lineTo(ctx,xx,yy,0,0,-15,-10,this.direction,scale);
-        lineTo(ctx,xx,yy,0,0,-20,-5,this.direction,scale);
+        rect(ctx,0,0,xx - 20 +ox, yy - 20+oy, 40, 40,scale);
+        moveTo(ctx,xx,yy,ox,oy,-20,-15,this.direction,scale);
+        lineTo(ctx,xx,yy,ox,oy,-15,-10,this.direction,scale);
+        lineTo(ctx,xx,yy,ox,oy,-20,-5,this.direction,scale);
 
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -1242,7 +1243,7 @@ function FlipFlop(list) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        ctx.fillText(this.slaveState.toString(), xx - 5, yy + 5);
+        ctx.fillText(this.slaveState.toString(), xx - 5 +ox, yy + 5+oy);
         ctx.stroke();
 
         this.dInp.draw();
@@ -1312,9 +1313,9 @@ function Clock(list) {
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.lineWidth = 3 * scale;
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect(ctx,0,0,xx - 10, yy - 10, 20, 20);
+        var xx = this.element.x+ox;
+        var yy = this.element.y+oy;
+        rect(ctx,0,0,xx - 10, yy - 10, 20, 20,scale);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1399,8 +1400,7 @@ function Ground(x, y, scope = globalScope) {
         ctx.beginPath();
         ctx.strokeStyle = ["black", "brown"][this.element.b.hover + 0];
         ctx.lineWidth = 3 * scale;
-        var ox=0;
-        var oy=0;
+
         var xx = this.element.x;
         var yy = this.element.y;
         ctx.moveTo(xx+ ox, yy +oy - 10);
@@ -1473,15 +1473,13 @@ function Power(x, y, scope = globalScope) {
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.lineWidth = 3 * scale;
         ctx.fillStyle = "green";
-        ctx.moveTo(xx, yy);
-        ctx.lineTo(xx - 10, yy + 10);
-        // ctx.moveTo(xx-10, yy+10);
-        ctx.lineTo(xx + 10, yy + 10);
-        // ctx.moveTo(xx+10, yy+10);
-        ctx.lineTo(xx, yy);
+        ctx.moveTo(xx+ox, yy+oy);
+        ctx.lineTo(xx - 10+ox, yy + 10+oy);
+        ctx.lineTo(xx + 10+ox, yy + 10+oy);
+        ctx.lineTo(xx+ox, yy+oy);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
-        ctx.moveTo(xx, yy + 10);
-        ctx.lineTo(xx, yy + 20);
+        ctx.moveTo(xx+ox, yy + 10+oy);
+        ctx.lineTo(xx+ox, yy + 20+oy);
 
         ctx.stroke();
 
@@ -1552,7 +1550,7 @@ function Output(list) {
         ctx.beginPath();
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.arc(xx, yy, 10, 0, 2 * Math.PI);
+        ctx.arc(xx+ox, yy+oy, 10, 0, 2 * Math.PI);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1560,9 +1558,9 @@ function Output(list) {
         ctx.fillStyle = "green";
         ctx.font = "19px Georgia";
         if (this.state == -1)
-            ctx.fillText("x", xx - 5, yy + 5);
+            ctx.fillText("x", xx - 5+ox, yy + 5+oy);
         else
-            ctx.fillText(this.state.toString(), xx - 5, yy + 5);
+            ctx.fillText(this.state.toString(), xx - 5+ox, yy + 5+oy);
         ctx.stroke();
 
         this.element.draw();
@@ -1577,8 +1575,8 @@ function Output(list) {
 
 function Element(x, y, type, r, parent) {
     this.type = type;
-    this.x = x;
-    this.y = y;
+    this.x = x+ox;
+    this.y = y+oy;
     this.b = new Button(x, y, r, "rgba(255,255,255,0)", "rgba(0,0,0,1)");
     this.isResolved = false;
     this.update = function() {
@@ -1619,12 +1617,12 @@ function Node(x, y, type, parent) {
 
     if(type!=2){
       [X,Y]=rotate(this.leftx,this.lefty,this.parent.direction);
-      this.x=X;
-      this.y=Y;
+      this.x=X+ox;
+      this.y=Y+oy;
     }
     else{
-      this.x=x;
-      this.y=y;
+      this.x=x+ox;
+      this.y=y+oy;
     }
 
     this.type = type;
