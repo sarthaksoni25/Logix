@@ -1577,8 +1577,8 @@ function Output(list) {
 
 function Element(x, y, type, r, parent) {
     this.type = type;
-    this.x = x+ox;
-    this.y = y+oy;
+    this.x = x;
+    this.y = y;
     this.b = new Button(x, y, r, "rgba(255,255,255,0)", "rgba(0,0,0,1)");
     this.isResolved = false;
     this.update = function() {
@@ -1931,8 +1931,8 @@ function Node(x, y, type, parent) {
 }
 
 function Button(x, y, radius) {
-    this.x = x;
-    this.y = y;
+    this.x = x+ox;
+    this.y = y+oy;
     this.radius = radius;
     this.clicked = false;
     this.hover = false;
@@ -2108,7 +2108,7 @@ function drawCircle(ctx, x1, y1, r, color) {
     r = r*scale;
     ctx.beginPath();
     ctx.fillStyle = color;
-    ctx.arc(x1, y1, r, 0, Math.PI * 2, false);
+    ctx.arc(x1+simulationArea.ox, y1+simulationArea.oy, r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
 }
