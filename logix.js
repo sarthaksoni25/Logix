@@ -1,6 +1,6 @@
 ox=0;
 oy=0;
-scale = 1;
+// scale = 1;
 var b1;
 var width;
 var height;
@@ -298,6 +298,8 @@ var simulationArea = {
     stack: [],
     ox:0,
     oy:0,
+    oldx:0,
+    oldy:0,
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -310,8 +312,8 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseX = (e.clientX - rect.left) * scale;
             simulationArea.mouseY = (e.clientY - rect.top) * scale;
-            simulationArea.mouseX = Math.round(simulationArea.mouseX / unit) * unit;
-            simulationArea.mouseY = Math.round(simulationArea.mouseY / unit) * unit;
+            simulationArea.mouseX = Math.round(simulationArea.mouseX / unit) * unit- simulationArea.ox;
+            simulationArea.mouseY = Math.round(simulationArea.mouseY / unit) * unit- simulationArea.oy;
         });
         window.addEventListener('keydown', function(e) {
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
@@ -336,9 +338,11 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left) * scale;
             simulationArea.mouseDownY = (e.clientY - rect.top) * scale;
-            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit;
-            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit;
+            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit - simulationArea.ox;
+            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit - simulationArea.oy;
             simulationArea.mouseDown = true;
+            simulationArea.oldx=simulationArea.ox;
+            simulationArea.oldy=simulationArea.oy;
         });
         window.addEventListener('touchstart', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -361,8 +365,8 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left) * scale;
             simulationArea.mouseDownY = (e.clientY - rect.top) * scale;
-            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit;
-            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit;
+            simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit- simulationArea.ox;
+            simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit- simulationArea.oy;
 
             simulationArea.mouseDown = false;
         });
@@ -401,21 +405,38 @@ function update() {
         play();
     }
 
+    if(!simulationArea.selected && simulationArea.mouseDown){
+        simulationArea.selected=true;
+        simulationArea.lastSelected=globalScope.root;
+        simulationArea.hover=true;
+    }else if (simulationArea.lastSelected==globalScope.root && simulationArea.mouseDown){
+        simulationArea.ox=(simulationArea.mouseX+simulationArea.ox)-simulationArea.mouseDownX;
+        simulationArea.oy=(simulationArea.mouseY+simulationArea.oy)-simulationArea.mouseDownY;
+    }
+    else if(simulationArea.lastSelected==globalScope.root){
+        simulationArea.lastSelected=undefined;
+        simulationArea.selected=false;
+        simulationArea.hover=false;
+    }
     simulationArea.clear();
-    dots(10);
+    dots(10*scale);
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
             updated |= globalScope.objects[i][j].draw();
 
 
+
+
 }
 
-function dots(scale) {
+function dots() {
     var canvasWidth = simulationArea.canvas.width;
     var canvasHeight = simulationArea.canvas.height;
     var ctx = simulationArea.context;
     var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-
+    var scale=units*simulationArea.scale;
+    var ox=simulationArea.ox%scale;
+    var oy=simulationArea.oy%scale;
     function drawPixel(x, y, r, g, b, a) {
         var index = (x + y * canvasWidth) * 4;
         canvasData.data[index + 0] = r;
@@ -423,8 +444,9 @@ function dots(scale) {
         canvasData.data[index + 2] = b;
         canvasData.data[index + 3] = a;
     }
-    for (var i = 0; i < canvasWidth; i += scale)
-        for (var j = 0; j < canvasHeight; j += scale)
+
+    for (var i = 0+ox; i < canvasWidth; i += scale)
+        for (var j = 0+oy; j < canvasHeight; j += scale)
             drawPixel(i, j, 0, 0, 0, 255);
 
     ctx.putImageData(canvasData, 0, 0);
@@ -1146,7 +1168,8 @@ function Input(list) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        ctx.fillText(this.state.toString(), xx - 5, yy + 5);
+
+        fillText(ctx,this.state.toString(), xx - 5, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -1245,7 +1268,7 @@ function FlipFlop(list) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        ctx.fillText(this.slaveState.toString(), xx - 5 +ox, yy + 5+oy);
+        fillText(ctx,this.slaveState.toString(), xx - 5 +ox, yy + 5+oy);
         ctx.stroke();
 
         this.dInp.draw();
@@ -1324,7 +1347,7 @@ function Clock(list) {
         ctx.beginPath();
         // ctx.font="20px Georgia";
         // ctx.fillStyle="green";
-        // ctx.fillText(this.state.toString(),xx-5,yy+5);
+        // fillText(this.state.toString(),xx-5,yy+5);
         ctx.strokeStyle = ["DarkGreen", "Lime"][this.state];
         ctx.lineWidth = 2 * scale;
         if (this.state == 0) {
@@ -1560,9 +1583,9 @@ function Output(list) {
         ctx.fillStyle = "green";
         ctx.font = "19px Georgia";
         if (this.state == -1)
-            ctx.fillText("x", xx - 5+ox, yy + 5+oy);
+            fillText(ctx,"x", xx - 5+ox, yy + 5+oy);
         else
-            ctx.fillText(this.state.toString(), xx - 5+ox, yy + 5+oy);
+            fillText(ctx,this.state.toString(), xx - 5+ox, yy + 5+oy);
         ctx.stroke();
 
         this.element.draw();
@@ -1716,9 +1739,10 @@ function Node(x, y, type, parent) {
           ctx.strokeStyle ="green";
           ctx.beginPath();
           ctx.lineWidth= 3 * scale;
-          ctx.arc(this.x+this.parent.element.x, this.y+this.parent.element.y, 8, 0, Math.PI * 2, false);
+          arc(ctx,this.parent.element.x,this.parent.element.y,0,0, 8, 0, Math.PI * 2,"left", 1,this.x, this.y);
           ctx.closePath();
           ctx.stroke();
+        //   console.log("HIT");
         }
 
 
@@ -2050,6 +2074,7 @@ function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x o
   Sx = Sx*scale;
   Sy = Sy*scale;
   [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
+  // console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
 function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
@@ -2057,7 +2082,7 @@ function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
   y1 = y1*scale;
   x2 = x2*scale;
   y2 = y2*scale;
-  ctx.rect(simulationArea.ox + x1, oy + y1, ox + x2, simulationArea.oy + y2);
+  ctx.rect(simulationArea.ox + x1, simulationArea.oy + y1, x2,  y2);
 }
 function newDirection(obj,dir){
   var newFunction=obj.func;
@@ -2099,8 +2124,8 @@ function drawLine(ctx, x1, y1, x2, y2, color, width) {
     ctx.strokeStyle = color;
     ctx.lineCap = "round";
     ctx.lineWidth = width;
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.moveTo(x1+simulationArea.ox, y1+simulationArea.oy);
+    ctx.lineTo(x2+simulationArea.ox, y2+simulationArea.oy);
     ctx.stroke();
 }
 
@@ -2111,6 +2136,9 @@ function drawCircle(ctx, x1, y1, r, color) {
     ctx.arc(x1+simulationArea.ox, y1+simulationArea.oy, r, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.fill();
+}
+function fillText(ctx,str, x1, y1, ) {
+    ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
 }
 
 document.getElementById("powerButton").addEventListener("click", addPower);
