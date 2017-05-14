@@ -1,4 +1,4 @@
-ox=100;
+ox=0;
 oy=0;
 scale = 1;
 var b1;
@@ -55,7 +55,7 @@ function Save() {
 
 function Scope(name = "localScope") {
     this.root = {
-        element: new Element(0, 0, "root"),
+        element: new Element(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
     }
     this.name = name;
@@ -296,6 +296,8 @@ var simulationArea = {
     clockState: 0,
     lastSelected: undefined,
     stack: [],
+    ox:0,
+    oy:0,
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -1134,8 +1136,8 @@ function Input(list) {
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.lineWidth = 3 * scale;
-        var xx = this.element.x+ox;
-        var yy = this.element.y+oy;
+        var xx = this.element.x;
+        var yy = this.element.y;
 
         rect(ctx,0,0,xx-10,yy-10,20,20,scale);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -2034,13 +2036,13 @@ function moveTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*scale;
   newY = newY*scale;
-  ctx.moveTo(xx+ox+newX,yy+oy+newY);
+  ctx.moveTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
 function lineTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*scale;
   newY = newY*scale;
-  ctx.lineTo(xx+ox+newX,yy+oy+newY);
+  ctx.lineTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
 function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x of origin, xx- x of element , sx - shift in x from element
 
@@ -2048,14 +2050,14 @@ function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x o
   Sx = Sx*scale;
   Sy = Sy*scale;
   [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
-  ctx.arc(xx+ox+Sx,yy+oy+Sy,radius,newStart,newStop,counterClock);
+  ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
 function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
   x1 = x1*scale;
   y1 = y1*scale;
   x2 = x2*scale;
   y2 = y2*scale;
-  ctx.rect(ox + x1, oy + y1, ox + x2, oy + y2);
+  ctx.rect(simulationArea.ox + x1, oy + y1, ox + x2, simulationArea.oy + y2);
 }
 function newDirection(obj,dir){
   var newFunction=obj.func;
