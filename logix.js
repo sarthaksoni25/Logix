@@ -1,6 +1,6 @@
 ox=0;
 oy=0;
-// scale = 1;
+scale = 1;
 var b1;
 var width;
 var height;
@@ -145,8 +145,8 @@ function setup() {
     }
 
     toBeUpdated = true;
-    width = window.innerWidth * scale;
-    height = window.innerHeight * scale;
+    width = window.innerWidth ;
+    height = window.innerHeight ;
     // load(globalScope,data);
     simulationArea.setup();
 
@@ -300,6 +300,7 @@ var simulationArea = {
     oy:0,
     oldx:0,
     oldy:0,
+    scale:1,
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -310,8 +311,8 @@ var simulationArea = {
         this.mouseDown = false;
         window.addEventListener('mousemove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseX = (e.clientX - rect.left) * scale;
-            simulationArea.mouseY = (e.clientY - rect.top) * scale;
+            simulationArea.mouseX = (e.clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseY = (e.clientY - rect.top) * simulationArea.scale;
             simulationArea.mouseX = Math.round(simulationArea.mouseX / unit) * unit- simulationArea.ox;
             simulationArea.mouseY = Math.round(simulationArea.mouseY / unit) * unit- simulationArea.oy;
         });
@@ -336,8 +337,8 @@ var simulationArea = {
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDownX = (e.clientX - rect.left) * scale;
-            simulationArea.mouseDownY = (e.clientY - rect.top) * scale;
+            simulationArea.mouseDownX = (e.clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseDownY = (e.clientY - rect.top) * simulationArea.scale;
             simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit - simulationArea.ox;
             simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit - simulationArea.oy;
             simulationArea.mouseDown = true;
@@ -347,10 +348,10 @@ var simulationArea = {
         window.addEventListener('touchstart', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
 
-            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * scale;
-            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * scale;
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * scale;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * scale;
+            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
+            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
             simulationArea.mouseDown = true;
         });
         window.addEventListener('touchend', function(e) {
@@ -363,8 +364,8 @@ var simulationArea = {
         });
         window.addEventListener('mouseup', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDownX = (e.clientX - rect.left) * scale;
-            simulationArea.mouseDownY = (e.clientY - rect.top) * scale;
+            simulationArea.mouseDownX = (e.clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseDownY = (e.clientY - rect.top) * simulationArea.scale;
             simulationArea.mouseDownX = Math.round(simulationArea.mouseDownX / unit) * unit- simulationArea.ox;
             simulationArea.mouseDownY = Math.round(simulationArea.mouseDownY / unit) * unit- simulationArea.oy;
 
@@ -419,7 +420,7 @@ function update() {
         simulationArea.hover=false;
     }
     simulationArea.clear();
-    dots(10*scale);
+    dots();
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
             updated |= globalScope.objects[i][j].draw();
@@ -434,7 +435,8 @@ function dots() {
     var canvasHeight = simulationArea.canvas.height;
     var ctx = simulationArea.context;
     var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
-    var scale=units*simulationArea.scale;
+    var scale=unit*simulationArea.scale;
+    console.log(scale);
     var ox=simulationArea.ox%scale;
     var oy=simulationArea.oy%scale;
     function drawPixel(x, y, r, g, b, a) {
@@ -2056,32 +2058,33 @@ function addSubCircuit() {
 }
 
 
+
 function moveTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   [newX,newY]=rotate(x1,y1,dir);
-  newX = newX*scale;
-  newY = newY*scale;
+  newX = newX*simulationArea.scale;
+  newY = newY*simulationArea.scale;
   ctx.moveTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
 function lineTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   [newX,newY]=rotate(x1,y1,dir);
-  newX = newX*scale;
-  newY = newY*scale;
+  newX = newX*simulationArea.scale;
+  newY = newY*simulationArea.scale;
   ctx.lineTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
 function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x of origin, xx- x of element , sx - shift in x from element
 
   [Sx,Sy]= rotate(sx,sy,dir);
-  Sx = Sx*scale;
-  Sy = Sy*scale;
+  Sx = Sx*simulationArea.scale;
+  Sy = Sy*simulationArea.scale;
   [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
   // console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
 function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
-  x1 = x1*scale;
-  y1 = y1*scale;
-  x2 = x2*scale;
-  y2 = y2*scale;
+  x1 = x1*simulationArea.scale;
+  y1 = y1*simulationArea.scale;
+  x2 = x2*simulationArea.scale;
+  y2 = y2*simulationArea.scale;
   ctx.rect(simulationArea.ox + x1, simulationArea.oy + y1, x2,  y2);
 }
 function newDirection(obj,dir){
@@ -2116,10 +2119,10 @@ function rotateAngle(start,stop,dir){
 }
 
 function drawLine(ctx, x1, y1, x2, y2, color, width) {
-    x1*=scale;
-    y1*=scale;
-    x2*=scale;
-    y2*=scale;
+    x1*=simulationArea.scale;
+    y1*=simulationArea.scale;
+    x2*=simulationArea.scale;
+    y2*=simulationArea.scale;
     ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineCap = "round";
@@ -2130,7 +2133,7 @@ function drawLine(ctx, x1, y1, x2, y2, color, width) {
 }
 
 function drawCircle(ctx, x1, y1, r, color) {
-    r = r*scale;
+    r = r*simulationArea.scale;
     ctx.beginPath();
     ctx.fillStyle = color;
     ctx.arc(x1+simulationArea.ox, y1+simulationArea.oy, r, 0, Math.PI * 2, false);
