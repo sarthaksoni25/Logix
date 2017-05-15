@@ -332,6 +332,12 @@ var simulationArea = {
             if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
 						 newDirection(simulationArea.lastSelected,'up');
 						}
+            if(e.keyCode==73 && simulationArea.scale < 4){
+              simulationArea.scale+=0.5;
+            }
+            if(e.keyCode==79 && simulationArea.scale > 0.5){
+              simulationArea.scale-=0.5;
+            }
         })
         window.addEventListener('mousedown', function(e) {
             simulationArea.lastSelected = undefined;
@@ -1201,7 +1207,7 @@ function FlipFlop(list) {
     this.scope = scope;
     this.element = new Element(x, y, "FlipFlip", 40, this);
     this.clockInp = new Node(-20, -10, 0, this);
-    this.dInp = new Norde(-20, +10, 0, this);
+    this.dInp = new Node(-20, +10, 0, this);
     this.qOutput = new Node(20, -10, 1, this);
     this.masterState = 0;
     this.slaveState = 0;
@@ -2157,6 +2163,7 @@ function drawCircle(ctx, x1, y1, r, color) {
 function fillText(ctx,str, x1, y1 ) {
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
+    ctx.font = 20*simulationArea.scale+"px Georgia";
     ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
 }
 
