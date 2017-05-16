@@ -1114,10 +1114,13 @@ function NotGate(list) {
         ctx.fillStyle = "rgba(255, 255, 32,1)";
         moveTo(ctx,xx,yy,ox,oy,-10,-10,this.direction,scale);
         lineTo(ctx,xx,yy,ox,oy,10,0,this.direction,scale);
-        arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
         lineTo(ctx,xx,yy,ox,oy,-10,10,this.direction,scale);
+        // arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
         ctx.stroke();
         this.inp1.draw();
         this.output1.draw();
