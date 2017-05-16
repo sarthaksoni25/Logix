@@ -598,11 +598,12 @@ function AndGate(list) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        moveTo(ctx,xx,yy,ox,oy,-10,-20,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,0,-20,this.direction,scale);
-        arc(ctx,xx,yy,ox,oy,20,(-Math.PI/2),(Math.PI/2),this.direction,scale,0,0);
-        lineTo(ctx,xx,yy,ox,oy,-10,20,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,-10,-20,this.direction,scale);
+        moveTo(ctx,-10,-20,xx,yy,this.direction);
+        lineTo(ctx,0,-20,xx,yy,this.direction);
+        // ctx.arc(xx, yy, 20, -Math.PI / 2, Math.PI / 2);
+        arc(ctx,0,0,20,(-Math.PI/2),(Math.PI/2),xx,yy,this.direction);
+        lineTo(ctx,-10,20,xx,yy,this.direction);
+        lineTo(ctx,-10,-20,xx,yy,this.direction);
         ctx.closePath();
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -657,7 +658,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
     var params = "retrieve=" + this.dataHash; // probably use document.getElementById(...).value
     http.send(params);
     http.parent = this;
-    
+
     if(this.savedData!=undefined){
         this.height=savedData["height"];
         this.height=savedData["width"];
@@ -875,8 +876,8 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         yy=this.element.y;
         // ctx.moveTo(this.element.x + x1 +ox, this.element.y + y1+oy);
         // ctx.lineTo(this.element.x + x2 +ox, this.element.y + y2+oy);
-        moveTo(ctx,xx,yy,ox,oy,x1,y1,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,x2,y2,this.direction,scale);
+        moveTo(ctx,x1,y1,xx,yy,this.direction);
+        lineTo(ctx,x2,y2,xx,yy,this.direction);
         ctx.stroke();
     }
 
@@ -903,7 +904,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3 * scale;
         // ctx.rect(xx - 30 +ox, yy - 50+oy, 60, 100);
-        rect(ctx,ox,oy,xx - 30, yy - 50, 60, 100,scale)
+        rect(ctx,xx - 30, yy - 50, 60, 100)
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -919,7 +920,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
 
         ctx.beginPath();
         ctx.strokeStyle = ["grey", "black", "red"][this.dot.value + 1];
-        rect(ctx,ox,oy,xx + 20, yy + 40, 2, 2,scale);
+        rect(ctx,xx + 20, yy + 40, 2, 2);
         ctx.stroke();
 
         this.element.draw();
@@ -1115,15 +1116,15 @@ function NotGate(list) {
         var yy = this.element.y;
         ctx.beginPath();
         ctx.fillStyle = "rgba(255, 255, 32,1)";
-        moveTo(ctx,xx,yy,ox,oy,-10,-10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,10,0,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,-10,10,this.direction,scale);
-        // arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
+        moveTo(ctx,-10,-10,xx,yy,this.direction);
+        lineTo(ctx,10,0,xx,yy,this.direction);
+        lineTo(ctx,-10,10,xx,yy,this.direction);
+        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx,xx,yy,ox,oy,5,2*(Math.PI),0,this.direction,scale,15,0);
+        arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
         ctx.stroke();
         this.inp1.draw();
         this.output1.draw();
@@ -1208,7 +1209,7 @@ function Input(list) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        rect(ctx,0,0,xx-10,yy-10,20,20,scale);
+        rect(ctx,xx-10,yy-10,20,20);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1303,10 +1304,10 @@ function FlipFlop(list) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x;
         var yy = this.element.y;
-        rect(ctx,0,0,xx - 20 +ox, yy - 20+oy, 40, 40,scale);
-        moveTo(ctx,xx,yy,ox,oy,-20,-15,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,-15,-10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,-20,-5,this.direction,scale);
+        rect(ctx,xx - 20 , yy - 20, 40, 40);
+        moveTo(ctx,-20,-15,xx,yy,this.direction);
+        lineTo(ctx,-15,-10,xx,yy,this.direction);
+        lineTo(ctx,-20,-5,xx,yy,this.direction);
 
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -1387,7 +1388,7 @@ function Clock(list) {
         ctx.lineWidth = 3 * scale;
         var xx = this.element.x+ox;
         var yy = this.element.y+oy;
-        rect(ctx,0,0,xx - 10, yy - 10, 20, 20,scale);
+        rect(ctx,xx - 10, yy - 10, 20, 20);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1398,20 +1399,20 @@ function Clock(list) {
         ctx.strokeStyle = ["DarkGreen", "Lime"][this.state];
         ctx.lineWidth = 2 * scale;
         if (this.state == 0) {
-            moveTo(ctx,xx,yy,ox,oy,-6,0,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,-6,6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,0,6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,0,-6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,6,-6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,6,0,this.direction,scale);
+            moveTo(ctx,-6,0,xx,yy,this.direction);
+            lineTo(ctx,-6,6,xx,yy,this.direction);
+            lineTo(ctx,0,6,xx,yy,this.direction);
+            lineTo(ctx,0,-6,xx,yy,this.direction);
+            lineTo(ctx,6,-6,xx,yy,this.direction);
+            lineTo(ctx,6,0,xx,yy,this.direction);
 
         } else {
-            moveTo(ctx,xx,yy,ox,oy,-6,0,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,-6,-6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,0,-6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,0,6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,6,6,this.direction,scale);
-            lineTo(ctx,xx,yy,ox,oy,6,0,this.direction,scale);
+            moveTo(ctx,-6,0,xx,yy,this.direction);
+            lineTo(ctx,-6,-6,xx,yy,this.direction);
+            lineTo(ctx,0,-6,xx,yy,this.direction);
+            lineTo(ctx,0,6,xx,yy,this.direction);
+            lineTo(ctx,6,6,xx,yy,this.direction);
+            lineTo(ctx,6,0,xx,yy,this.direction);
         }
         ctx.stroke();
 
@@ -1476,14 +1477,14 @@ function Ground(x, y, scope = globalScope) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        moveTo(ctx,xx,yy,ox,oy,0,-10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,0,0,this.direction,scale);
-        moveTo(ctx,xx,yy,ox,oy,-10,0,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,10,0,this.direction,scale);
-        moveTo(ctx,xx,yy,ox,oy,-6,5,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,6,5,this.direction,scale);
-        moveTo(ctx,xx,yy,ox,oy,-2.5,10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,2.5,10,this.direction,scale);
+        moveTo(ctx,0,-10,xx,yy,this.direction);
+        lineTo(ctx,0,0,xx,yy,this.direction);
+        moveTo(ctx,-10,0,xx,yy,this.direction);
+        lineTo(ctx,10,0,xx,yy,this.direction);
+        moveTo(ctx,-6,5,xx,yy,this.direction);
+        lineTo(ctx,6,5,xx,yy,this.direction);
+        moveTo(ctx,-2.5,10,xx,yy,this.direction);
+        lineTo(ctx,2.5,10,xx,yy,this.direction);
         ctx.stroke();
 
         this.element.draw();
@@ -1546,13 +1547,13 @@ function Power(x, y, scope = globalScope) {
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.lineWidth = 3 * scale;
         ctx.fillStyle = "green";
-        moveTo(ctx,xx,yy,ox,oy,0,0,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,-10,10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,10,10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,0,0,this.direction,scale);
+        moveTo(ctx,0,0,xx,yy,this.direction);
+        lineTo(ctx,-10,10,xx,yy,this.direction);
+        lineTo(ctx,10,10,xx,yy,this.direction);
+        lineTo(ctx,0,0,xx,yy,this.direction);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
-        moveTo(ctx,xx,yy,ox,oy,0,10,this.direction,scale);
-        lineTo(ctx,xx,yy,ox,oy,0,20,this.direction,scale);
+        moveTo(ctx,0,10,xx,yy,this.direction);
+        lineTo(ctx,0,20,xx,yy,this.direction);
         ctx.stroke();
 
         this.element.draw();
@@ -1622,7 +1623,7 @@ function Output(list) {
         ctx.beginPath();
         var xx = this.element.x;
         var yy = this.element.y;
-        arc(ctx,xx,yy,ox,oy,10,0,2* Math.PI,dir,this.direction,scale,0,0)
+        arc(ctx,0,0,10,0,2* Math.PI,xx,yy,this.direction);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1786,7 +1787,7 @@ function Node(x, y, type, parent) {
           ctx.strokeStyle ="green";
           ctx.beginPath();
           ctx.lineWidth= 3 * scale;
-          arc(ctx,this.parent.element.x,this.parent.element.y,0,0, 8, 0, Math.PI * 2,"left", 1,this.x, this.y);
+          arc(ctx,this.x,this.y, 8, 0, Math.PI * 2,this.parent.element.x,this.parent.element.y,"left");
           ctx.closePath();
           ctx.stroke();
         //   console.log("HIT");
@@ -2104,7 +2105,7 @@ function addSubCircuit() {
 
 
 
-function moveTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
+function moveTo(ctx,x1,y1,xx,yy,dir){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*simulationArea.scale;
   newY = newY*simulationArea.scale;
@@ -2112,7 +2113,7 @@ function moveTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   yy = yy*simulationArea.scale;
   ctx.moveTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
-function lineTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
+function lineTo(ctx,x1,y1,xx,yy,dir){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*simulationArea.scale;
   newY = newY*simulationArea.scale;
@@ -2120,7 +2121,7 @@ function lineTo(ctx,xx,yy,ox,oy,x1,y1,dir,scale){
   yy = yy*simulationArea.scale;
   ctx.lineTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
-function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x of origin, xx- x of element , sx - shift in x from element
+function arc(ctx,sx,sy,radius,start,stop,xx,yy,dir){        //ox-x of origin, xx- x of element , sx - shift in x from element
 
   [Sx,Sy]= rotate(sx,sy,dir);
   Sx = Sx*simulationArea.scale;
@@ -2132,7 +2133,7 @@ function arc(ctx,xx,yy,ox,oy,radius,start,stop,dir,scale,sx,sy){        //ox-x o
   console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
-function rect(ctx,ox,oy,x1,y1,x2,y2,scale){
+function rect(ctx,x1,y1,x2,y2){
   x1 = x1*simulationArea.scale;
   y1 = y1*simulationArea.scale;
   x2 = x2*simulationArea.scale;
