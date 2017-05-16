@@ -1,11 +1,13 @@
-ox=0;
-oy=0;
-scale = 1;
+// ox=0;
+// oy=0;
+// scale = 1;
 var b1;
 var width;
 var height;
 uniqueIdCounter = 0;
-unit = 10
+unit = 10;
+toBeUpdated=true;
+wireToBeChecked=0;
 Array.prototype.clean = function(deleteValue) {
     for (var i = 0; i < this.length; i++) {
         if (this[i] == deleteValue) {
@@ -57,6 +59,7 @@ function Scope(name = "localScope") {
     this.root = {
         element: new Element(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
+        direction:'left'
     }
     this.name = name;
     this.stack = [];
@@ -153,8 +156,8 @@ function setup() {
 }
 
 function resetup() {
-    width = window.innerWidth * scale;
-    height = window.innerHeight * scale;
+    width = window.innerWidth ;
+    height = window.innerHeight ;
     simulationArea.setup();
 }
 
@@ -212,9 +215,18 @@ function Wire(node1, node2, scope) {
     //     y1:this.y1,
     //   }
     // }
+    this.checkConnections=function(){
+        // console.log("hit");
+        var check=!node1.connections.contains(node2)||!node2.connections.contains(node1);
+        if(check)this.delete();
+        return check;
+    }
     this.update = function() {
+        // if(wireToBeChecked)return;
         var updated = false;
+        if(wireToBeChecked&&this.checkConnections()){this.delete();return;} // SLOW , REMOVE
         if (simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
+            // if(this.checkConnections()){this.delete();return;}
             var n = new Node(simulationArea.mouseDownX, simulationArea.mouseDownY, 2, this.scope.root);
             this.converge(n);
             n.clicked = true;
@@ -227,20 +239,24 @@ function Wire(node1, node2, scope) {
         if (simulationArea.mouseDown == false) {
             if (this.type == "horizontal") {
                 if (node1.absY() != this.y1) {
+                    // if(this.checkConnections()){this.delete();return;}
                     var n = new Node(node1.absX(), this.y1, 2, this.scope.root);
                     this.converge(n);
                     updated = true;
                 } else if (node2.absY() != this.y2) {
+                    // if(this.checkConnections()){this.delete();return;}
                     var n = new Node(node2.absX(), this.y2, 2, this.scope.root);
                     this.converge(n);
                     updated = true;
                 }
             } else if (this.type == "vertical") {
                 if (node1.absX() != this.x1) {
+                    // if(this.checkConnections()){this.delete();return;}
                     var n = new Node(this.x1, node1.absY(), 2, this.scope.root);
                     this.converge(n);
                     updated = true;
                 } else if (node2.absX() != this.x2) {
+                    // if(this.checkConnections()){this.delete();return;}
                     var n = new Node(this.x2, node2.absY(), 2, this.scope.root);
                     this.converge(n);
                     updated = true;
@@ -252,7 +268,7 @@ function Wire(node1, node2, scope) {
     this.draw = function() {
         ctx = simulationArea.context;
         color = ["red", "DarkGreen", "Lime"][this.node1.value + 1];
-        drawLine(ctx, this.node1.absX(), this.node1.absY(), this.node2.absX(), this.node2.absY(), color, 3 * scale);
+        drawLine(ctx, this.node1.absX(), this.node1.absY(), this.node2.absX(), this.node2.absY(), color, 3);
     }
 
     this.checkConvergence = function(n) {
@@ -319,6 +335,8 @@ var simulationArea = {
             simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
         });
         window.addEventListener('keydown', function(e) {
+
+            wireToBeChecked=1;
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
                 simulationArea.lastSelected.delete();
             }
@@ -384,8 +402,8 @@ var simulationArea = {
         });
         window.addEventListener('touchmove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * scale;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * scale;
+            simulationArea.mouseX = (e.touches[0].clientX - rect.left) ;
+            simulationArea.mouseY = (e.touches[0].clientY - rect.top) ;
         })
     },
     clear: function() {
@@ -425,6 +443,15 @@ function update() {
 
     var updated = false;
     simulationArea.hover = false;
+    // wireToBeChecked=true;
+    if(wireToBeChecked){
+        if(wireToBeChecked==2)wireToBeChecked=0;
+        else wireToBeChecked++;
+        // WHY IS THIS REQUIRED ???? we are checking inside wire ALSO
+        for(var i=0;i<globalScope.wires.length;i++)
+            globalScope.wires[i].checkConnections();
+    }
+
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
             updated |= globalScope.objects[i][j].update();
@@ -508,22 +535,22 @@ function extractNode(x, scope, parent) {
 }
 
 function loadAnd(data, scope) {
-    var v = new AndGate(data["x"], data["y"], scope, data["inputs"]);
+    var v = new AndGate(data["x"], data["y"], scope, data["inputs"],data["dir"]);
     v.output1 = replace(v.output1, data["output1"]);
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
-function AndGate(list) {
-    this.func=AndGate;
-    [x, y, scope, inputLength, dir] = list;
-    console.log(scope)
+function AndGate(x, y, scope, inputLength, dir) {
+    // this.func=AndGate;
+    // [x, y, scope, inputLength, dir] = list;
+    // console.log(scope)
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
     uniqueIdCounter++;
     this.element = new Element(x, y, "and", 25, this);
     this.inp = [];
     this.direction=dir;
-    this.list=list;
+    // this.list=list;
 
     this.inputs = inputLength;
     if (inputLength % 2 == 1) {
@@ -548,6 +575,7 @@ function AndGate(list) {
         }
     }
     this.output1 = new Node(20, 0, 1, this);
+    this.nodeList=[this.inp,[this.output1]];
     scope.andGates.push(this);
 
     this.saveObject = function() {
@@ -557,6 +585,7 @@ function AndGate(list) {
             inputs: this.inputs,
             inp: this.inp.map(findNodes),
             output1: this.scope.allNodes.indexOf(this.output1),
+            dir:this.direction,
         }
         return data;
     }
@@ -592,7 +621,7 @@ function AndGate(list) {
         ctx = simulationArea.context;
 
         ctx.beginPath();
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.5)";
         var xx = this.element.x;
@@ -634,10 +663,11 @@ function loadSubCircuit(savedData, scope) {
     // for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
 }
 
-function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
+function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
 
 
     this.savedData=savedData;
+    this.direction=dir;
     this.scope = scope;
     this.localScope = new Scope();
     this.id = 'subCircuits' + uniqueIdCounter;
@@ -646,6 +676,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
     this.scope.subCircuits.push(this);
     this.inputNodes = [];
     this.outputNodes = [];
+    this.nodeList=[this.inputNodes,this.outputNodes];
     this.width = 0;
     this.height = 0;
     // this.deleted=false;
@@ -792,12 +823,12 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined) {
         ctx = simulationArea.context;
 
         ctx.beginPath();
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.5)";
         var xx = this.element.x;
         var yy = this.element.y;
-        ctx.rect(xx - this.width / 2, yy - this.height / 2, this.width, this.height);
+        rect2(ctx, - this.width / 2,  - this.height / 2, this.width, this.height,xx,yy,this.direction);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -864,6 +895,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
             c: this.scope.allNodes.indexOf(this.c),
             d: this.scope.allNodes.indexOf(this.d),
             dot: this.scope.allNodes.indexOf(this.dot),
+            dir:this.direction,
         }
         return data;
     }
@@ -871,7 +903,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = color;
-        ctx.lineWidth = 5 * scale;
+        ctx.lineWidth = 5 ;
         xx=this.element.x;
         yy=this.element.y;
         // ctx.moveTo(this.element.x + x1 +ox, this.element.y + y1+oy);
@@ -902,7 +934,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
 
         ctx.beginPath();
         ctx.strokeStyle = "black";
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         // ctx.rect(xx - 30 +ox, yy - 50+oy, 60, 100);
         rect(ctx,xx - 30, yy - 50, 60, 100)
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
@@ -947,15 +979,16 @@ function SevenSegDisplay(x, y, scope = globalScope) {
 }
 
 function loadOr(data, scope) {
-    var v = new OrGate(data["x"], data["y"], scope, data["inputs"]);
+    var v = new OrGate(data["x"], data["y"], scope, data["inputs"],data["dir"]);
     v.output1 = replace(v.output1, data["output1"]);
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
-function OrGate(x, y, scope = globalScope, inputs = 2) {
+function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
     this.id = 'or' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
+    this.direction=dir;
     this.element = new Element(x, y, "or", 25, this);
     this.inp = [];
     this.inputs = inputs;
@@ -983,6 +1016,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
     this.output1 = new Node(20, 0, 1, this);
     scope.orGates.push(this);
 
+    this.nodeList=[this.inp,[this.output1]];
+
     this.saveObject = function() {
         console.log(this.scope.allNodes);
         var data = {
@@ -991,10 +1026,10 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
             inputs: this.inputs,
             inp: this.inp.map(findNodes),
             output1: this.scope.allNodes.indexOf(this.output1),
+            dir:this.direction,
         }
         return data;
     }
-
     this.isResolvable = function() {
         var res1 = true;
         for (var i = 0; i < inputs; i++)
@@ -1028,16 +1063,17 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
 
         ctx = simulationArea.context;
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
         var yy = this.element.y;
         ctx.beginPath();
         ctx.fillStyle = "rgba(255, 255, 32,0.5)";
-        ctx.moveTo(xx - 10, yy - 20);
-        ctx.bezierCurveTo(xx, yy - 20, xx + 15, yy - 10, xx + 20, yy);
-        ctx.bezierCurveTo(xx + 15, yy + 10, xx, yy + 20, xx - 10, yy + 20);
-        ctx.bezierCurveTo(xx, yy, xx, yy, xx - 10, yy - 20);
+        // this.direction="left";
+        moveTo(ctx,-10,-20,xx ,yy,this.direction);
+        bezierCurveTo(0,  - 20,  + 15, - 10,  20, 0 ,xx,yy,this.direction);
+        bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20,  - 10,  + 20,xx,yy,this.direction);
+        bezierCurveTo(0, 0, 0, 0, - 10,  - 20,xx,yy,this.direction);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1046,8 +1082,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
             this.inp[i].draw();
 
         this.output1.draw();;
-        if (this.element.b.isHover())
-            console.log(this,this.id);
+        // if (this.element.b.isHover())
+        //     console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1059,30 +1095,31 @@ function OrGate(x, y, scope = globalScope, inputs = 2) {
 }
 
 function loadNot(data, scope) {
-    var v = new NotGate(data["x"], data["y"], scope);
+    var v = new NotGate(data["x"], data["y"], scope,data["dir"]);
     v.output1 = replace(v.output1, data["output1"]);
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function NotGate(list) {
-    this.func=NotGate;
-    [x, y, scope, dir]=list;
+function NotGate(x, y, scope, dir) {
+    // this.func=NotGate;
+    // [x, y, scope, dir]=list;
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "not", 15, this);
     this.direction=dir;
-    this.list=list;
+    // this.list=list;
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     scope.notGates.push(this);
-
+    this.nodeList=[[this.inp1,this.output1]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
             output1: this.scope.allNodes.indexOf(this.output1),
             inp1: this.scope.allNodes.indexOf(this.inp1),
+            dir:this.direction,
         }
         return data;
     }
@@ -1110,7 +1147,7 @@ function NotGate(list) {
 
         ctx = simulationArea.context;
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
         var yy = this.element.y;
@@ -1142,17 +1179,17 @@ function NotGate(list) {
 
 function loadInput(data, scope) {
 
-    var v = new Input(data["x"], data["y"], scope);
+    var v = new Input(data["x"], data["y"], scope,data["dir"]);
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Input(list) {
-    this.func=Input;
-    [x, y, scope, dir] = list;
+function Input(x, y, scope, dir) {
+    // this.func=Input;
+    // [x, y, scope, dir] = list;
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
-    this.list=list;
+    // this.list=list;
     this.direction=dir;
     this.element = new Element(x, y, "input", 15, this);
     this.output1 = new Node(10, 0, 1, this);
@@ -1160,11 +1197,13 @@ function Input(list) {
     this.output1.value = this.state;
     scope.inputs.push(this);
     this.wasClicked = false;
+    this.nodeList=[[this.output1]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
             output1: this.scope.allNodes.indexOf(this.output1),
+            dir:this.direction,
         }
         return data;
     }
@@ -1205,7 +1244,7 @@ function Input(list) {
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         var xx = this.element.x;
         var yy = this.element.y;
 
@@ -1232,11 +1271,11 @@ function Input(list) {
     }
 }
 
-function FlipFlop(list) {
-    this.func = FlipFlop;
-    [x, y, scope, dir] = list;
+function FlipFlop(x, y, scope, dir) {
+    // this.func = FlipFlop;
+    // [x, y, scope, dir] = list;
     this.direction = dir;
-    this.list = list;
+    // this.list = list;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -1249,6 +1288,7 @@ function FlipFlop(list) {
     this.prevClockState = 0;
     scope.flipflops.push(this);
     this.wasClicked = false;
+    this.nodeList=[[this.clockInp,this.dInp,this.qOutput]];
 
     this.isResolvable = function() {
         return true;
@@ -1301,7 +1341,7 @@ function FlipFlop(list) {
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx,xx - 20 , yy - 20, 40, 40);
@@ -1316,7 +1356,7 @@ function FlipFlop(list) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        fillText(ctx,this.slaveState.toString(), xx - 5 +ox, yy + 5+oy);
+        fillText(ctx,this.slaveState.toString(), xx - 5 , yy + 5);
         ctx.stroke();
 
         this.dInp.draw();
@@ -1334,11 +1374,11 @@ function FlipFlop(list) {
     }
 }
 
-function Clock(list) {
-    [x, y, f, scope , dir] = list;
-    this.func = Clock;
+function Clock(x, y, f, scope , dir) {
+    // [x, y, f, scope , dir] = list;
+    // this.func = Clock;
     this.direction=dir;
-    this.list=list;
+    // this.list=list;
     this.id = 'clock' + uniqueIdCounter;
     this.f = f;
     this.scope = scope;
@@ -1351,6 +1391,7 @@ function Clock(list) {
     scope.clocks.push(this);
     this.wasClicked = false;
     this.interval = null;
+    this.nodeList=[[this.output1]];
 
     this.resolve = function() {
         this.output1.value = this.state;
@@ -1385,9 +1426,9 @@ function Clock(list) {
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.lineWidth = 3 * scale;
-        var xx = this.element.x+ox;
-        var yy = this.element.y+oy;
+        ctx.lineWidth = 3 ;
+        var xx = this.element.x;
+        var yy = this.element.y;
         rect(ctx,xx - 10, yy - 10, 20, 20);
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
@@ -1397,7 +1438,7 @@ function Clock(list) {
         // ctx.fillStyle="green";
         // fillText(this.state.toString(),xx-5,yy+5);
         ctx.strokeStyle = ["DarkGreen", "Lime"][this.state];
-        ctx.lineWidth = 2 * scale;
+        ctx.lineWidth = 2 ;
         if (this.state == 0) {
             moveTo(ctx,-6,0,xx,yy,this.direction);
             lineTo(ctx,-6,6,xx,yy,this.direction);
@@ -1472,7 +1513,7 @@ function Ground(x, y, scope = globalScope) {
 
         ctx.beginPath();
         ctx.strokeStyle = ["black", "brown"][this.element.b.hover + 0];
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
         var yy = this.element.y;
@@ -1545,7 +1586,7 @@ function Power(x, y, scope = globalScope) {
 
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         ctx.fillStyle = "green";
         moveTo(ctx,0,0,xx,yy,this.direction);
         lineTo(ctx,-10,10,xx,yy,this.direction);
@@ -1570,29 +1611,31 @@ function Power(x, y, scope = globalScope) {
 
 function loadOutput(data, scope) {
 
-    var v = new Output(data["x"], data["y"], scope);
+    var v = new Output(data["x"], data["y"], scope,data["dir"]);
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function Output(list) {
-    this.func=Output;
-    [x, y, scope, dir] = list;
+function Output(x, y, scope, dir) {
+    // this.func=Output;
+    // [x, y, scope, dir] = list;
     this.scope = scope;
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
-    this.list=list;
+    // this.list=list;
     this.direction=dir;
     this.element = new Element(x, y, "output", 15, this);
     this.inp1 = new Node(10, 0, 0, this);
     this.state = -1;
     this.inp1.value = this.state;
     this.scope.outputs.push(this);
+    this.nodeList=[[this.inp1]];
 
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
             inp1: scope.allNodes.indexOf(this.inp1),
+            dir:this.direction,
         }
         return data;
     }
@@ -1619,7 +1662,7 @@ function Output(list) {
         ctx = simulationArea.context;
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "rgba(255, 255, 32,0.6)";
-        ctx.lineWidth = 3 * scale;
+        ctx.lineWidth = 3 ;
         ctx.beginPath();
         var xx = this.element.x;
         var yy = this.element.y;
@@ -1631,9 +1674,9 @@ function Output(list) {
         ctx.fillStyle = "green";
         ctx.font = "19px Georgia";
         if (this.state == -1)
-            fillText(ctx,"x", xx - 5+ox, yy + 5+oy);
+            fillText(ctx,"x", xx - 5, yy + 5);
         else
-            fillText(ctx,this.state.toString(), xx - 5+ox, yy + 5+oy);
+            fillText(ctx,this.state.toString(), xx - 5, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -1684,19 +1727,14 @@ function Node(x, y, type, parent) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
+    this.leftx=x;
+    this.lefty=y;
+    this.x=x;
+    this.y=y;
 
-    this.leftx=x*scale;
-    this.lefty=y*scale;
 
-    if(type!=2){
-      [X,Y]=rotate(this.leftx,this.lefty,this.parent.direction);
-      this.x=X+ox;
-      this.y=Y+oy;
-    }
-    else{
-      this.x=x+ox;
-      this.y=y+oy;
-    }
+
+
 
     this.type = type;
     this.connections = new Array();
@@ -1708,6 +1746,15 @@ function Node(x, y, type, parent) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
+    this.refresh=function(){
+        [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+        for (var i = 0; i < this.connections.length; i++) {
+            this.connections[i].connections.clean(this);
+        }
+        this.connections=[];
+
+    }
+    this.refresh();
     this.saveObject = function() {
         var data = {
             x: this.x,
@@ -1760,22 +1807,22 @@ function Node(x, y, type, parent) {
         }
     }
     this.draw = function() {
-        if (this.isHover())
-            console.log(this,this.id);
+        // if (this.isHover())
+        //     console.log(this,this.id);
         var ctx = simulationArea.context;
 
         if (this.clicked) {
             if (this.prev == 'x') {
-                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 * scale);
-                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3 * scale);
+                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
+                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
             } else if (this.prev == 'y') {
-                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 * scale);
-                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3 * scale);
+                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
+                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
             } else {
                 if (Math.abs(this.x + this.parent.element.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.element.y - simulationArea.mouseY)) {
-                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 * scale);
+                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
                 } else {
-                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 * scale);
+                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
                 }
             }
         }
@@ -1786,7 +1833,7 @@ function Node(x, y, type, parent) {
         if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
           ctx.strokeStyle ="green";
           ctx.beginPath();
-          ctx.lineWidth= 3 * scale;
+          ctx.lineWidth= 3 ;
           arc(ctx,this.x,this.y, 8, 0, Math.PI * 2,this.parent.element.x,this.parent.element.y,"left");
           ctx.closePath();
           ctx.stroke();
@@ -2003,8 +2050,8 @@ function Node(x, y, type, parent) {
 }
 
 function Button(x, y, radius) {
-    this.x = x+ox;
-    this.y = y+oy;
+    this.x = x;
+    this.y = y;
     this.radius = radius;
     this.clicked = false;
     this.hover = false;
@@ -2060,7 +2107,7 @@ function distance(x1, y1, x2, y2) {
 }
 
 function addAnd() {
-    var a = new AndGate([200, 150, globalScope, 2, 'left']);
+    var a = new AndGate(200, 150, globalScope, 2, 'left');
 }
 
 function addPower() {
@@ -2076,23 +2123,23 @@ function addOr() {
 }
 
 function addNot() {
-    var npt = new NotGate([200, 150, globalScope, 'left']);
+    var npt = new NotGate(200, 150, globalScope, 'left');
 }
 
 function addInput() {
-    var a = new Input([200, 150, globalScope, 'left']);
+    var a = new Input(200, 150, globalScope, 'left');
 }
 
 function addOutput() {
-    var a = new Output([200, 150, globalScope, 'left']);
+    var a = new Output(200, 150, globalScope, 'left');
 }
 
 function addFlipflop() {
-    var a = new FlipFlop([200, 150, globalScope, 'left']);
+    var a = new FlipFlop(200, 150, globalScope, 'left');
 }
 
 function addClock() {
-    var a = new Clock([200, 150, 2, globalScope, 'left']);
+    var a = new Clock(200, 150, 2, globalScope, 'left');
 }
 
 function addSevenSeg() {
@@ -2105,6 +2152,22 @@ function addSubCircuit() {
 
 
 
+function bezierCurveTo(x1,y1,x2,y2,x3,y3,xx,yy,dir){
+  [x1,y1]=rotate(x1,y1,dir);
+  [x2,y2]=rotate(x2,y2,dir);
+  [x3,y3]=rotate(x3,y3,dir);
+  var ox=simulationArea.ox;
+  var oy=simulationArea.oy;
+  x1*=simulationArea.scale;
+  y1*=simulationArea.scale;
+  x2*=simulationArea.scale;
+  y2*=simulationArea.scale;
+  x3*=simulationArea.scale;
+  y3*=simulationArea.scale;
+  xx = xx*simulationArea.scale;
+  yy = yy*simulationArea.scale;
+  ctx.bezierCurveTo(xx+ox+x1,yy+oy+y1,xx+ox+x2,yy+oy+y2,xx+ox+x3,yy+oy+y3);
+}
 function moveTo(ctx,x1,y1,xx,yy,dir){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*simulationArea.scale;
@@ -2130,7 +2193,7 @@ function arc(ctx,sx,sy,radius,start,stop,xx,yy,dir){        //ox-x of origin, xx
   yy = yy*simulationArea.scale;
   radius*=simulationArea.scale;
   [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
-  console.log(Sx,Sy);
+  // console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
 function rect(ctx,x1,y1,x2,y2){
@@ -2140,15 +2203,41 @@ function rect(ctx,x1,y1,x2,y2){
   y2 = y2*simulationArea.scale;
   ctx.rect(simulationArea.ox + x1, simulationArea.oy + y1, x2,  y2);
 }
+function rect2(ctx,x1,y1,x2,y2,xx,yy,dir){
+
+  [x1,y1]=rotate(x1,y1,dir);
+  [x2,y2]=rotate(x2,y2,dir);
+  // [xx,yy]=rotate(xx,yy,dir);
+  x1 = x1*simulationArea.scale;
+  y1 = y1*simulationArea.scale;
+  x2 = x2*simulationArea.scale;
+  y2 = y2*simulationArea.scale;
+  xx *=simulationArea.scale;
+  yy *=simulationArea.scale;
+  ctx.rect(simulationArea.ox + xx+x1, simulationArea.oy+yy+y1, x2,  y2);
+}
+
 function newDirection(obj,dir){
-  var newFunction=obj.func;
-  obj.list.pop();
-  obj.list.push(dir);
-  obj.list[0]=obj.element.x;
-  obj.list[1]=obj.element.y;
-  var b= new newFunction(obj.list);
-  obj.delete();
-  simulationArea.lastSelected=b;
+    if(obj.direction==undefined)return;
+    obj.direction=dir;
+    for(var i =0;i<obj.nodeList.length;i++){
+        for (var j=0;j<obj.nodeList[i].length;j++){
+            // wireToBeChecked=1;
+            obj.nodeList[i][j].refresh();
+            // wireToBeChecked=1;
+        }
+    }
+
+    // for(var i=0;i<globalScope.wires.length;i++)
+    //     globalScope.wires[i].checkConnections();
+  // var newFunction=obj.func;
+  // obj.list.pop();
+  // obj.list.push(dir);
+  // obj.list[0]=obj.element.x;
+  // obj.list[1]=obj.element.y;
+  // var b= new newFunction(obj.list);
+  // obj.delete();
+  // simulationArea.lastSelected=b;
 }
 function rotate(x1,y1,dir){
   if(dir=='right')
