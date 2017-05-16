@@ -311,10 +311,13 @@ var simulationArea = {
         this.mouseDown = false;
         window.addEventListener('mousemove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseX = (e.clientX - rect.left) / simulationArea.scale;
-            simulationArea.mouseY = (e.clientY - rect.top) / simulationArea.scale;
-            simulationArea.mouseX = Math.round((simulationArea.mouseX - simulationArea.ox/simulationArea.scale)/ unit) * unit;
-            simulationArea.mouseY = Math.round((simulationArea.mouseY- simulationArea.oy/simulationArea.scale  )/ unit) * unit;
+
+            simulationArea.mouseRawX = (e.clientX - rect.left);// / simulationArea.scale;
+            simulationArea.mouseRawY = (e.clientY - rect.top);
+            // simulationArea.mouseX = (e.clientX - rect.left) / simulationArea.scale;
+            // simulationArea.mouseY = (e.clientY - rect.top) / simulationArea.scale;
+            simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
         });
         window.addEventListener('keydown', function(e) {
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
@@ -332,21 +335,24 @@ var simulationArea = {
             if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
 						 newDirection(simulationArea.lastSelected,'up');
 						}
-            if(e.keyCode==73 && simulationArea.scale < 4){
-              simulationArea.scale+=0.5;
+            if(e.keyCode==187 && simulationArea.scale < 4){
+                changeScale(.1);
             }
-            if(e.keyCode==79 && simulationArea.scale > 0.5){
-              simulationArea.scale-=0.5;
+            if(e.keyCode==189 && simulationArea.scale > 0.5){
+
+                changeScale(-.1);
             }
         })
         window.addEventListener('mousedown', function(e) {
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
-            simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
-            simulationArea.mouseDownX = Math.round((simulationArea.mouseDownX  - simulationArea.ox/simulationArea.scale) / unit) * unit;
-            simulationArea.mouseDownY = Math.round((simulationArea.mouseDownY - simulationArea.oy/simulationArea.scale )/ unit) * unit;
+            simulationArea.mouseDownRawX = (e.clientX - rect.left) ;// simulationArea.scale;
+            simulationArea.mouseDownRawY = (e.clientY - rect.top) ;// simulationArea.scale;
+            // simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
+            // simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
+            simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
+            simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
             simulationArea.mouseDown = true;
             simulationArea.oldx=simulationArea.ox;
             simulationArea.oldy=simulationArea.oy;
@@ -387,6 +393,24 @@ var simulationArea = {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
+function changeScale(delta){
+    var xx,yy;
+    if(simulationArea.lastSelected){
+        xx=simulationArea.lastSelected.element.x;//*simulationArea.scale+simulationArea.ox;
+        yy=simulationArea.lastSelected.element.y;//*simulationArea.scale+simulationArea.oy;
+    }
+    else{
+        xx=simulationArea.mouseX;
+        yy=simulationArea.mouseY;
+    }
+    // xx=width/2;
+    // yy=height/2;
+    var oldScale=simulationArea.scale;
+    simulationArea.scale+=delta;
+    simulationArea.scale = Math.round( simulationArea.scale*10) /10;
+    simulationArea.ox-=Math.round(xx*(simulationArea.scale-oldScale));
+    simulationArea.oy-=Math.round(yy*(simulationArea.scale-oldScale));
+}
 
 function clockTick() {
     for (var i = 0; i < globalScope.clocks.length; i++)
@@ -416,9 +440,13 @@ function update() {
         simulationArea.selected=true;
         simulationArea.lastSelected=globalScope.root;
         simulationArea.hover=true;
-    }else if (simulationArea.lastSelected==globalScope.root && simulationArea.mouseDown){
-        simulationArea.ox=(simulationArea.mouseX+simulationArea.ox)-simulationArea.mouseDownX;
-        simulationArea.oy=(simulationArea.mouseY+simulationArea.oy)-simulationArea.mouseDownY;
+    }
+    else if (simulationArea.lastSelected==globalScope.root && simulationArea.mouseDown){
+        simulationArea.ox=(simulationArea.mouseRawX-simulationArea.mouseDownRawX)+simulationArea.oldx;
+        simulationArea.oy=(simulationArea.mouseRawY-simulationArea.mouseDownRawY)+simulationArea.oldy;
+        // simulationArea.oy=
+        // simulationArea.ox=Math.round(((simulationArea.mouseX+simulationArea.ox)-simulationArea.mouseDownX)/simulationArea.scale );
+        // simulationArea.oy=Math.round(((simulationArea.mouseY+simulationArea.oy)-simulationArea.mouseDownY)/simulationArea.scale);
     }
     else if(simulationArea.lastSelected==globalScope.root){
         simulationArea.lastSelected=undefined;
@@ -442,7 +470,7 @@ function dots() {
     var ctx = simulationArea.context;
     var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
     var scale=unit*simulationArea.scale;
-    console.log(scale);
+    // console.log(scale);
     var ox=simulationArea.ox%scale;
     var oy=simulationArea.oy%scale;
     function drawPixel(x, y, r, g, b, a) {
