@@ -1,13 +1,11 @@
-// ox=0;
-// oy=0;
-// scale = 1;
-var b1;
 var width;
 var height;
 uniqueIdCounter = 0;
 unit = 10;
 toBeUpdated=true;
-wireToBeChecked=0;
+wireToBeChecked=0; // when node disconnects from another node
+
+//fn to remove elem in array
 Array.prototype.clean = function(deleteValue) {
     for (var i = 0; i < this.length; i++) {
         if (this[i] == deleteValue) {
@@ -17,14 +15,18 @@ Array.prototype.clean = function(deleteValue) {
     }
     return this;
 };
+
+//fn to check if an elem is in an array
 Array.prototype.contains = function(value) {
     return this.indexOf(value) > -1
 };
 
+//helper fn
 function extract(obj) {
     return obj.saveObject();
 }
 
+//fn to create save data
 function Save() {
     var data = {};
     data["inputs"] = globalScope.inputs.map(extract);
@@ -42,20 +44,23 @@ function Save() {
     for (var i = 0; i < globalScope.nodes.length; i++)
         data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
 
+    //covnvert to text
     data = JSON.stringify(data)
     console.log(data);
 
     var http = new XMLHttpRequest();
     http.open("POST", "./index.php", true);
     http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    var params = "data=" + data; // probably use document.getElementById(...).value
+    var params = "data=" + data; // send the data
     http.send(params);
     http.onload = function() {
-        window.location.hash = http.responseText;
+        window.location.hash = http.responseText; // assign hash key
     }
 }
 
+//Scope object for each circuit level, globalScope for outer level
 function Scope(name = "localScope") {
+    //root object for referring to main canvas - intermediate node uses this
     this.root = {
         element: new Element(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
@@ -80,6 +85,7 @@ function Scope(name = "localScope") {
     this.objects = [this.wires, this.inputs, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
 }
 
+//fn to load from data
 function load(scope, data) {
 
     // buildNode(data["allNodes"][0]);
@@ -122,10 +128,12 @@ function load(scope, data) {
     // console.log(globalScope);
 }
 
+//fn to setup environment
 function setup() {
-    globalScope = new Scope("globalScope");
+    globalScope = new Scope("globalScope");//enabling scope
 
     data = {};
+    //retrieving data
     if (parent.location.hash.length > 1) {
 
         var http = new XMLHttpRequest();
@@ -150,17 +158,25 @@ function setup() {
     toBeUpdated = true;
     width = window.innerWidth ;
     height = window.innerHeight ;
-    // load(globalScope,data);
+
+    //setup simulationArea
     simulationArea.setup();
 
 }
 
+//to resize window
 function resetup() {
     width = window.innerWidth ;
     height = window.innerHeight ;
     simulationArea.setup();
 }
 
+window.onresize = resetup;
+
+//for mobiles
+window.addEventListener('orientationchange', resetup);
+
+//Main fn that resolves circuit
 function play() {
 
     console.log("simulation");
@@ -190,9 +206,10 @@ function play() {
 
 }
 
+//wire object
 function Wire(node1, node2, scope) {
 
-
+    //if data changes
     this.updateData = function() {
         this.node1 = node1;
         this.scope = scope;
@@ -204,25 +221,20 @@ function Wire(node1, node2, scope) {
         this.y2 = node2.absY();
         if (this.x1 == this.x2) this.type = "vertical";
     }
+
     this.updateData();
     this.scope.wires.push(this);
-    // this.saveObject=function(){
-    //   var data={
-    //     node1:scope.allNodes.indexOf(this.node1),
-    //     node2:scope.allNodes.indexOf(this.node2),
-    //     x1:this.x1,
-    //     y1:this.y1,
-    //     y1:this.y1,
-    //   }
-    // }
+
+    //to check if nodes are disconnected
     this.checkConnections=function(){
-        // console.log("hit");
         var check=!node1.connections.contains(node2)||!node2.connections.contains(node1);
         if(check)this.delete();
         return check;
     }
+
+
     this.update = function() {
-        // if(wireToBeChecked)return;
+
         var updated = false;
         if(wireToBeChecked&&this.checkConnections()){this.delete();return;} // SLOW , REMOVE
         if (simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
@@ -235,7 +247,7 @@ function Wire(node1, node2, scope) {
             updated = true;
         }
 
-        if (this.node1.deleted || this.node2.deleted) this.delete();
+        if (this.node1.deleted || this.node2.deleted) this.delete(); //if either of the nodes are deleted
         if (simulationArea.mouseDown == false) {
             if (this.type == "horizontal") {
                 if (node1.absY() != this.y1) {
@@ -271,9 +283,11 @@ function Wire(node1, node2, scope) {
         drawLine(ctx, this.node1.absX(), this.node1.absY(), this.node2.absX(), this.node2.absY(), color, 3);
     }
 
+    // checks if node lies on wire
     this.checkConvergence = function(n) {
         return this.checkWithin(n.absX(), n.absY());
     }
+    // fn checks if coordinate lies on wire
     this.checkWithin = function(x, y) {
         if ((this.type == "horizontal") && (this.node1.absX() < this.node2.absX()) && (x > this.node1.absX()) && (x < this.node2.absX()) && (y === this.node2.absY()))
             return true;
@@ -286,11 +300,14 @@ function Wire(node1, node2, scope) {
         return false;
 
     }
+
+    //add intermediate node between these 2 nodes
     this.converge = function(n) {
         this.node1.connect(n);
         this.node2.connect(n);
         this.delete();
     }
+
 
     this.delete = function() {
         toBeUpdated = true;
@@ -300,10 +317,7 @@ function Wire(node1, node2, scope) {
     }
 }
 
-window.onresize = resetup;
-
-window.addEventListener('orientationchange', resetup);
-
+//simulation environment object
 var simulationArea = {
     canvas: document.getElementById("simulationArea"),
     selected: false,
@@ -322,15 +336,12 @@ var simulationArea = {
         this.context = this.canvas.getContext("2d");
         this.interval = setInterval(update, 50);
         this.ClockInterval = setInterval(clockTick, 2000);
-        // this.interval = setInterval(play, 300);
         this.mouseDown = false;
         window.addEventListener('mousemove', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
 
-            simulationArea.mouseRawX = (e.clientX - rect.left);// / simulationArea.scale;
+            simulationArea.mouseRawX = (e.clientX - rect.left);
             simulationArea.mouseRawY = (e.clientY - rect.top);
-            // simulationArea.mouseX = (e.clientX - rect.left) / simulationArea.scale;
-            // simulationArea.mouseY = (e.clientY - rect.top) / simulationArea.scale;
             simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
             simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
         });
@@ -338,8 +349,9 @@ var simulationArea = {
 
             wireToBeChecked=1;
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.delete();
+                simulationArea.lastSelected.delete(); // delete key
             }
+            //change direction fns
             if(e.keyCode==37&&simulationArea.lastSelected!=undefined){
 							newDirection(simulationArea.lastSelected,'right');
 						}
@@ -352,9 +364,11 @@ var simulationArea = {
             if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
 						 newDirection(simulationArea.lastSelected,'up');
 						}
+            // zoom in (+)
             if(e.keyCode==187 && simulationArea.scale < 4){
                 changeScale(.1);
             }
+            // zoom out (-)
             if(e.keyCode==189 && simulationArea.scale > 0.5){
 
                 changeScale(-.1);
@@ -364,16 +378,15 @@ var simulationArea = {
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDownRawX = (e.clientX - rect.left) ;// simulationArea.scale;
-            simulationArea.mouseDownRawY = (e.clientY - rect.top) ;// simulationArea.scale;
-            // simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
-            // simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
+            simulationArea.mouseDownRawX = (e.clientX - rect.left) ;
+            simulationArea.mouseDownRawY = (e.clientY - rect.top) ;
             simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
             simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
             simulationArea.mouseDown = true;
             simulationArea.oldx=simulationArea.ox;
             simulationArea.oldy=simulationArea.oy;
         });
+
         window.addEventListener('touchstart', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
 
@@ -391,6 +404,7 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDown = false;
         });
+
         window.addEventListener('mouseup', function(e) {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
@@ -410,18 +424,21 @@ var simulationArea = {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
+
+//fn to change scale (zoom) - It also shifts origin so that the position
+//of the object in focus doent change
 function changeScale(delta){
     var xx,yy;
-    if(simulationArea.lastSelected){
-        xx=simulationArea.lastSelected.element.x;//*simulationArea.scale+simulationArea.ox;
-        yy=simulationArea.lastSelected.element.y;//*simulationArea.scale+simulationArea.oy;
+
+    if(simulationArea.lastSelected){ // selected object
+        xx=simulationArea.lastSelected.element.x;
+        yy=simulationArea.lastSelected.element.y;
     }
-    else{
+    else{ //mouse location
         xx=simulationArea.mouseX;
         yy=simulationArea.mouseY;
     }
-    // xx=width/2;
-    // yy=height/2;
+
     var oldScale=simulationArea.scale;
     simulationArea.scale+=delta;
     simulationArea.scale = Math.round( simulationArea.scale*10) /10;
@@ -431,21 +448,20 @@ function changeScale(delta){
 
 function clockTick() {
     for (var i = 0; i < globalScope.clocks.length; i++)
-        globalScope.clocks[i].toggleState();
+        globalScope.clocks[i].toggleState(); //tick clock!
     if (globalScope.clocks.length) {
-        play();
+        play(); // simulate
     }
 }
 
 function update() {
-    // play();
-    // return;
+
 
     var updated = false;
     simulationArea.hover = false;
     // wireToBeChecked=true;
     if(wireToBeChecked){
-        if(wireToBeChecked==2)wireToBeChecked=0;
+        if(wireToBeChecked==2)wireToBeChecked=0; // this required due to timing issues
         else wireToBeChecked++;
         // WHY IS THIS REQUIRED ???? we are checking inside wire ALSO
         for(var i=0;i<globalScope.wires.length;i++)
@@ -456,49 +472,51 @@ function update() {
         for (var j = 0; j < globalScope.objects[i].length; j++)
             updated |= globalScope.objects[i][j].update();
     toBeUpdated |= updated;
-    // console.log(updated);
+
     if (toBeUpdated && simulationArea.mouseDown == false) {
         toBeUpdated = false;
         play();
     }
 
+
     if(!simulationArea.selected && simulationArea.mouseDown){
+        //mouse click NOT on object
         simulationArea.selected=true;
         simulationArea.lastSelected=globalScope.root;
         simulationArea.hover=true;
     }
     else if (simulationArea.lastSelected==globalScope.root && simulationArea.mouseDown){
+        //pane canvas
         simulationArea.ox=(simulationArea.mouseRawX-simulationArea.mouseDownRawX)+simulationArea.oldx;
         simulationArea.oy=(simulationArea.mouseRawY-simulationArea.mouseDownRawY)+simulationArea.oldy;
-        // simulationArea.oy=
-        // simulationArea.ox=Math.round(((simulationArea.mouseX+simulationArea.ox)-simulationArea.mouseDownX)/simulationArea.scale );
-        // simulationArea.oy=Math.round(((simulationArea.mouseY+simulationArea.oy)-simulationArea.mouseDownY)/simulationArea.scale);
     }
     else if(simulationArea.lastSelected==globalScope.root){
         simulationArea.lastSelected=undefined;
         simulationArea.selected=false;
         simulationArea.hover=false;
     }
+
+    //Draw
     simulationArea.clear();
-    dots();
+    dots(); // draw dots
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
             updated |= globalScope.objects[i][j].draw();
 
-
-
-
 }
 
+//fn to draw Dots on screen
 function dots() {
-    var canvasWidth = simulationArea.canvas.width;
-    var canvasHeight = simulationArea.canvas.height;
+    var canvasWidth = simulationArea.canvas.width; //max X distance
+    var canvasHeight = simulationArea.canvas.height;//max Y distance
+
     var ctx = simulationArea.context;
     var canvasData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+
     var scale=unit*simulationArea.scale;
-    // console.log(scale);
-    var ox=simulationArea.ox%scale;
-    var oy=simulationArea.oy%scale;
+    var ox=simulationArea.ox%scale;//offset
+    var oy=simulationArea.oy%scale;//offset
+
     function drawPixel(x, y, r, g, b, a) {
         var index = (x + y * canvasWidth) * 4;
         canvasData.data[index + 0] = r;
@@ -515,6 +533,7 @@ function dots() {
 
 }
 
+//Fn to replace node by node @ index in global Node List - used when loading
 function replace(node, index) {
     scope = node.scope;
     parent = node.parent;
@@ -524,35 +543,38 @@ function replace(node, index) {
     return node;
 }
 
-function findNodes(x) {
+//find Index of a node
+function findNode(x) {
     return x.scope.allNodes.indexOf(x);
 }
 
+//get Node in index x in scope and set parent
 function extractNode(x, scope, parent) {
     var n = scope.allNodes[x];
     n.parent = parent;
     return n;
 }
 
+//load AndGate fn
 function loadAnd(data, scope) {
     var v = new AndGate(data["x"], data["y"], scope, data["inputs"],data["dir"]);
     v.output1 = replace(v.output1, data["output1"]);
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
+//AndGate - (x,y)-position , scope - circuit level, inputLength - no of nodes, dir - direction of gate
 function AndGate(x, y, scope, inputLength, dir) {
-    // this.func=AndGate;
-    // [x, y, scope, inputLength, dir] = list;
-    // console.log(scope)
+
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
     uniqueIdCounter++;
     this.element = new Element(x, y, "and", 25, this);
     this.inp = [];
     this.direction=dir;
-    // this.list=list;
 
     this.inputs = inputLength;
+
+    //variable inputLength , node creation
     if (inputLength % 2 == 1) {
         for (var i = 0; i < inputLength / 2 - 1; i++) {
             var a = new Node(-10, -10 * (i + 1), 0, this);
@@ -574,21 +596,26 @@ function AndGate(x, y, scope, inputLength, dir) {
             this.inp.push(a);
         }
     }
+
     this.output1 = new Node(20, 0, 1, this);
+    //nodeList - List of Lists - all nodes of object here - used for refreshing when direction changes
     this.nodeList=[this.inp,[this.output1]];
     scope.andGates.push(this);
 
+    //fn to create save Json Data of object
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
             inputs: this.inputs,
-            inp: this.inp.map(findNodes),
-            output1: this.scope.allNodes.indexOf(this.output1),
+            inp: this.inp.map(findNode),
+            output1: findNode(this.output1),
             dir:this.direction,
         }
         return data;
     }
+
+    // checks if the module has enough information to resolve
     this.isResolvable = function() {
         var res1 = true;
         for (var i = 0; i < inputLength; i++)
@@ -596,6 +623,7 @@ function AndGate(x, y, scope, inputLength, dir) {
         return res1;
     }
 
+    //resolve output values based on inputData
     this.resolve = function() {
         var result = true;
         if (this.isResolvable() == false) {
@@ -606,16 +634,21 @@ function AndGate(x, y, scope, inputLength, dir) {
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
+
+    //fn to update everything - location, hover etc
     this.update = function() {
+
         var updated = false;
-        for (var j = 0; j < inputLength; j++) {
+        //nodes updation
+        for (var j = 0; j < inputLength; j++)
             updated |= this.inp[j].update();
-        }
         updated |= this.output1.update();
+        //module update
         updated |= this.element.update();
         return updated;
     }
 
+    //fn to draw
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -644,10 +677,14 @@ function AndGate(x, y, scope, inputLength, dir) {
 
         this.output1.draw();
 
+        //for debugging
         if (this.element.b.hover)
             console.log(this,this.id);
     }
+
+    //fn to delete object
     this.delete = function() {
+        //delete all object nodes
         this.output1.delete();
         for (var i = 0; i < inputLength; i++) {
             this.inp[i].delete();
@@ -663,8 +700,8 @@ function loadSubCircuit(savedData, scope) {
     // for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
 }
 
+//subCircuit
 function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
-
 
     this.savedData=savedData;
     this.direction=dir;
@@ -722,8 +759,8 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
             dataHash: this.dataHash,
             height:this.height,
             width:this.width,
-            inputNodes: this.inputNodes.map(findNodes),
-            outputNodes: this.outputNodes.map(findNodes),
+            inputNodes: this.inputNodes.map(findNode),
+            outputNodes: this.outputNodes.map(findNode),
         }
         return data;
     }
@@ -780,6 +817,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
         }
 
     }
+
     this.isResolvable = function() {
         for (i = 0; i < this.inputNodes.length; i++) {
             if (this.inputNodes[i].isResolvable() == false) return false;
@@ -808,6 +846,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
         }
 
     }
+
     this.update = function() {
         var updated = false;
         for (var i = 0; i < this.inputNodes.length; i++)
@@ -841,6 +880,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
         if (this.element.b.hover)
             console.log(this,this.id);
     }
+
     this.delete = function() {
         this.scope.subCircuits.clean(this);
         for (var i = 0; i < this.inputNodes.length; i++) this.inputNodes[i].delete();
@@ -872,7 +912,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     this.c = new Node(+10, +50, 0, this);
     this.dot = new Node(+20, +50, 0, this);
 
-
     scope.sevenseg.push(this);
 
     this.isResolvable = function() {
@@ -880,21 +919,21 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     }
 
     this.resolve = function() {
-
+        //dummy function
     }
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            g: this.scope.allNodes.indexOf(this.g),
-            f: this.scope.allNodes.indexOf(this.f),
-            a: this.scope.allNodes.indexOf(this.a),
-            b: this.scope.allNodes.indexOf(this.b),
-            d: this.scope.allNodes.indexOf(this.d),
-            e: this.scope.allNodes.indexOf(this.e),
-            c: this.scope.allNodes.indexOf(this.c),
-            d: this.scope.allNodes.indexOf(this.d),
-            dot: this.scope.allNodes.indexOf(this.dot),
+            g: findNode(this.g),
+            f: findNode(this.f),
+            a: findNode(this.a),
+            b: findNode(this.b),
+            d: findNode(this.d),
+            e: findNode(this.e),
+            c: findNode(this.c),
+            d: findNode(this.d),
+            dot: findNode(this.dot),
             dir:this.direction,
         }
         return data;
@@ -906,8 +945,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.lineWidth = 5 ;
         xx=this.element.x;
         yy=this.element.y;
-        // ctx.moveTo(this.element.x + x1 +ox, this.element.y + y1+oy);
-        // ctx.lineTo(this.element.x + x2 +ox, this.element.y + y2+oy);
         moveTo(ctx,x1,y1,xx,yy,this.direction);
         lineTo(ctx,x2,y2,xx,yy,this.direction);
         ctx.stroke();
@@ -935,7 +972,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.beginPath();
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3 ;
-        // ctx.rect(xx - 30 +ox, yy - 50+oy, 60, 100);
         rect(ctx,xx - 30, yy - 50, 60, 100)
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
 
@@ -1024,8 +1060,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
             x: this.element.x,
             y: this.element.y,
             inputs: this.inputs,
-            inp: this.inp.map(findNodes),
-            output1: this.scope.allNodes.indexOf(this.output1),
+            inp: this.inp.map(findNode),
+            output1: findNode(this.output1),
             dir:this.direction,
         }
         return data;
@@ -1069,7 +1105,7 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
         var yy = this.element.y;
         ctx.beginPath();
         ctx.fillStyle = "rgba(255, 255, 32,0.5)";
-        // this.direction="left";
+
         moveTo(ctx,-10,-20,xx ,yy,this.direction);
         bezierCurveTo(0,  - 20,  + 15, - 10,  20, 0 ,xx,yy,this.direction);
         bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20,  - 10,  + 20,xx,yy,this.direction);
@@ -1082,8 +1118,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
             this.inp[i].draw();
 
         this.output1.draw();;
-        // if (this.element.b.isHover())
-        //     console.log(this,this.id);
+        if (this.element.b.isHover())
+            console.log(this,this.id);
     }
     this.delete = function() {
         this.output1.delete();
@@ -1101,14 +1137,11 @@ function loadNot(data, scope) {
 }
 
 function NotGate(x, y, scope, dir) {
-    // this.func=NotGate;
-    // [x, y, scope, dir]=list;
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "not", 15, this);
     this.direction=dir;
-    // this.list=list;
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     scope.notGates.push(this);
@@ -1117,8 +1150,8 @@ function NotGate(x, y, scope, dir) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            output1: this.scope.allNodes.indexOf(this.output1),
-            inp1: this.scope.allNodes.indexOf(this.inp1),
+            output1: findNode(this.output1),
+            inp1: findNode(this.inp1),
             dir:this.direction,
         }
         return data;
@@ -1202,7 +1235,7 @@ function Input(x, y, scope, dir) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            output1: this.scope.allNodes.indexOf(this.output1),
+            output1: findNode(this.output1),
             dir:this.direction,
         }
         return data;
@@ -1375,10 +1408,7 @@ function FlipFlop(x, y, scope, dir) {
 }
 
 function Clock(x, y, f, scope , dir) {
-    // [x, y, f, scope , dir] = list;
-    // this.func = Clock;
     this.direction=dir;
-    // this.list=list;
     this.id = 'clock' + uniqueIdCounter;
     this.f = f;
     this.scope = scope;
@@ -1434,9 +1464,6 @@ function Clock(x, y, f, scope , dir) {
         ctx.stroke();
 
         ctx.beginPath();
-        // ctx.font="20px Georgia";
-        // ctx.fillStyle="green";
-        // fillText(this.state.toString(),xx-5,yy+5);
         ctx.strokeStyle = ["DarkGreen", "Lime"][this.state];
         ctx.lineWidth = 2 ;
         if (this.state == 0) {
@@ -1496,7 +1523,7 @@ function Ground(x, y, scope = globalScope) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            output1: this.scope.allNodes.indexOf(this.output1),
+            output1: findNode(this.output1),
         }
         return data;
     }
@@ -1566,7 +1593,7 @@ function Power(x, y, scope = globalScope) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            output1: this.scope.allNodes.indexOf(this.output1),
+            output1: findNode(this.output1),
         }
         return data;
     }
@@ -1616,12 +1643,9 @@ function loadOutput(data, scope) {
 }
 
 function Output(x, y, scope, dir) {
-    // this.func=Output;
-    // [x, y, scope, dir] = list;
     this.scope = scope;
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
-    // this.list=list;
     this.direction=dir;
     this.element = new Element(x, y, "output", 15, this);
     this.inp1 = new Node(10, 0, 0, this);
@@ -1699,8 +1723,6 @@ function Element(x, y, type, r, parent) {
         var updated = false;
         updated |= this.b.update();
         if (this.b.clicked) simulationArea.lastSelected = parent;
-        // this.b.x=Math.round(this.b.x/unit)*unit;
-        // this.b.y=Math.round(this.b.y/unit)*unit;
         this.x = this.b.x;
         this.y = this.b.y;
         return updated;
@@ -1720,6 +1742,7 @@ function constructNodeConnections(node, data) {
     for (var i = 0; i < data["connections"].length; i++)
         if (!node.connections.contains(node.scope.allNodes[data["connections"][i]])) node.connect(node.scope.allNodes[data["connections"][i]]);
 }
+
 //output node=1
 //input node=0
 //intermediate node =2
@@ -1732,10 +1755,6 @@ function Node(x, y, type, parent) {
     this.x=x;
     this.y=y;
 
-
-
-
-
     this.type = type;
     this.connections = new Array();
     this.value = -1;
@@ -1746,6 +1765,8 @@ function Node(x, y, type, parent) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
+
+    //This fn is called during rotations and setup
     this.refresh=function(){
         [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
         for (var i = 0; i < this.connections.length; i++) {
@@ -1754,7 +1775,9 @@ function Node(x, y, type, parent) {
         this.connections=[];
 
     }
+
     this.refresh();
+
     this.saveObject = function() {
         var data = {
             x: this.x,
@@ -1763,12 +1786,14 @@ function Node(x, y, type, parent) {
             connections: [],
         }
         for (var i = 0; i < this.connections.length; i++) {
-            data["connections"].push(this.scope.allNodes.indexOf(this.connections[i]));
+            data["connections"].push(findNode(this.connections[i]));
         }
         return data;
     }
+
     if (this.type == 2)
         this.parent.scope.nodes.push(this);
+
     this.parent.scope.allNodes.push(this);
 
     this.absX = function() {
@@ -1780,17 +1805,21 @@ function Node(x, y, type, parent) {
 
     this.prevx = this.absX();
     this.prevy = this.absY();
+
     this.isResolvable = function() {
         return this.value != -1;
     }
+
     this.reset = function() {
         this.value = -1;
     }
+
     this.connect = function(n) {
         var w = new Wire(this, n, this.parent.scope);
         this.connections.push(n);
         n.connections.push(this);
     }
+
     this.resolve = function() {
         if (this.value == -1) {
             return;
@@ -1806,9 +1835,11 @@ function Node(x, y, type, parent) {
             }
         }
     }
+
     this.draw = function() {
-        // if (this.isHover())
-        //     console.log(this,this.id);
+        if (this.isHover())
+            console.log(this,this.id);
+
         var ctx = simulationArea.context;
 
         if (this.clicked) {
@@ -1842,6 +1873,7 @@ function Node(x, y, type, parent) {
 
 
     }
+
     this.update = function() {
         if (!this.clicked && !simulationArea.mouseDown) {
             var px = this.prevx;
@@ -2001,6 +2033,7 @@ function Node(x, y, type, parent) {
 
 
     }
+
     this.delete = function() {
         toBeUpdated = true;
         this.deleted = true;
@@ -2011,14 +2044,17 @@ function Node(x, y, type, parent) {
             this.connections[i].connections.clean(this);
         }
     }
+
     this.isClicked = function() {
         if (distance(this.absX(), this.absY(), simulationArea.mouseDownX, simulationArea.mouseDownY) <= this.radius * 1.5) return true;
         return false;
     }
+
     this.isHover = function() {
         if (distance(this.absX(), this.absY(), simulationArea.mouseX, simulationArea.mouseY) <= this.radius * 1.5) return true;
         return false;
     }
+
     this.nodeConnect = function() {
         var x = this.absX();
         var y = this.absY();
@@ -2049,6 +2085,7 @@ function Node(x, y, type, parent) {
 
 }
 
+
 function Button(x, y, radius) {
     this.x = x;
     this.y = y;
@@ -2056,12 +2093,6 @@ function Button(x, y, radius) {
     this.clicked = false;
     this.hover = false;
     this.draw = function() {
-        // var ctx = simulationArea.context;
-        // if (this.clicked || (this.isHover() && !simulationArea.selected)) {
-        // 		drawCircle(ctx,this.x,this.y,this.radius,"black");
-        // 		return true;
-        // }
-        // return false;
 
     }
     this.update = function() {
@@ -2150,8 +2181,6 @@ function addSubCircuit() {
     var a = new SubCircuit(400, 150);
 }
 
-
-
 function bezierCurveTo(x1,y1,x2,y2,x3,y3,xx,yy,dir){
   [x1,y1]=rotate(x1,y1,dir);
   [x2,y2]=rotate(x2,y2,dir);
@@ -2168,6 +2197,7 @@ function bezierCurveTo(x1,y1,x2,y2,x3,y3,xx,yy,dir){
   yy = yy*simulationArea.scale;
   ctx.bezierCurveTo(xx+ox+x1,yy+oy+y1,xx+ox+x2,yy+oy+y2,xx+ox+x3,yy+oy+y3);
 }
+
 function moveTo(ctx,x1,y1,xx,yy,dir){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*simulationArea.scale;
@@ -2176,6 +2206,7 @@ function moveTo(ctx,x1,y1,xx,yy,dir){
   yy = yy*simulationArea.scale;
   ctx.moveTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
+
 function lineTo(ctx,x1,y1,xx,yy,dir){
   [newX,newY]=rotate(x1,y1,dir);
   newX = newX*simulationArea.scale;
@@ -2184,6 +2215,7 @@ function lineTo(ctx,x1,y1,xx,yy,dir){
   yy = yy*simulationArea.scale;
   ctx.lineTo(xx+simulationArea.ox+newX,yy+simulationArea.oy+newY);
 }
+
 function arc(ctx,sx,sy,radius,start,stop,xx,yy,dir){        //ox-x of origin, xx- x of element , sx - shift in x from element
 
   [Sx,Sy]= rotate(sx,sy,dir);
@@ -2196,6 +2228,7 @@ function arc(ctx,sx,sy,radius,start,stop,xx,yy,dir){        //ox-x of origin, xx
   // console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
+
 function rect(ctx,x1,y1,x2,y2){
   x1 = x1*simulationArea.scale;
   y1 = y1*simulationArea.scale;
@@ -2203,6 +2236,7 @@ function rect(ctx,x1,y1,x2,y2){
   y2 = y2*simulationArea.scale;
   ctx.rect(simulationArea.ox + x1, simulationArea.oy + y1, x2,  y2);
 }
+
 function rect2(ctx,x1,y1,x2,y2,xx,yy,dir){
 
   [x1,y1]=rotate(x1,y1,dir);
@@ -2228,17 +2262,19 @@ function newDirection(obj,dir){
         }
     }
 
+    //oldMethod for changing direction
     // for(var i=0;i<globalScope.wires.length;i++)
     //     globalScope.wires[i].checkConnections();
-  // var newFunction=obj.func;
-  // obj.list.pop();
-  // obj.list.push(dir);
-  // obj.list[0]=obj.element.x;
-  // obj.list[1]=obj.element.y;
-  // var b= new newFunction(obj.list);
-  // obj.delete();
-  // simulationArea.lastSelected=b;
+    // var newFunction=obj.func;
+    // obj.list.pop();
+    // obj.list.push(dir);
+    // obj.list[0]=obj.element.x;
+    // obj.list[1]=obj.element.y;
+    // var b= new newFunction(obj.list);
+    // obj.delete();
+    // simulationArea.lastSelected=b;
 }
+
 function rotate(x1,y1,dir){
   if(dir=='right')
     return [-x1,y1];
@@ -2249,6 +2285,7 @@ function rotate(x1,y1,dir){
   else
     return [x1,y1];
 }
+
 function rotateAngle(start,stop,dir){
   if(dir=='right')
     return [start,stop,true];
@@ -2284,6 +2321,7 @@ function drawCircle(ctx, x1, y1, r, color) {
     ctx.closePath();
     ctx.fill();
 }
+
 function fillText(ctx,str, x1, y1 ) {
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
