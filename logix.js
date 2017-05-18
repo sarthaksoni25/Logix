@@ -6,7 +6,7 @@ toBeUpdated=true;
 wireToBeChecked=0; // when node disconnects from another node
 willBeUpdated=false;
 function scheduleUpdate(){
-
+    return;
     if(willBeUpdated)return;
 
     if(simulationArea.mouseDown)
@@ -101,6 +101,7 @@ function resetup() {
     width = window.innerWidth ;
     height = window.innerHeight ;
     simulationArea.setup();
+    scheduleUpdate();
 }
 
 window.onresize = resetup;
@@ -162,7 +163,7 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        // this.interval = setInterval(update, 50);
+        this.interval = setInterval(update, 50);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
 

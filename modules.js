@@ -9,6 +9,7 @@ function loadAnd(data, scope) {
 //AndGate - (x,y)-position , scope - circuit level, inputLength - no of nodes, dir - direction of gate
 function AndGate(x, y, scope, inputLength, dir) {
 
+    this.bitWidth=prompt("Enter bitWidth:");
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
     uniqueIdCounter++;
@@ -466,18 +467,22 @@ function loadInput(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Input(x, y, scope, dir) {
+function Input(x, y, scope, dir,bitWidth=1) {
     // this.func=Input;
     // [x, y, scope, dir] = list;
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     // this.list=list;
+    this.bitWidth=bitWidth;
     this.direction=dir;
     this.element = new Element(x, y, "input", 15, this);
+
+    this.state = prompt("Enter value:");
+    this.bitWidth=this.state.length;
+    this.state=bin2dec(this.state);// in integer format
+    console.log(this.state);
     this.output1 = new Node(10, 0, 1, this);
-    this.state = 0;
-    this.output1.value = this.state;
     scope.inputs.push(this);
     this.wasClicked = false;
     this.nodeList=[[this.output1]];
@@ -499,8 +504,8 @@ function Input(x, y, scope, dir) {
         this.scope.stack.push(this.output1);
     }
     this.toggleState = function() {
-        this.state = (this.state + 1) % 2;
-        this.output1.value = this.state;
+        // this.state = (this.state + 1) % 2;
+        // this.output1.value = this.state;
     }
     this.update = function() {
         var updated = false;
@@ -539,7 +544,7 @@ function Input(x, y, scope, dir) {
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
 
-        fillText(ctx,this.state.toString(), xx - 5, yy + 5);
+        fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -558,23 +563,21 @@ function loadGround(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Ground(x, y, scope = globalScope) {
+function Ground(x, y, scope = globalScope,bitWidth=2) {
 
     this.id = 'ground' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "ground", 20, this);
     this.output1 = new Node(0, -10, 1, this);
-    this.state = 0;
-
+    this.bitWidth=bitWidth;
     this.output1.value = this.state;
     scope.grounds.push(this);
     console.log(this);
     this.wasClicked = false;
     this.resolve = function() {
-        this.output1.value = this.state;
+        this.output1.value = 0;
         this.scope.stack.push(this.output1);
-
     }
     this.saveObject = function() {
         var data = {
@@ -630,20 +633,20 @@ function loadPower(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Power(x, y, scope = globalScope) {
+function Power(x, y, scope = globalScope,bitWidth=1) {
     this.id = 'power' + uniqueIdCounter;
     this.scope = scope;
     uniqueIdCounter++;
+    this.bitWidth=bitWidth;
     this.element = new Element(x, y, "power", 15, this);
     this.output1 = new Node(0, 20, 1, this);
-    this.state = 1;
-
     this.output1.value = this.state;
     scope.powers.push(this);
     this.wasClicked = false;
 
     this.resolve = function() {
-        this.output1.value = this.state;
+
+        this.output1.value=~0>>>(32-this.bitWidth);
         this.scope.stack.push(this.output1);
     }
     this.saveObject = function() {
@@ -699,11 +702,13 @@ function loadOutput(data, scope) {
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function Output(x, y, scope, dir) {
+function Output(x, y, scope, dir,bitWidth=1) {
     this.scope = scope;
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
     this.direction=dir;
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.element = new Element(x, y, "output", 15, this);
     this.inp1 = new Node(10, 0, 0, this);
     this.state = -1;
@@ -757,7 +762,7 @@ function Output(x, y, scope, dir) {
         if (this.state == -1)
             fillText(ctx,"x", xx - 5, yy + 5);
         else
-            fillText(ctx,this.state.toString(), xx - 5, yy + 5);
+            fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
         ctx.stroke();
 
         this.element.draw();

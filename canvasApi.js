@@ -161,6 +161,7 @@ function drawCircle(ctx, x1, y1, r, color) {
 function fillText(ctx,str, x1, y1 ) {
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
-    ctx.font = 20*simulationArea.scale+"px Georgia";
+    // ctx.font = 20*simulationArea.scale+"px Georgia";
+    ctx.font = 10+"px Georgia";
     ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
 }
