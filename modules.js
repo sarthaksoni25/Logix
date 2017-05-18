@@ -806,12 +806,9 @@ function Output(x, y, scope, dir,bitWidth=1) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-<<<<<<< Updated upstream
-        ctx.font = "19px Georgia";
-        if (this.state == undefined)
-=======
+
         if (this.state == undefined || this.state == -1 )
->>>>>>> Stashed changes
+
             fillText(ctx,"x", xx - 5, yy + 5);
         else{
             // fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
