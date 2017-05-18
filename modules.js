@@ -508,9 +508,23 @@ function Input(x, y, scope, dir,bitWidth=1) {
         this.output1.value = this.state;
         this.scope.stack.push(this.output1);
     }
-    this.toggleState = function() {
+    this.toggleState = function(pos) {
+        var binary = dec2bin(this.state);
+        var newBin;
+        // bin[pos] = ((parseInt(bin[pos])+1)%2).toString();
+        if(binary[pos]==="0")
+            newBin = binary.slice(0,pos) + "1" + binary.slice(pos+1) ;
+
+        else
+            newBin = binary.slice(0,pos) + "0" + binary.slice(pos+1) ;
+
+
+        console.log(newBin);
+        this.state = bin2dec(newBin);
+        this.draw();
         // this.state = (this.state + 1) % 2;
         // this.output1.value = this.state;
+
     }
     this.update = function() {
         var updated = false;
@@ -520,9 +534,9 @@ function Input(x, y, scope, dir,bitWidth=1) {
         if (simulationArea.mouseDown == false)
             this.wasClicked = false;
 
-        if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
-            this.toggleState();
-            this.wasClicked = true;
+        if (simulationArea.mouseDown && !this.wasClicked && simulationArea.lock==="locked") {//&& this.element.b.clicked afterwards
+            if(this.isClicked());
+              this.wasClicked = true;
         }
 
 
@@ -549,8 +563,8 @@ function Input(x, y, scope, dir,bitWidth=1) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        bin = dec2bin(this.state);
-        for(var k=0;k<bin.length;k++)
+        var bin = dec2bin(this.state);
+        for(var k=0;k<this.bitWidth;k++)
           fillText(ctx,bin[k], xx-20*this.bitWidth+15+(k)*20, yy + 5);
         ctx.stroke();
 
@@ -593,6 +607,29 @@ function Input(x, y, scope, dir,bitWidth=1) {
           }
       }
 
+    }
+    this.isClicked = function(){
+        var xx=this.element.x;
+        var yy=this.element.y;
+        if(simulationArea.mouseX<=xx+10 && simulationArea.mouseX>=xx-20*this.bitWidth+10 && simulationArea.mouseY<=yy+10 && simulationArea.mouseY>=yy-10){
+          this.checkRegion();
+          return true;
+        }
+
+        else {
+          return false;
+        }
+    }
+    this.checkRegion = function(){
+
+      for(var i=0;i<this.bitWidth;i++)
+      {
+        var xx=this.element.x;
+        var yy=this.element.y;
+        if(simulationArea.mouseX<=xx-20*this.bitWidth+15+i*20+10 && simulationArea.mouseX>=xx-20*this.bitWidth+15+i*20-10){
+          this.toggleState(i);
+        }
+      }
     }
 }
 function loadGround(data, scope) {

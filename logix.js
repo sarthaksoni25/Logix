@@ -155,7 +155,7 @@ var simulationArea = {
     clickCount:0, //double click
     lock:"unlocked",
     timer: function(){
-      setTimeout(function() {
+      ckickTimer=setTimeout(function() {
       simulationArea.clickCount = 0;
     }, 600);
     },
@@ -226,11 +226,11 @@ var simulationArea = {
             }
             else if(simulationArea.clickCount===1){
               simulationArea.clickCount=0;
-              console.log("Double",simulationArea.lock);
               if(simulationArea.lock==="locked")
                 simulationArea.lock = "unlocked";
               else
                 simulationArea.lock = "locked";
+              console.log("Double",simulationArea.lock);  
             }
 
         });
