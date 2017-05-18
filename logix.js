@@ -8,8 +8,12 @@ willBeUpdated=false;
 function scheduleUpdate(){
 
     if(willBeUpdated)return;
+
+    if(simulationArea.mouseDown)
+        setTimeout(update, 100);
+    else
+        setTimeout(update, 200);
     willBeUpdated=true;
-    setTimeout(update, 80);
 
 }
 //fn to remove elem in array
@@ -88,6 +92,7 @@ function setup() {
 
     //setup simulationArea
     simulationArea.setup();
+    scheduleUpdate();
 
 }
 
@@ -156,11 +161,11 @@ var simulationArea = {
         window.addEventListener('mousemove', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
-
             simulationArea.mouseRawX = (e.clientX - rect.left);
             simulationArea.mouseRawY = (e.clientY - rect.top);
             simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
             simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
         });
         window.addEventListener('keydown', function(e) {
             scheduleUpdate();
@@ -190,8 +195,10 @@ var simulationArea = {
 
                 changeScale(-.1);
             }
+            // update();
         })
         window.addEventListener('mousedown', function(e) {
+            update();
             scheduleUpdate();
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
@@ -205,6 +212,7 @@ var simulationArea = {
             simulationArea.oldy=simulationArea.oy;
         });
         window.addEventListener('mouseup', function(e) {
+            update();
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
@@ -249,7 +257,7 @@ var simulationArea = {
 //fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
-    console.log("UPDATE");
+    // console.log("UPDATE");
     willBeUpdated=false;
     var updated = false;
     simulationArea.hover = false;
