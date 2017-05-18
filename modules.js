@@ -482,7 +482,7 @@ function Input(x, y, scope, dir,bitWidth=1) {
     this.bitWidth=bitWidth;
     this.direction=dir;
     this.element = new Element(x, y, "input", 15, this);
-
+    this.prevDir = dir;
     this.state = prompt("Enter value:");
     this.bitWidth=this.state.length;
     this.state=bin2dec(this.state);// in integer format
@@ -541,15 +541,17 @@ function Input(x, y, scope, dir,bitWidth=1) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        rect(ctx,xx-10,yy-10,20,20);
+        rect2(ctx,-20*this.bitWidth+10,-10,20*this.bitWidth,20,xx,yy,"left");
+        this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-
-        fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
+        bin = dec2bin(this.state);
+        for(var k=0;k<bin.length;k++)
+          fillText(ctx,bin[k], xx-20*this.bitWidth+15+(k)*20, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -560,6 +562,36 @@ function Input(x, y, scope, dir,bitWidth=1) {
         this.output1.delete();
         simulationArea.lastSelected = undefined;
         scope.inputs.clean(this);
+
+    }
+    this.checkNodeDirection = function(){
+      if(this.prevDir!==this.direction)
+      {
+        if(this.direction==="right"){
+          this.output1.leftx = 20*this.bitWidth-10;
+          this.output1.lefty = 0;
+          this.prevDir=this.direction;
+          this.output1.refresh();
+        }
+        else if(this.direction==="left"){
+          this.output1.leftx=10;
+          this.output1.lefty = 0;
+          this.prevDir=this.direction;
+          this.output1.refresh();
+        }
+        else if(this.direction==="up"){
+            this.output1.leftx=10;
+            this.output1.lefty=-10*(this.bitWidth-1);
+            this.prevDir=this.direction;
+            this.output1.refresh();
+          }
+        else if(this.direction==="down"){
+            this.output1.leftx=10;
+            this.output1.lefty=-10*(this.bitWidth-1);
+            this.prevDir=this.direction;
+            this.output1.refresh();
+          }
+      }
 
     }
 }
@@ -716,6 +748,7 @@ function Output(x, y, scope, dir,bitWidth=1) {
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
     this.direction=dir;
+    this.prevDir=dir;
     this.bitWidth=bitWidth;
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.element = new Element(x, y, "output", 15, this);
@@ -761,17 +794,32 @@ function Output(x, y, scope, dir,bitWidth=1) {
         ctx.beginPath();
         var xx = this.element.x;
         var yy = this.element.y;
-        arc(ctx,0,0,10,0,2* Math.PI,xx,yy,this.direction);
+        // arc(ctx,0,0,10,0,2* Math.PI,xx,yy,this.direction);
+        rect2(ctx,-20*this.bitWidth+10,-10,20*this.bitWidth,20,xx,yy,"left");
+        this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
+        // ctx.beginPath();
+        // ctx.fillStyle = "green";
+        // ctx.font = "19px Georgia";
         ctx.beginPath();
+        ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
+<<<<<<< Updated upstream
         ctx.font = "19px Georgia";
         if (this.state == undefined)
+=======
+        if (this.state == undefined || this.state == -1 )
+>>>>>>> Stashed changes
             fillText(ctx,"x", xx - 5, yy + 5);
-        else
-            fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
+        else{
+            // fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
+            bin = dec2bin(this.state);
+            for(var k=0;k<bin.length;k++)
+              fillText(ctx,bin[k], xx-20*this.bitWidth+15+(k)*20, yy + 5);
+            ctx.stroke();
+          }
         ctx.stroke();
 
         this.element.draw();
@@ -781,5 +829,32 @@ function Output(x, y, scope, dir,bitWidth=1) {
         this.inp1.delete();
         simulationArea.lastSelected = undefined;
         this.scope.outputs.clean(this);
+    }
+    this.checkNodeDirection = function(){
+        if(this.direction==="right" && this.prevDir!==this.direction){
+          this.inp1.leftx = 20*this.bitWidth-10;
+          this.inp1.lefty = 0;
+          this.prevDir=this.direction;
+          this.inp1.refresh();
+        }
+        else if(this.direction==="left"&& this.prevDir!==this.direction){
+          this.inp1.leftx=10;
+          this.inp1.lefty = 0;
+          this.prevDir=this.direction;
+          this.inp1.refresh();
+        }
+        else if(this.direction==="up"&& this.prevDir!==this.direction){
+            this.inp1.leftx=10;
+            this.inp1.lefty=-10*(this.bitWidth-1);
+            this.prevDir=this.direction;
+            this.inp1.refresh();
+          }
+        else if(this.direction==="down"&& this.prevDir!==this.direction){
+            this.inp1.leftx=10;
+            this.inp1.lefty=-10*(this.bitWidth-1);
+            this.prevDir=this.direction;
+            this.inp1.refresh();
+          }
+
     }
 }
