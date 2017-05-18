@@ -4,7 +4,14 @@ uniqueIdCounter = 0;
 unit = 10;
 toBeUpdated=true;
 wireToBeChecked=0; // when node disconnects from another node
+willBeUpdated=false;
+function scheduleUpdate(){
 
+    if(willBeUpdated)return;
+    willBeUpdated=true;
+    setTimeout(update, 80);
+
+}
 //fn to remove elem in array
 Array.prototype.clean = function(deleteValue) {
     for (var i = 0; i < this.length; i++) {
@@ -143,10 +150,11 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 50);
+        // this.interval = setInterval(update, 50);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
         window.addEventListener('mousemove', function(e) {
+            scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
 
             simulationArea.mouseRawX = (e.clientX - rect.left);
@@ -155,7 +163,7 @@ var simulationArea = {
             simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
         });
         window.addEventListener('keydown', function(e) {
-
+            scheduleUpdate();
             wireToBeChecked=1;
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
                 simulationArea.lastSelected.delete(); // delete key
@@ -184,6 +192,7 @@ var simulationArea = {
             }
         })
         window.addEventListener('mousedown', function(e) {
+            scheduleUpdate();
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -195,26 +204,8 @@ var simulationArea = {
             simulationArea.oldx=simulationArea.ox;
             simulationArea.oldy=simulationArea.oy;
         });
-
-        window.addEventListener('touchstart', function(e) {
-            var rect = simulationArea.canvas.getBoundingClientRect();
-
-            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
-            simulationArea.mouseDown = true;
-        });
-        window.addEventListener('touchend', function(e) {
-            var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDown = false;
-        });
-        window.addEventListener('touchleave', function(e) {
-            var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseDown = false;
-        });
-
         window.addEventListener('mouseup', function(e) {
+            scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
             simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
@@ -224,10 +215,31 @@ var simulationArea = {
             simulationArea.mouseDown = false;
         });
         window.addEventListener('touchmove', function(e) {
+            scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseX = (e.touches[0].clientX - rect.left) ;
             simulationArea.mouseY = (e.touches[0].clientY - rect.top) ;
         })
+        window.addEventListener('touchstart', function(e) {
+            scheduleUpdate();
+            var rect = simulationArea.canvas.getBoundingClientRect();
+
+            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
+            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
+            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
+            simulationArea.mouseDown = true;
+        });
+        window.addEventListener('touchend', function(e) {
+            scheduleUpdate();
+            var rect = simulationArea.canvas.getBoundingClientRect();
+            simulationArea.mouseDown = false;
+        });
+        window.addEventListener('touchleave', function(e) {
+            scheduleUpdate();
+            var rect = simulationArea.canvas.getBoundingClientRect();
+            simulationArea.mouseDown = false;
+        });
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -237,8 +249,8 @@ var simulationArea = {
 //fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
-
-
+    console.log("UPDATE");
+    willBeUpdated=false;
     var updated = false;
     simulationArea.hover = false;
     // wireToBeChecked=true;
