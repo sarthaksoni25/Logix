@@ -14,7 +14,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "FlipFlip", 40, this);
-    this.clockInp = new Node(-20, -10, 0, this);
+    this.clockInp = new Node(-20, -10, 0, this,1);
     this.dInp = new Node(-20, +10, 0, this);
     this.qOutput = new Node(20, -10, 1, this);
     this.masterState = 0;
@@ -116,7 +116,7 @@ function Clock(x, y, f, scope , dir) {
     this.timeInterval = 1000 / f;
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
-    this.output1 = new Node(10, 0, 1, this);
+    this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;
     scope.clocks.push(this);

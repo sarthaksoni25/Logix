@@ -163,11 +163,12 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     this.d = new Node(-10, +50, 0, this);
     this.c = new Node(+10, +50, 0, this);
     this.dot = new Node(+20, +50, 0, this);
-
+    this.direction="left";
     scope.sevenseg.push(this);
 
     this.isResolvable = function() {
-        return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
+        return false;
+        // return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
     }
 
     this.resolve = function() {
@@ -191,6 +192,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         return data;
     }
     this.drawSegment = function(x1, y1, x2, y2, color) {
+        if(color==undefined)color="grey";
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = color;
@@ -199,6 +201,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         yy=this.element.y;
         moveTo(ctx,x1,y1,xx,yy,this.direction);
         lineTo(ctx,x2,y2,xx,yy,this.direction);
+        ctx.closePath();
         ctx.stroke();
     }
 
@@ -230,16 +233,16 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        this.drawSegment(20, -5, 20, -35, ["grey", "black", "red"][this.b.value + 1]);
-        this.drawSegment(20, 5, 20, 35, ["grey", "black", "red"][this.c.value + 1]);
-        this.drawSegment(-20, -5, -20, -35, ["grey", "black", "red"][this.f.value + 1]);
-        this.drawSegment(-20, 5, -20, 35, ["grey", "black", "red"][this.e.value + 1]);
-        this.drawSegment(-15, -40, 15, -40, ["grey", "black", "red"][this.a.value + 1]);
-        this.drawSegment(-15, 0, 15, 0, ["grey", "black", "red"][this.g.value + 1]);
-        this.drawSegment(-15, 40, 15, 40, ["grey", "black", "red"][this.d.value + 1]);
+        this.drawSegment(20, -5, 20, -35, ["black", "red"][this.b.value]);
+        this.drawSegment(20, 5, 20, 35, ["black", "red"][this.c.value]);
+        this.drawSegment(-20, -5, -20, -35, ["black", "red"][this.f.value]);
+        this.drawSegment(-20, 5, -20, 35, ["black", "red"][this.e.value]);
+        this.drawSegment(-15, -40, 15, -40, ["black", "red"][this.a.value]);
+        this.drawSegment(-15, 0, 15, 0, ["black", "red"][this.g.value]);
+        this.drawSegment(-15, 40, 15, 40, ["black", "red"][this.d.value]);
 
         ctx.beginPath();
-        ctx.strokeStyle = ["grey", "black", "red"][this.dot.value + 1];
+        ctx.strokeStyle = ["black", "red"][this.dot.value];
         rect(ctx,xx + 20, yy + 40, 2, 2);
         ctx.stroke();
 
