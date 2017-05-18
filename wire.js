@@ -71,7 +71,13 @@ function Wire(node1, node2, scope) {
     }
     this.draw = function() {
         ctx = simulationArea.context;
-        color = ["red", "DarkGreen", "Lime"][this.node1.value + 1];
+        var color;
+        if(this.node1.value==undefined)
+            color="red";
+        else if(this.node1.bitWidth==1)
+            color = ["red", "DarkGreen", "Lime"][this.node1.value + 1];
+        else
+            color = "black";
         drawLine(ctx, this.node1.absX(), this.node1.absY(), this.node2.absX(), this.node2.absY(), color, 3);
     }
 

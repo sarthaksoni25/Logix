@@ -39,12 +39,17 @@ function extractNode(x, scope, parent) {
 //output node=1
 //input node=0
 //intermediate node =2
-function Node(x, y, type, parent) {
+function Node(x, y, type, parent,bitWidth=undefined) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
     this.leftx=x;
-    this.bitWidth=parent.bitWidth;
+    if(bitWidth==undefined){
+        this.bitWidth=parent.bitWidth;
+    }
+    else {
+        this.bitWidth=bitWidth;
+    }
     this.lefty=y;
     this.x=x;
     this.y=y;

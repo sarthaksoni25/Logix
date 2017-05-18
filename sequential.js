@@ -6,11 +6,10 @@ function clockTick() {
     }
 }
 
-function FlipFlop(x, y, scope, dir) {
-    // this.func = FlipFlop;
-    // [x, y, scope, dir] = list;
+function FlipFlop(x, y, scope, dir,bitWidth) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.direction = dir;
-    // this.list = list;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -30,13 +29,13 @@ function FlipFlop(x, y, scope, dir) {
     }
     this.resolve = function() {
         if (this.clockInp.value == this.prevClockState) {
-            if (this.clockInp.value == 0 && this.dInp.value != -1) {
+            if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
             }
-        } else if (this.clockInp.value != -1) {
+        } else if (this.clockInp.value != undefined) {
             if (this.clockInp.value == 1) {
                 this.slaveState = this.masterState;
-            } else if (this.clockInp.value == 0 && this.dInp.value != -1) {
+            } else if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
             }
             this.prevClockState = this.clockInp.value;

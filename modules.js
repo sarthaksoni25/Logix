@@ -7,9 +7,9 @@ function loadAnd(data, scope) {
 }
 
 //AndGate - (x,y)-position , scope - circuit level, inputLength - no of nodes, dir - direction of gate
-function AndGate(x, y, scope, inputLength, dir) {
-
-    this.bitWidth=prompt("Enter bitWidth:");
+function AndGate(x, y, scope, inputLength, dir,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
     uniqueIdCounter++;
@@ -152,6 +152,7 @@ function loadSevenSegmentDisplay(data, scope) {
 }
 
 function SevenSegDisplay(x, y, scope = globalScope) {
+    this.bitWidth=1;
     this.element = new Element(x, y, "SevenSegmentDisplay", 50, this);
     this.scope = scope;
     this.g = new Node(-20, -50, 0, this);
@@ -271,7 +272,9 @@ function loadOr(data, scope) {
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
-function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
+function OrGate(x, y, scope = globalScope, inputs = 2,dir='left',bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.id = 'or' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -318,22 +321,18 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
         return data;
     }
     this.isResolvable = function() {
-        var res1 = true;
-        for (var i = 0; i < inputs; i++)
-            res1 = res1 && (this.inp[i].value != undefined);
 
-        return res1;
+        for (var i = 0; i < this.inputs; i++)
+            if(this.inp[i].value == undefined)return false;
+        return true;
     }
-
     this.resolve = function() {
-        var result = false;
+        var result = this.inp[0].value;
         if (this.isResolvable() == false) {
             return;
         }
-
-        for (var i = 0; i < inputs; i++)
-            result = result || (this.inp[i].value);
-
+        for (var i = 1; i < this.inputs; i++)
+            result = result | (this.inp[i].value);
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
@@ -387,7 +386,9 @@ function loadNot(data, scope) {
     v.inp1 = replace(v.inp1, data["inp1"]);
 }
 
-function NotGate(x, y, scope, dir) {
+function NotGate(x, y, scope, dir,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -416,7 +417,7 @@ function NotGate(x, y, scope, dir) {
         if (this.isResolvable() == false) {
             return;
         }
-        this.output1.value = (this.inp1.value + 1) % 2;
+        this.output1.value = ((~this.inp1.value>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
         this.scope.stack.push(this.output1);
     }
     this.update = function() {
@@ -470,6 +471,7 @@ function loadInput(data, scope) {
 function Input(x, y, scope, dir,bitWidth=1) {
     // this.func=Input;
     // [x, y, scope, dir] = list;
+
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -563,14 +565,15 @@ function loadGround(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-function Ground(x, y, scope = globalScope,bitWidth=2) {
-
+function Ground(x, y, scope = globalScope,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.id = 'ground' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.element = new Element(x, y, "ground", 20, this);
     this.output1 = new Node(0, -10, 1, this);
-    this.bitWidth=bitWidth;
+
     this.output1.value = this.state;
     scope.grounds.push(this);
     console.log(this);
@@ -634,10 +637,12 @@ function loadPower(data, scope) {
 }
 
 function Power(x, y, scope = globalScope,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.id = 'power' + uniqueIdCounter;
     this.scope = scope;
     uniqueIdCounter++;
-    this.bitWidth=bitWidth;
+
     this.element = new Element(x, y, "power", 15, this);
     this.output1 = new Node(0, 20, 1, this);
     this.output1.value = this.state;
@@ -703,6 +708,7 @@ function loadOutput(data, scope) {
 }
 
 function Output(x, y, scope, dir,bitWidth=1) {
+
     this.scope = scope;
     this.id = 'output' + uniqueIdCounter;
     uniqueIdCounter++;
