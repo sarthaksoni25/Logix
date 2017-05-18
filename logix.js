@@ -151,6 +151,9 @@ var simulationArea = {
     oldx:0,
     oldy:0,
     scale:1,
+    clickCount:0, //double click
+    clickTimer:0, // for double click
+    lock:"unlocked",
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -210,6 +213,14 @@ var simulationArea = {
             simulationArea.mouseDown = true;
             simulationArea.oldx=simulationArea.ox;
             simulationArea.oldy=simulationArea.oy;
+            if(simulationArea.clickCount===0 )   //checking double click
+            {
+                simulationArea.clickCount++;
+                simulationArea.clickTimer=50;
+            }
+            else if(simulationArea.clickCount===2 && simulationArea.clickTimer<=600)
+              simulationArea.clickCount++;
+
         });
         window.addEventListener('mouseup', function(e) {
             update();
@@ -219,7 +230,21 @@ var simulationArea = {
             simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
             simulationArea.mouseDownX = Math.round((simulationArea.mouseDownX - simulationArea.ox/simulationArea.scale)  / unit) * unit;
             simulationArea.mouseDownY = Math.round((simulationArea.mouseDownY - simulationArea.oy/simulationArea.scale )/ unit) * unit;
+            if(simulationArea.clickCount===1 && simulationArea.clickTimer<=600){     // double click
+                // console.log("Click");
+                simulationArea.clickCount++;
+              }
+            else if(simulationArea.clickCount===3 && simulationArea.clickTimer<=600)
+            {
+              console.log("Double",simulationArea.lock);
+              if(simulationArea.lock==="locked")
+                simulationArea.lock = "unlocked";
+              else
+                simulationArea.lock = "locked";
+              simulationArea.clickCount = 0;
+              simulationArea.clickTimer = 0;
 
+            }
             simulationArea.mouseDown = false;
         });
         window.addEventListener('touchmove', function(e) {
@@ -297,7 +322,13 @@ function update() {
         simulationArea.selected=false;
         simulationArea.hover=false;
     }
-
+    // for double click
+    if(simulationArea.clickTimer>0 && simulationArea.clickTimer<=600)
+        simulationArea.clickTimer+=50;
+    else if(simulationArea.clickTimer>600) {
+        simulationArea.clickTimer=0;
+        simulationArea.clickCount=0;
+      }
     //Draw
     simulationArea.clear();
     dots(); // draw dots
