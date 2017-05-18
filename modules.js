@@ -62,20 +62,20 @@ function AndGate(x, y, scope, inputLength, dir) {
 
     // checks if the module has enough information to resolve
     this.isResolvable = function() {
-        var res1 = true;
+
         for (var i = 0; i < inputLength; i++)
-            res1 = res1 && (this.inp[i].value != -1);
-        return res1;
+            if(this.inp[i].value == undefined)return false;
+        return true;
     }
 
     //resolve output values based on inputData
     this.resolve = function() {
-        var result = true;
+        var result = this.inp[0].value;
         if (this.isResolvable() == false) {
             return;
         }
-        for (var i = 0; i < inputLength; i++)
-            result = result && (this.inp[i].value);
+        for (var i = 1; i < inputLength; i++)
+            result = result & (this.inp[i].value);
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
@@ -166,7 +166,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     scope.sevenseg.push(this);
 
     this.isResolvable = function() {
-        return this.a.value != -1 && this.b.value != -1 && this.c.value != -1 && this.d.value != -1 && this.e.value != -1 && this.f.value != -1 && this.g.value != -1 && this.dot.value != -1;
+        return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
     }
 
     this.resolve = function() {
@@ -320,7 +320,7 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left') {
     this.isResolvable = function() {
         var res1 = true;
         for (var i = 0; i < inputs; i++)
-            res1 = res1 && (this.inp[i].value != -1);
+            res1 = res1 && (this.inp[i].value != undefined);
 
         return res1;
     }
@@ -409,7 +409,7 @@ function NotGate(x, y, scope, dir) {
     }
 
     this.isResolvable = function() {
-        return this.inp1.value != -1;
+        return this.inp1.value != undefined;
     }
 
     this.resolve = function() {
@@ -711,7 +711,7 @@ function Output(x, y, scope, dir,bitWidth=1) {
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.element = new Element(x, y, "output", 15, this);
     this.inp1 = new Node(10, 0, 0, this);
-    this.state = -1;
+    this.state = undefined;
     this.inp1.value = this.state;
     this.scope.outputs.push(this);
     this.nodeList=[[this.inp1]];
@@ -730,7 +730,7 @@ function Output(x, y, scope, dir,bitWidth=1) {
     }
 
     this.isResolvable = function() {
-        return this.inp1.value != -1;
+        return this.inp1.value != undefined;
     }
 
     this.update = function() {
@@ -759,7 +759,7 @@ function Output(x, y, scope, dir,bitWidth=1) {
         ctx.beginPath();
         ctx.fillStyle = "green";
         ctx.font = "19px Georgia";
-        if (this.state == -1)
+        if (this.state == undefined)
             fillText(ctx,"x", xx - 5, yy + 5);
         else
             fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
