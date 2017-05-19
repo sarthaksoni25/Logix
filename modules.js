@@ -737,6 +737,7 @@ function loadGround(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
+
 function Ground(x, y, scope = globalScope,bitWidth=1) {
     this.bitWidth=bitWidth;
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
