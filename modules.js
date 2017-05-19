@@ -736,7 +736,11 @@ function loadGround(data, scope) {
     var v = new Ground(data["x"], data["y"], scope);
     v.output1 = replace(v.output1, data["output1"]);
 }
+<<<<<<< HEAD
 
+=======
+function Ground(x, y, scope = globalScope) {
+>>>>>>> master
 
 function Ground(x, y, scope = globalScope,bitWidth=1) {
     this.bitWidth=bitWidth;
