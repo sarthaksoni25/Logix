@@ -557,7 +557,6 @@ function loadGround(data, scope) {
     var v = new Ground(data["x"], data["y"], scope);
     v.output1 = replace(v.output1, data["output1"]);
 }
-
 function Ground(x, y, scope = globalScope) {
 
     this.id = 'ground' + uniqueIdCounter;

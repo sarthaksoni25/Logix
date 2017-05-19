@@ -361,6 +361,8 @@ function Button(x, y, radius) {
     this.radius = radius;
     this.clicked = false;
     this.hover = false;
+    this.oldx=x;
+    this.oldy=y;
     this.draw = function() {
 
     }
@@ -377,10 +379,12 @@ function Button(x, y, radius) {
 
         if (simulationArea.mouseDown && (this.clicked)) {
             if (this.x == simulationArea.mouseX && this.y == simulationArea.mouseY) return false;
-            this.x = simulationArea.mouseX;
-            this.y = simulationArea.mouseY;
+            this.x = this.oldx+simulationArea.mouseX-simulationArea.mouseDownX;
+            this.y = this.oldy+simulationArea.mouseY-simulationArea.mouseDownY;
             return true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
+            this.oldx=this.x;
+            this.oldy=this.y;
             simulationArea.selected = this.clicked = this.hover = this.hover;
             return this.clicked;
         } else {
