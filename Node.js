@@ -14,6 +14,10 @@ function replace(node, index) {
     return node;
 }
 
+function extractBits(num,start,end){
+    return (num<<(32-end))>>>(32-(end-start+1));
+}
+
 function bin2dec(binString){
     return parseInt(binString, 2);
 }

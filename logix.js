@@ -43,6 +43,7 @@ function Scope(name = "localScope") {
     this.name = name;
     this.stack = [];
     this.inputs = [];
+    this.splitters = [];
     this.grounds = [];
     this.andGates = [];
     this.sevenseg = [];
@@ -56,7 +57,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -163,7 +164,7 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 50);
+        this.interval = setInterval(update, 100);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
 
@@ -230,7 +231,7 @@ var simulationArea = {
                 simulationArea.lock = "unlocked";
               else
                 simulationArea.lock = "locked";
-              console.log("Double",simulationArea.lock);  
+              console.log("Double",simulationArea.lock);
             }
 
         });
@@ -358,11 +359,16 @@ function dots() {
 
 }
 
-function Element(x, y, type, r, parent) {
+function Element(x, y, type, width, parent,height=undefined) {
     this.type = type;
     this.x = x;
     this.y = y;
-    this.b = new Button(x, y, r, "rgba(255,255,255,0)", "rgba(0,0,0,1)");
+    if(height==undefined)
+        this.height=width;
+    else
+        this.height=height;
+    this.width=width;
+    this.b = new Button(x, y, this.width,this.height);
     this.isResolved = false;
     this.update = function() {
         var updated = false;
@@ -378,10 +384,13 @@ function Element(x, y, type, r, parent) {
     }
 }
 
-function Button(x, y, radius) {
+function Button(x, y, l, b=undefined) {
+    this.l=l;
+    if(b==undefined)b=l;
+    this.b=b;
     this.x = x;
     this.y = y;
-    this.radius = radius;
+    // this.radius = radius;
     this.clicked = false;
     this.hover = false;
     this.draw = function() {
@@ -420,7 +429,8 @@ function Button(x, y, radius) {
     //     return false;
     // }
     this.isHover = function() {
-        if (distance(this.x, this.y, simulationArea.mouseX, simulationArea.mouseY) < this.radius) return true;
+        console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
+        if (Math.abs(this.x-simulationArea.mouseX)<=this.l &&Math.abs(this.y-simulationArea.mouseY)<=this.b) return true;
         return false;
     }
 }

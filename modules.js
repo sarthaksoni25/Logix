@@ -153,7 +153,7 @@ function loadSevenSegmentDisplay(data, scope) {
 
 function SevenSegDisplay(x, y, scope = globalScope) {
     this.bitWidth=1;
-    this.element = new Element(x, y, "SevenSegmentDisplay", 50, this);
+    this.element = new Element(x, y, "SevenSegmentDisplay", 30, this,50);
     this.scope = scope;
     this.g = new Node(-20, -50, 0, this);
     this.f = new Node(-10, -50, 0, this);
@@ -453,6 +453,102 @@ function NotGate(x, y, scope, dir,bitWidth=1) {
         ctx.stroke();
         this.inp1.draw();
         this.output1.draw();
+        if (this.element.b.isHover())
+            console.log(this,this.id);
+    }
+    this.delete = function() {
+        this.output1.delete();
+        this.inp1.delete();
+        simulationArea.lastSelected = undefined;
+        scope.notGates.clean(this);
+    }
+
+}
+
+function Splitter(x, y, scope, dir,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.bitWidthSplit=prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
+    this.id = 'Splitter' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.element = new Element(x, y, "Splitter", 15, this);
+    this.direction=dir;
+    this.inp1 = new Node(-10, 10, 0, this,this.bitWidth);
+
+    this.outputs = [];
+    for(var i=0;i<this.bitWidthSplit.length;i++)
+        this.outputs.push(new Node(10, -i*20, 1, this,this.bitWidthSplit[i]));
+
+
+    this.nodeList=[[this.inp1],this.outputs];
+    scope.splitters.push(this);
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            inp1: findNode(this.inp1),
+            dir:this.direction,
+        }
+        return data;
+    }
+
+    this.isResolvable = function() {
+        return this.inp1.value != undefined;
+    }
+
+    this.resolve = function() {
+        if (this.isResolvable() == false) {
+            return;
+        }
+        var bitCount=1;
+        for(var i=0;i<this.bitWidthSplit.length;i++){
+            this.outputs[i].value=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
+            bitCount+=this.bitWidthSplit[i];
+            this.scope.stack.push(this.outputs[i]);
+        }
+    }
+    this.update = function() {
+        var updated = false;
+        // updated |= this.output1.update();
+        for (var j = 0; j < this.bitWidthSplit.length; j++) {
+            updated |= this.outputs[j].update();
+        }
+        updated |= this.inp1.update();
+        updated |= this.element.update();
+        return updated;
+    }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.lineWidth = 3 ;
+
+        var xx = this.element.x;
+        var yy = this.element.y;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(255, 255, 32,1)";
+        // drawLine(ctx, -10, -10, xx, y2, color, width)
+        moveTo(ctx,-10,10,xx,yy,this.direction);
+        lineTo(ctx,0,0,xx,yy,this.direction);
+        lineTo(ctx,0,-20*(this.bitWidthSplit.length-1),xx,yy,this.direction);
+
+        for(var i=0;i<this.bitWidthSplit.length;i++){
+        moveTo(ctx,0,-20*i,xx,yy,this.direction);
+        lineTo(ctx,10,-20*i,xx,yy,this.direction);
+    }
+        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
+        // ctx.closePath();
+        // if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+        // ctx.beginPath();
+        // arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
+        // ctx.stroke();
+        this.inp1.draw();
+        for (var j = 0; j < this.bitWidthSplit.length; j++)
+            this.outputs[j].draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
     }

@@ -147,6 +147,7 @@ function drawLine(ctx, x1, y1, x2, y2, color, width) {
     ctx.stroke();
 }
 
+
 function drawCircle(ctx, x1, y1, r, color) {
     // r = r*simulationArea.scale;
     x1 = x1*simulationArea.scale;
