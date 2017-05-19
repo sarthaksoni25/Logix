@@ -88,6 +88,10 @@ function rect2(ctx,x1,y1,x2,y2,xx,yy,dir){
 }
 
 function newDirection(obj,dir){
+    if(obj.newDirection!==undefined){
+        obj.newDirection(dir);
+        return;
+    }
     if(obj.direction==undefined)return;
     obj.direction=dir;
     for(var i =0;i<obj.nodeList.length;i++){

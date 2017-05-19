@@ -23,7 +23,7 @@ function addInput() {
 }
 
 function addOutput() {
-    var a = new Output(200, 150, globalScope, 'left');
+    var a = new Output(200, 150, globalScope, 'right');
 }
 
 function addFlipflop() {

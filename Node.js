@@ -21,8 +21,11 @@ function extractBits(num,start,end){
 function bin2dec(binString){
     return parseInt(binString, 2);
 }
-function dec2bin(dec){
-    return (dec).toString(2); // only for positive nos
+function dec2bin(dec,bitWidth=undefined){
+   // only for positive nos
+    var bin = (dec).toString(2);
+    if(bitWidth==undefined)return bin;
+    return '0'.repeat(bitWidth-bin.length)+bin;
 }
 //find Index of a node
 function findNode(x) {

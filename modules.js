@@ -473,7 +473,8 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     uniqueIdCounter++;
     this.flip=-1;
     this.scope = scope;
-    this.element = new Element(x, y, "Splitter", 10, this,this.bitWidthSplit.length*10+10);
+
+    this.element = new Element(x, y, "Splitter", 10, this,(this.bitWidthSplit.length-1)*10+10);
     this.yOffset=(this.bitWidthSplit.length/2-1)*20;
     this.direction=dir;
     this.inp1 = new Node(-10, 10+this.yOffset, 0, this,this.bitWidth);
@@ -580,14 +581,14 @@ function Input(x, y, scope, dir,bitWidth=1) {
     this.scope = scope;
     // this.list=list;
     this.bitWidth=bitWidth;
+    this.bitWidth=prompt("Enter bitwidth: ");
     this.direction=dir;
-    this.element = new Element(x, y, "input", 15, this);
-    this.prevDir = dir;
-    this.state = prompt("Enter value:");
-    this.bitWidth=this.state.length;
+    // this.prevDir = dir;
+    this.state = 0;
+    this.element = new Element(x, y, "input", 10*this.bitWidth, this,10);
     this.state=bin2dec(this.state);// in integer format
     console.log(this.state);
-    this.output1 = new Node(10, 0, 1, this);
+    this.output1 = new Node( this.bitWidth*10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
     this.nodeList=[[this.output1]];
@@ -608,22 +609,42 @@ function Input(x, y, scope, dir,bitWidth=1) {
         this.output1.value = this.state;
         this.scope.stack.push(this.output1);
     }
-    this.toggleState = function(pos) {
-        var binary = dec2bin(this.state);
-        var newBin;
-        // bin[pos] = ((parseInt(bin[pos])+1)%2).toString();
-        if(binary[pos]==="0")
-            newBin = binary.slice(0,pos) + "1" + binary.slice(pos+1) ;
+    this.newBitWidth=function(bitWidth){
+        this.bitWidth=bitWidth;
+        this.state=0;
+        this.element.b.width=10*this.bitWidth;
+        if(this.direction=="left"){
+            this.output1.x=10*this.bitWidth;
+        }
+        else if(this.direction=="right"){
+            this.output1.x=-10*this.bitWidth;
+        }
+    }
+    // String.prototype.replaceAt=function(index, replacement) {
+    //     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+    // }
+    this.toggleState = function() {
 
-        else
-            newBin = binary.slice(0,pos) + "0" + binary.slice(pos+1) ;
-
-
-        console.log(newBin);
-        this.state = bin2dec(newBin);
-        this.draw();
-        // this.state = (this.state + 1) % 2;
-        // this.output1.value = this.state;
+        var pos=this.findPos();
+        // console.log(pos);
+        if(pos==0)pos=1;// minor correction
+        if(pos<1||pos>this.bitWidth)return;
+        this.state^=(1<<(this.bitWidth-pos));
+        // var binary = dec2bin(this.state);
+        // var newBin;
+        // // bin[pos] = ((parseInt(bin[pos])+1)%2).toString();
+        // if(binary[pos]==="0")
+        //     newBin = binary.slice(0,pos) + "1" + binary.slice(pos+1) ;
+        //
+        // else
+        //     newBin = binary.slice(0,pos) + "0" + binary.slice(pos+1) ;
+        //
+        //
+        // console.log(newBin);
+        // this.state = bin2dec(newBin);
+        // this.draw();
+        // // this.state = (this.state + 1) % 2;
+        // // this.output1.value = this.state;
 
     }
     this.update = function() {
@@ -634,9 +655,11 @@ function Input(x, y, scope, dir,bitWidth=1) {
         if (simulationArea.mouseDown == false)
             this.wasClicked = false;
 
-        if (simulationArea.mouseDown && !this.wasClicked && simulationArea.lock==="locked") {//&& this.element.b.clicked afterwards
-            if(this.isClicked());
+        if (simulationArea.mouseDown && !this.wasClicked) {//&& this.element.b.clicked afterwards
+            if(this.element.b.clicked){
               this.wasClicked = true;
+              this.toggleState();
+          }
         }
 
 
@@ -655,17 +678,17 @@ function Input(x, y, scope, dir,bitWidth=1) {
         var xx = this.element.x;
         var yy = this.element.y;
 
-        rect2(ctx,-20*this.bitWidth+10,-10,20*this.bitWidth,20,xx,yy,"left");
-        this.checkNodeDirection();
+        rect2(ctx,-10*this.bitWidth,-10,20*this.bitWidth,20,xx,yy,"left");
+        // this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        var bin = dec2bin(this.state);
+        var bin = dec2bin(this.state,this.bitWidth);
         for(var k=0;k<this.bitWidth;k++)
-          fillText(ctx,bin[k], xx-20*this.bitWidth+15+(k)*20, yy + 5);
+          fillText(ctx,bin[k], xx-10*this.bitWidth+5+(k)*20, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -678,58 +701,86 @@ function Input(x, y, scope, dir,bitWidth=1) {
         scope.inputs.clean(this);
 
     }
-    this.checkNodeDirection = function(){
-      if(this.prevDir!==this.direction)
-      {
-        if(this.direction==="right"){
-          this.output1.leftx = 20*this.bitWidth-10;
-          this.output1.lefty = 0;
-          this.prevDir=this.direction;
-          this.output1.refresh();
+    this.newDirection=function(dir){
+        // if(dir==this.direction)return;
+        this.output1.refresh();
+        if(dir=="left" || dir=="right"){
+            this.output1.leftx = 10*this.bitWidth;
+            this.output1.lefty = 0;
         }
-        else if(this.direction==="left"){
-          this.output1.leftx=10;
-          this.output1.lefty = 0;
-          this.prevDir=this.direction;
-          this.output1.refresh();
-        }
-        else if(this.direction==="up"){
-            this.output1.leftx=10;
-            this.output1.lefty=-10*(this.bitWidth-1);
-            this.prevDir=this.direction;
-            this.output1.refresh();
-          }
-        else if(this.direction==="down"){
-            this.output1.leftx=10;
-            this.output1.lefty=-10*(this.bitWidth-1);
-            this.prevDir=this.direction;
-            this.output1.refresh();
-          }
-      }
-
-    }
-    this.isClicked = function(){
-        var xx=this.element.x;
-        var yy=this.element.y;
-        if(simulationArea.mouseX<=xx+10 && simulationArea.mouseX>=xx-20*this.bitWidth+10 && simulationArea.mouseY<=yy+10 && simulationArea.mouseY>=yy-10){
-          this.checkRegion();
-          return true;
-        }
-
         else {
-          return false;
+            this.output1.leftx = 10;//10*this.bitWidth;
+            this.output1.lefty = 0;
         }
-    }
-    this.checkRegion = function(){
+        // else if(dir=="right"){
+        //     this.output1.x = -10*this.bitWidth;
+        //     this.output1.y = 0;
+        // }
+        // else if(dir=="down"){
+        //     this.output1.x = 0;
+        //     this.output1.y = -10;
+        // }
+        // else if(dir=="up"){
+        //     this.output1.x = 0;
+        //     this.output1.y = 10;
+        // }
+        this.direction=dir;
+        this.output1.refresh();
 
-      for(var i=0;i<this.bitWidth;i++)
-      {
-        var xx=this.element.x;
-        var yy=this.element.y;
-        if(simulationArea.mouseX<=xx-20*this.bitWidth+15+i*20+10 && simulationArea.mouseX>=xx-20*this.bitWidth+15+i*20-10){
-          this.toggleState(i);
-        }
-      }
+    }
+    // this.checkNodeDirection = function(){
+    //   if(this.prevDir!==this.direction)
+    //   {
+    //     if(this.direction==="right"){
+    //       this.output1.leftx = 20*this.bitWidth-10;
+    //       this.output1.lefty = 0;
+    //       this.prevDir=this.direction;
+    //       this.output1.refresh();
+    //     }
+    //     else if(this.direction==="left"){
+    //       this.output1.leftx=10;
+    //       this.output1.lefty = 0;
+    //       this.prevDir=this.direction;
+    //       this.output1.refresh();
+    //     }
+    //     else if(this.direction==="up"){
+    //         this.output1.leftx=10;
+    //         this.output1.lefty=-10*(this.bitWidth-1);
+    //         this.prevDir=this.direction;
+    //         this.output1.refresh();
+    //       }
+    //     else if(this.direction==="down"){
+    //         this.output1.leftx=10;
+    //         this.output1.lefty=-10*(this.bitWidth-1);
+    //         this.prevDir=this.direction;
+    //         this.output1.refresh();
+    //       }
+    //   }
+    //
+    // }
+    // this.isClicked = function(){
+    //     var xx=this.element.x;
+    //     var yy=this.element.y;
+    //     if(simulationArea.mouseX<=xx+10 && simulationArea.mouseX>=xx-20*this.bitWidth+10 && simulationArea.mouseY<=yy+10 && simulationArea.mouseY>=yy-10){
+    //       this.checkRegion();
+    //       return true;
+    //     }
+    //
+    //     else {
+    //       return false;
+    //     }
+    // }
+    this.findPos = function(){
+      return Math.round((simulationArea.mouseX-this.element.x+10*this.bitWidth)/20.0);
+
+    //   for(var i=0;i<this.bitWidth;i++)
+    //   {
+    //     var xx=this.element.x;
+    //     var yy=this.element.y;
+    //     if(simulationArea.mouseX<=xx-20*this.bitWidth+15+i*20+10 && simulationArea.mouseX>=xx-20*this.bitWidth+15+i*20-10){
+    //       this.toggleState(i);
+    //     }
+    //   }
     }
 }
 function loadGround(data, scope) {
@@ -890,10 +941,10 @@ function Output(x, y, scope, dir,bitWidth=1) {
     this.prevDir=dir;
     this.bitWidth=bitWidth;
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
-    this.element = new Element(x, y, "output", 15, this);
-    this.inp1 = new Node(10, 0, 0, this);
+    this.element = new Element(x, y, "output", 10*this.bitWidth, this,10);
+    this.inp1 = new Node( this.bitWidth*10, 0, 0, this);
     this.state = undefined;
-    this.inp1.value = this.state;
+    // this.inp1.value = this.state;
     this.scope.outputs.push(this);
     this.nodeList=[[this.inp1]];
 
@@ -905,6 +956,17 @@ function Output(x, y, scope, dir,bitWidth=1) {
             dir:this.direction,
         }
         return data;
+    }
+    this.newBitWidth=function(bitWidth){
+        this.bitWidth=bitWidth;
+        this.state=0;
+        this.element.b.width=10*this.bitWidth;
+        if(this.direction=="left"){
+            this.inp1.x=10*this.bitWidth;
+        }
+        else if(this.direction=="right"){
+            this.inp1.x=-10*this.bitWidth;
+        }
     }
     this.resolve = function() {
         this.state = this.inp1.value;
@@ -927,35 +989,27 @@ function Output(x, y, scope, dir,bitWidth=1) {
     this.draw = function() {
 
         ctx = simulationArea.context;
-        ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.6)";
-        ctx.lineWidth = 3 ;
         ctx.beginPath();
+        ctx.strokeStyle = ["blue","red"][(this.state===undefined)+0];
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3 ;
         var xx = this.element.x;
         var yy = this.element.y;
-        // arc(ctx,0,0,10,0,2* Math.PI,xx,yy,this.direction);
-        rect2(ctx,-20*this.bitWidth+10,-10,20*this.bitWidth,20,xx,yy,"left");
-        this.checkNodeDirection();
+
+        rect2(ctx,-10*this.bitWidth,-10,20*this.bitWidth,20,xx,yy,"left");
+        // this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        // ctx.beginPath();
-        // ctx.fillStyle = "green";
-        // ctx.font = "19px Georgia";
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-
-        if (this.state == undefined || this.state == -1 )
-
-            fillText(ctx,"x", xx - 5, yy + 5);
-        else{
-            // fillText(ctx,dec2bin(this.state), xx - 5, yy + 5);
-            bin = dec2bin(this.state);
-            for(var k=0;k<bin.length;k++)
-              fillText(ctx,bin[k], xx-20*this.bitWidth+15+(k)*20, yy + 5);
-            ctx.stroke();
-          }
+        if(this.state===undefined)
+            var bin='x'.repeat(this.bitWidth);
+        else
+            var bin = dec2bin(this.state,this.bitWidth);
+        for(var k=0;k<this.bitWidth;k++)
+          fillText(ctx,bin[k], xx-10*this.bitWidth+5+(k)*20, yy + 5);
         ctx.stroke();
 
         this.element.draw();
@@ -966,33 +1020,60 @@ function Output(x, y, scope, dir,bitWidth=1) {
         simulationArea.lastSelected = undefined;
         this.scope.outputs.clean(this);
     }
-    this.checkNodeDirection = function(){
-        if(this.direction==="right" && this.prevDir!==this.direction){
-          this.inp1.leftx = 20*this.bitWidth-10;
-          this.inp1.lefty = 0;
-          this.prevDir=this.direction;
-          this.inp1.refresh();
+    this.newDirection=function(dir){
+        if(dir==this.direction)return;
+        this.inp1.refresh();
+        if(dir=="left" || dir=="right"){
+            this.inp1.leftx = 10*this.bitWidth;
+            this.inp1.lefty = 0;
         }
-        else if(this.direction==="left"&& this.prevDir!==this.direction){
-          this.inp1.leftx=10;
-          this.inp1.lefty = 0;
-          this.prevDir=this.direction;
-          this.inp1.refresh();
+        else {
+            this.inp1.leftx = 10;//10*this.bitWidth;
+            this.inp1.lefty = 0;
         }
-        else if(this.direction==="up"&& this.prevDir!==this.direction){
-            this.inp1.leftx=10;
-            this.inp1.lefty=-10*(this.bitWidth-1);
-            this.prevDir=this.direction;
-            this.inp1.refresh();
-          }
-        else if(this.direction==="down"&& this.prevDir!==this.direction){
-            this.inp1.leftx=10;
-            this.inp1.lefty=-10*(this.bitWidth-1);
-            this.prevDir=this.direction;
-            this.inp1.refresh();
-          }
+        // else if(dir=="right"){
+        //     this.inp1.x = -10*this.bitWidth;
+        //     this.inp1.y = 0;
+        // }
+        // else if(dir=="down"){
+        //     this.inp1.x = 0;
+        //     this.inp1.y = -10;
+        // }
+        // else if(dir=="up"){
+        //     this.inp1.x = 0;
+        //     this.inp1.y = 10;
+        // }
+        this.direction=dir;
+        this.inp1.refresh();
 
     }
+    // this.checkNodeDirection = function(){
+    //     if(this.direction==="right" && this.prevDir!==this.direction){
+    //       this.inp1.leftx = 20*this.bitWidth-10;
+    //       this.inp1.lefty = 0;
+    //       this.prevDir=this.direction;
+    //       this.inp1.refresh();
+    //     }
+    //     else if(this.direction==="left"&& this.prevDir!==this.direction){
+    //       this.inp1.leftx=10;
+    //       this.inp1.lefty = 0;
+    //       this.prevDir=this.direction;
+    //       this.inp1.refresh();
+    //     }
+    //     else if(this.direction==="up"&& this.prevDir!==this.direction){
+    //         this.inp1.leftx=10;
+    //         this.inp1.lefty=-10*(this.bitWidth-1);
+    //         this.prevDir=this.direction;
+    //         this.inp1.refresh();
+    //       }
+    //     else if(this.direction==="down"&& this.prevDir!==this.direction){
+    //         this.inp1.leftx=10;
+    //         this.inp1.lefty=-10*(this.bitWidth-1);
+    //         this.prevDir=this.direction;
+    //         this.inp1.refresh();
+    //       }
+    //
+    // }
 }
 
 function newBitWidth(obj,bitWidth){
