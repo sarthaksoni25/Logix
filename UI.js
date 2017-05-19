@@ -41,6 +41,9 @@ function addSevenSeg() {
 function addSubCircuit() {
     var a = new SubCircuit(400, 150);
 }
+function addSplitter() {
+    var a = new Splitter(400, 400, globalScope, "left",bitWidth=1);
+}
 
 
 document.getElementById("powerButton").addEventListener("click", addPower);
@@ -55,3 +58,4 @@ document.getElementById("flipflopButton").addEventListener("click", addFlipflop)
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
+document.getElementById("splitterButton").addEventListener("click", addSplitter);

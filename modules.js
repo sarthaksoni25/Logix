@@ -471,14 +471,16 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     this.bitWidthSplit=prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
     this.id = 'Splitter' + uniqueIdCounter;
     uniqueIdCounter++;
+    this.flip=-1;
     this.scope = scope;
-    this.element = new Element(x, y, "Splitter", 15, this);
+    this.element = new Element(x, y, "Splitter", 10, this,this.bitWidthSplit.length*10+10);
+    this.yOffset=(this.bitWidthSplit.length/2-1)*20;
     this.direction=dir;
-    this.inp1 = new Node(-10, 10, 0, this,this.bitWidth);
+    this.inp1 = new Node(-10, 10+this.yOffset, 0, this,this.bitWidth);
 
     this.outputs = [];
     for(var i=0;i<this.bitWidthSplit.length;i++)
-        this.outputs.push(new Node(10, -i*20, 1, this,this.bitWidthSplit[i]));
+        this.outputs.push(new Node(10, -i*20+this.yOffset, 1, this,this.bitWidthSplit[i]));
 
 
     this.nodeList=[[this.inp1],this.outputs];
@@ -523,13 +525,13 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     this.draw = function() {
 
         ctx = simulationArea.context;
-        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.strokeStyle = ["black", "brown"][(this.element.b.hover||simulationArea.lastSelected==this) + 0];
         ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
-        var yy = this.element.y;
+        var yy = this.element.y+this.yOffset;
         ctx.beginPath();
-        ctx.fillStyle = "rgba(255, 255, 32,1)";
+
         // drawLine(ctx, -10, -10, xx, y2, color, width)
         moveTo(ctx,-10,10,xx,yy,this.direction);
         lineTo(ctx,0,0,xx,yy,this.direction);
@@ -538,7 +540,7 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         for(var i=0;i<this.bitWidthSplit.length;i++){
         moveTo(ctx,0,-20*i,xx,yy,this.direction);
         lineTo(ctx,10,-20*i,xx,yy,this.direction);
-    }
+        }
         // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         // ctx.closePath();
         // if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -553,10 +555,12 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
             console.log(this,this.id);
     }
     this.delete = function() {
-        this.output1.delete();
-        this.inp1.delete();
         simulationArea.lastSelected = undefined;
-        scope.notGates.clean(this);
+        scope.splitters.clean(this);
+        for(var i=0;i<this.nodeList.length;i++)
+            for(var j=0;j<this.nodeList[i].length;j++)
+                console.log(this.nodeList[i][j].delete());
+
     }
 
 }
@@ -746,6 +750,7 @@ function Ground(x, y, scope = globalScope,bitWidth=1) {
     scope.grounds.push(this);
     console.log(this);
     this.wasClicked = false;
+    this.nodeList=[[this.output1]];
     this.resolve = function() {
         this.output1.value = 0;
         this.scope.stack.push(this.output1);
@@ -770,7 +775,7 @@ function Ground(x, y, scope = globalScope,bitWidth=1) {
         ctx = simulationArea.context;
 
         ctx.beginPath();
-        ctx.strokeStyle = ["black", "brown"][this.element.b.hover + 0];
+        ctx.strokeStyle = ["black", "brown"][(this.element.b.hover||simulationArea.lastSelected==this) + 0];
         ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
@@ -816,7 +821,7 @@ function Power(x, y, scope = globalScope,bitWidth=1) {
     this.output1.value = this.state;
     scope.powers.push(this);
     this.wasClicked = false;
-
+    this.nodeList=[[this.output1]];
     this.resolve = function() {
 
         this.output1.value=~0>>>(32-this.bitWidth);
@@ -988,3 +993,26 @@ function Output(x, y, scope, dir,bitWidth=1) {
 
     }
 }
+
+function newBitWidth(obj,bitWidth){
+    if(obj.newBitWidth!==undefined){
+        obj.newBitWidth(bitWidth);
+        return;
+    }
+    obj.bitWidth=bitWidth;
+    for(var i=0;i<obj.nodeList.length;i++)
+        for(var j=0;j<obj.nodeList[i].length;j++)
+            obj.nodeList[i][j].bitWidth=bitWidth;
+
+}
+// function delete(obj){
+//     if(obj.delete!==undefined){
+//         obj.delete();
+//         return;
+//     }
+//     for(var i=0;i<obj.nodeList.length;i++)
+//         for(var j=0;j<obj.nodeList[i].length;j++)
+//             obj.nodeList[i][j].delete();
+//     simulationArea.lastSelected = undefined;
+//
+// }

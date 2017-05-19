@@ -23,7 +23,11 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     scope.flipflops.push(this);
     this.wasClicked = false;
     this.nodeList=[[this.clockInp,this.dInp,this.qOutput]];
-
+    this.newBitWidth=function(bitWidth){
+        this.bitWidth=bitWidth;
+        this.dInp.bitWidth=bitWidth;
+        this.qOutput.bitWidth=bitWidth;
+    }
     this.isResolvable = function() {
         return true;
     }

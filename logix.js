@@ -196,6 +196,10 @@ var simulationArea = {
             if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
 						 newDirection(simulationArea.lastSelected,'up');
 						}
+            if((e.keyCode==113||e.keyCode==81)&&simulationArea.lastSelected!=undefined){
+                    if(simulationArea.lastSelected.bitWidth!==undefined)
+					     newBitWidth(simulationArea.lastSelected,parseInt(prompt("Enter new bitWidth"),10));
+			}
             // zoom in (+)
             if(e.keyCode==187 && simulationArea.scale < 4){
                 changeScale(.1);
@@ -384,10 +388,9 @@ function Element(x, y, type, width, parent,height=undefined) {
     }
 }
 
-function Button(x, y, l, b=undefined) {
-    this.l=l;
-    if(b==undefined)b=l;
-    this.b=b;
+function Button(x, y, width, height) {
+    this.width=width;
+    this.height=height;
     this.x = x;
     this.y = y;
     // this.radius = radius;
@@ -429,12 +432,12 @@ function Button(x, y, l, b=undefined) {
     //     return false;
     // }
     this.isHover = function() {
-        console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
-        if (Math.abs(this.x-simulationArea.mouseX)<=this.l &&Math.abs(this.y-simulationArea.mouseY)<=this.b) return true;
+        // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
+        if (Math.abs(this.x-simulationArea.mouseX)<=this.width &&Math.abs(this.y-simulationArea.mouseY)<=this.height) return true;
         return false;
     }
 }
-
+//
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
