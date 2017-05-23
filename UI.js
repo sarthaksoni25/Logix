@@ -37,6 +37,12 @@ function addClock() {
 function addSevenSeg() {
     var a = new SevenSegDisplay(400, 150);
 }
+function addHexDis() {
+    var a = new HexDisplay(400, 150);
+}
+function addAdder() {
+    var a = new Adder(400, 150,globalScope,"left",bitWidth=1);
+}
 
 function addSubCircuit() {
     var a = new SubCircuit(400, 150);
@@ -53,9 +59,11 @@ document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);
+document.getElementById("adderButton").addEventListener("click", addAdder);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
+document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);

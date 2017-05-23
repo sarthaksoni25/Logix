@@ -233,13 +233,21 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        this.drawSegment(20, -5, 20, -35, ["black", "red"][this.b.value]);
-        this.drawSegment(20, 5, 20, 35, ["black", "red"][this.c.value]);
-        this.drawSegment(-20, -5, -20, -35, ["black", "red"][this.f.value]);
-        this.drawSegment(-20, 5, -20, 35, ["black", "red"][this.e.value]);
-        this.drawSegment(-15, -40, 15, -40, ["black", "red"][this.a.value]);
-        this.drawSegment(-15, 0, 15, 0, ["black", "red"][this.g.value]);
-        this.drawSegment(-15, 40, 15, 40, ["black", "red"][this.d.value]);
+        // this.drawSegment(20, -5, 20, -35, ["black", "red"][this.b.value]);
+        // this.drawSegment(20, 5, 20, 35, ["black", "red"][this.c.value]);
+        // this.drawSegment(-20, -5, -20, -35, ["black", "red"][this.f.value]);
+        // this.drawSegment(-20, 5, -20, 35, ["black", "red"][this.e.value]);
+        // this.drawSegment(-15, -40, 15, -40, ["black", "red"][this.a.value]);
+        // this.drawSegment(-15, 0, 15, 0, ["black", "red"][this.g.value]);
+        // this.drawSegment(-15, 40, 15, 40, ["black", "red"][this.d.value]);
+
+        this.drawSegment(18, -3, 18, -38, ["grey", "red"][this.b.value]);
+        this.drawSegment(18, 3, 18, 38, ["grey", "red"][this.c.value]);
+        this.drawSegment(-18, -3, -18, -38, ["grey", "red"][this.f.value]);
+        this.drawSegment(-18, 3, -18, 38, ["grey", "red"][this.e.value]);
+        this.drawSegment(-17, -38, 17, -38, ["grey", "red"][this.a.value]);
+        this.drawSegment(-17, 0, 17, 0, ["grey", "red"][this.g.value]);
+        this.drawSegment(-15, 38, 17, 38, ["grey", "red"][this.d.value]);
 
         ctx.beginPath();
         ctx.strokeStyle = ["black", "red"][this.dot.value];
@@ -266,6 +274,154 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         this.g.delete();
         simulationArea.lastSelected = undefined;
         scope.sevenseg.clean(this);
+    }
+}
+function HexDisplay(x, y, scope = globalScope) {
+    // this.bitWidth=1;
+    this.element = new Element(x, y, "SevenSegmentDisplay", 30, this,50);
+    this.scope = scope;
+    this.inp=new Node(0,-50,0,this,4);
+    // this.g = new Node(-20, -50, 0, this);
+    // this.f = new Node(-10, -50, 0, this);
+    // this.a = new Node(+10, -50, 0, this);
+    // this.b = new Node(+20, -50, 0, this);
+    // this.e = new Node(-20, +50, 0, this);
+    // this.d = new Node(-10, +50, 0, this);
+    // this.c = new Node(+10, +50, 0, this);
+    // this.dot = new Node(+20, +50, 0, this);
+    this.direction="left";
+    scope.sevenseg.push(this);
+
+    this.isResolvable = function() {
+        return false;
+        // return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
+    }
+
+    this.resolve = function() {
+        //dummy function
+    }
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            g: findNode(this.g),
+            f: findNode(this.f),
+            a: findNode(this.a),
+            b: findNode(this.b),
+            d: findNode(this.d),
+            e: findNode(this.e),
+            c: findNode(this.c),
+            d: findNode(this.d),
+            dot: findNode(this.dot),
+            dir:this.direction,
+        }
+        return data;
+    }
+    this.drawSegment = function(x1, y1, x2, y2, color) {
+        if(color==undefined)color="grey";
+        ctx = simulationArea.context;
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 5 ;
+        xx=this.element.x;
+        yy=this.element.y;
+
+        moveTo(ctx,x1,y1,xx,yy,this.direction);
+        lineTo(ctx,x2,y2,xx,yy,this.direction);
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    this.update = function() {
+        var updated = false;
+        this.inp.update();
+        updated |= this.element.update();
+        return updated;
+    }
+    this.draw = function() {
+        // console.log(this.inp.value);
+        ctx = simulationArea.context;
+
+        var xx = this.element.x;
+        var yy = this.element.y;
+
+        ctx.beginPath();
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 3 ;
+        rect(ctx,xx - 30, yy - 50, 60, 100)
+        ctx.fillStyle = "rgba(100, 100, 100,0.5)";
+
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+        var a=b=c=d=e=f=g=0;
+        switch (this.inp.value) {
+            case 0:
+                a=b=c=d=e=f=1;
+                break;
+            case 1:
+                b=c=1;
+                break;
+            case 2:
+                a=b=g=e=d=1;
+                break;
+            case 3:
+                a=b=g=c=d=1;
+                break;
+            case 4:
+                f=g=b=c=1;
+                break;
+            case 5:
+                a=f=g=c=d=1;
+                break;
+            case 6:
+                a=f=g=e=c=d=1;
+                break;
+            case 7:
+                a=b=c=1;
+                break;
+            case 8:
+                a=b=c=d=e=g=f=1;
+                break;
+            case 9:
+                a=f=g=b=c=1;
+                break;
+            case 0xA:
+                a=f=b=c=g=e=1;
+                break;
+            case 0xB:
+                f=e=g=c=d=1;
+                break;
+            case 0xC:
+                a=f=e=d=1;
+                break;
+            case 0xD:
+                b=c=g=e=d=1;
+                break;
+            case 0xE:
+                a=f=g=e=d=1;
+                break;
+            case 0xF:
+                a=f=g=e=1;
+                break;
+            default:
+
+        }
+        this.drawSegment(18, -3, 18, -38, ["grey", "red"][b]);
+        this.drawSegment(18, 3, 18, 38, ["grey", "red"][c]);
+        this.drawSegment(-18, -3, -18, -38, ["grey", "red"][f]);
+        this.drawSegment(-18, 3, -18, 38, ["grey", "red"][e]);
+        this.drawSegment(-17, -38, 17, -38, ["grey", "red"][a]);
+        this.drawSegment(-17, 0, 17, 0, ["grey", "red"][g]);
+        this.drawSegment(-15, 38, 17, 38, ["grey", "red"][d]);
+
+        this.element.draw();
+        this.inp.draw();
+    }
+    this.delete = function() {
+        this.inp.delete();
+
+        simulationArea.lastSelected = undefined;
+        scope.hexdis.clean(this);
     }
 }
 
@@ -465,13 +621,103 @@ function NotGate(x, y, scope, dir,bitWidth=1) {
 
 }
 
+
+function Adder(x, y, scope, dir,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.id = 'Adder' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.element = new Element(x, y, "not", 20, this);
+    this.direction=dir;
+    this.inpA = new Node(-20, -10, 0, this,this.bitWidth);
+    this.inpB = new Node(-20, 0, 0, this,this.bitWidth);
+    this.carryIn = new Node(-20, 10, 0, this,1);
+    this.sum = new Node(20, 0, 1, this,this.bitWidth);
+    this.carryOut = new Node(20, 10, 1, this,1);
+
+    scope.adders.push(this);
+    this.nodeList=[[this.inpA,this.inpB,this.carryIn,this.sum,this.carryOut]];
+    this.saveObject = function() {
+        // var data = {
+        //     x: this.element.x,
+        //     y: this.element.y,
+        //     output1: findNode(this.output1),
+        //     inp1: findNode(this.inp1),
+        //     dir:this.direction,
+        // }
+        // return data;
+    }
+
+    this.isResolvable = function() {
+        return this.inpA.value != undefined&&this.inpB.value!=undefined;
+    }
+
+    this.resolve = function() {
+        if (this.isResolvable() == false) {
+            return;
+        }
+        var carryIn=this.carryIn.value;
+        if(carryIn==undefined)carryIn=0;
+        var sum=this.inpA.value+this.inpB.value+carryIn;
+        this.sum.value = ((sum)<<(32-this.bitWidth))>>>(32-this.bitWidth);
+        this.carryOut.value = sum>>>(this.bitWidth);
+        this.scope.stack.push(this.carryOut);
+        this.scope.stack.push(this.sum);
+    }
+    this.update = function() {
+        var updated = false;
+        // updated |= this.output1.update();
+        updated |= this.inpA.update();
+        updated |= this.inpB.update();
+        updated |= this.carryIn.update();
+        updated |= this.carryOut.update();
+        updated |= this.sum.update();
+        updated |= this.element.update();
+        return updated;
+    }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3 ;
+        var xx = this.element.x;
+        var yy = this.element.y;
+        ctx.beginPath();
+        rect(ctx,xx - 20, yy - 20, 40, 40);
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+
+        this.inpA.draw();
+        this.inpB.draw();
+        this.carryIn.draw();
+        this.carryOut.draw();
+        this.sum.draw();
+        // this.output1.draw();
+        if (this.element.b.isHover())
+            console.log(this,this.id);
+    }
+    this.delete = function() {
+        this.inpA.delete();
+        this.inpB.delete();
+        this.sum.delete();
+        this.carryOut.delete();
+        this.carryIn.delete();
+        simulationArea.lastSelected = undefined;
+        scope.adders.clean(this);
+    }
+
+}
+
 function Splitter(x, y, scope, dir,bitWidth=1) {
     this.bitWidth=bitWidth;
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.bitWidthSplit=prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
     this.id = 'Splitter' + uniqueIdCounter;
     uniqueIdCounter++;
-    this.flip=-1;
+    // this.flip=-1;
     this.scope = scope;
 
     this.element = new Element(x, y, "Splitter", 10, this,(this.bitWidthSplit.length-1)*10+10);
@@ -481,7 +727,7 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
 
     this.outputs = [];
     for(var i=0;i<this.bitWidthSplit.length;i++)
-        this.outputs.push(new Node(10, -i*20+this.yOffset, 1, this,this.bitWidthSplit[i]));
+        this.outputs.push(new Node(10, -i*20+this.yOffset, 0, this,this.bitWidthSplit[i]));
 
 
     this.nodeList=[[this.inp1],this.outputs];
@@ -498,18 +744,55 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     }
 
     this.isResolvable = function() {
-        return this.inp1.value != undefined;
+        var resolvable=false;
+        if(this.inp1.value!==undefined)resolvable=true;
+        var i;
+        for(i=0;i<this.bitWidthSplit.length;i++)
+            if(this.outputs[i].value===undefined)break;
+        if(i==this.bitWidthSplit.length)resolvable=true;
+        return resolvable;
     }
 
     this.resolve = function() {
         if (this.isResolvable() == false) {
             return;
         }
-        var bitCount=1;
-        for(var i=0;i<this.bitWidthSplit.length;i++){
-            this.outputs[i].value=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
-            bitCount+=this.bitWidthSplit[i];
-            this.scope.stack.push(this.outputs[i]);
+        if(this.inp1.value!==undefined){
+            var bitCount=1;
+            for(var i=0;i<this.bitWidthSplit.length;i++){
+                var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
+                if(this.outputs[i].value===undefined){
+                    this.outputs[i].value=bitSplitValue;
+                    this.scope.stack.push(this.outputs[i]);
+                }
+                else if(this.outputs[i].value!=bitSplitValue){
+                    console.log("CONTENTION");
+                }
+                bitCount+=this.bitWidthSplit[i];
+            }
+        }
+        else{
+            var n=0;
+            for(var i=this.bitWidthSplit.length-1;i>=0;i--){
+                n<<=this.bitWidthSplit[i];
+                n+=this.outputs[i].value;
+                // var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
+                // if(this.outputs[i].value===undefined){
+                //     this.outputs[i].value=bitSplitValue;
+                //     this.scope.stack.push(this.outputs[i]);
+                // }
+                // else if(this.outputs[i].value!=bitSplitValue){
+                //     console.log("CONTENTION");
+                // }
+                // bitCount+=this.bitWidthSplit[i];
+            }
+            if(this.inp1.value===undefined){
+                this.inp1.value=n;
+                this.scope.stack.push(this.inp1);
+            }
+            else if(this.inp1.value!=n){
+                console.log("CONTENTION");
+            }
         }
     }
     this.update = function() {
@@ -530,17 +813,17 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         ctx.lineWidth = 3 ;
 
         var xx = this.element.x;
-        var yy = this.element.y+this.yOffset;
+        var yy = this.element.y;
         ctx.beginPath();
 
         // drawLine(ctx, -10, -10, xx, y2, color, width)
-        moveTo(ctx,-10,10,xx,yy,this.direction);
-        lineTo(ctx,0,0,xx,yy,this.direction);
-        lineTo(ctx,0,-20*(this.bitWidthSplit.length-1),xx,yy,this.direction);
+        moveTo(ctx,-10,10+this.yOffset,xx,yy,this.direction);
+        lineTo(ctx,0,0+this.yOffset,xx,yy,this.direction);
+        lineTo(ctx,0,-20*(this.bitWidthSplit.length-1)+this.yOffset,xx,yy,this.direction);
 
         for(var i=0;i<this.bitWidthSplit.length;i++){
-        moveTo(ctx,0,-20*i,xx,yy,this.direction);
-        lineTo(ctx,10,-20*i,xx,yy,this.direction);
+        moveTo(ctx,0,-20*i+this.yOffset,xx,yy,this.direction);
+        lineTo(ctx,10,-20*i+this.yOffset,xx,yy,this.direction);
         }
         // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         // ctx.closePath();

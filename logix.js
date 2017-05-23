@@ -42,6 +42,8 @@ function Scope(name = "localScope") {
     }
     this.name = name;
     this.stack = [];
+    this.hexdis = [];
+    this.adders = [];
     this.inputs = [];
     this.splitters = [];
     this.grounds = [];
@@ -57,7 +59,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs,this.splitters, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -101,7 +103,9 @@ function setup() {
 function resetup() {
     width = window.innerWidth ;
     height = window.innerHeight ;
-    simulationArea.setup();
+    simulationArea.canvas.width=width;
+    simulationArea.canvas.height=height;
+    // simulationArea.setup();
     scheduleUpdate();
 }
 
@@ -114,6 +118,10 @@ window.addEventListener('orientationchange', resetup);
 function play() {
 
     console.log("simulation");
+
+    for (var i = 0; i < globalScope.flipflops.length; i++) {
+        globalScope.stack.push(globalScope.flipflops[i]);
+    }
 
     for (var i = 0; i < globalScope.allNodes.length; i++)
         globalScope.allNodes[i].reset();
@@ -133,6 +141,7 @@ function play() {
     for (var i = 0; i < globalScope.outputs.length; i++) {
         globalScope.stack.push(globalScope.outputs[i]);
     }
+
     while (globalScope.stack.length) {
         var elem = globalScope.stack.pop();
         elem.resolve();

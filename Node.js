@@ -113,7 +113,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.prevy = this.absY();
 
     this.isResolvable = function() {
-        return this.value != -1;
+        return this.value != undefined;
     }
 
     this.reset = function() {
@@ -136,8 +136,12 @@ function Node(x, y, type, parent,bitWidth=undefined) {
         }
 
         for (var i = 0; i < this.connections.length; i++) {
-            if (this.connections[i].value ==undefined) {
-                if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
+            if (this.connections[i].value !=this.value) {
+
+                if(this.connections[i].type==1&&this.connections[i].value!=undefined){
+                    console.log("CONTENTION");
+                }
+                else if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
                     this.connections[i].bitWidth=this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
@@ -146,9 +150,9 @@ function Node(x, y, type, parent,bitWidth=undefined) {
                     console.log("BIT WIDTH ERROR");
                 }
             }
-            else if(this.connections[i].value!=this.value){
-                console.log("CONTENTION");
-            }
+            // else if(this.connections[i].value!=this.value){
+            //     console.log("CONTENTION");
+            // }
         }
 
     }
