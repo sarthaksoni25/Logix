@@ -381,7 +381,7 @@ function Element(x, y, type, width, parent,height=undefined) {
     else
         this.height=height;
     this.width=width;
-    this.b = new Button(x, y, this.width,this.height);
+    this.b = new Button(x, y, this.width,this.height,parent);
     this.isResolved = false;
     this.update = function() {
         var updated = false;
@@ -397,11 +397,12 @@ function Element(x, y, type, width, parent,height=undefined) {
     }
 }
 
-function Button(x, y, width, height) {
+function Button(x, y, width, height,parent) {
     this.width=width;
     this.height=height;
     this.x = x;
     this.y = y;
+    this.parent=parent;
     // this.radius = radius;
     this.clicked = false;
     this.hover = false;
@@ -446,7 +447,11 @@ function Button(x, y, width, height) {
     // }
     this.isHover = function() {
         // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
-        if (Math.abs(this.x-simulationArea.mouseX)<=this.width &&Math.abs(this.y-simulationArea.mouseY)<=this.height) return true;
+        var width,height;
+        [width,height]=rotate(this.width,this.height,this.parent.direction);
+        width=Math.abs(width);
+        height=Math.abs(height);
+        if (Math.abs(this.x-simulationArea.mouseX)<=width &&Math.abs(this.y-simulationArea.mouseY)<=height) return true;
         return false;
     }
 }

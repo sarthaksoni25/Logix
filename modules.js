@@ -139,6 +139,119 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=1) {
     }
 }
 
+function Multiplexer(x, y, scope,  dir,bitWidth=1) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.controlSignalSize=parseInt(prompt("Enter control signal bitWidth"),10);
+    this.inputSize=1<<this.controlSignalSize;
+    this.scope = scope;
+    this.id = 'and' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.element = new Element(x, y, "Multiplexer", 20, this,5*(this.inputSize));
+    this.inp = [];
+    this.direction=dir;
+
+
+    //variable inputLength , node creation
+
+    for (var i = 0; i < this.inputSize; i++) {
+        var a = new Node(-20, +10 * (i-this.inputSize/2), 0, this);
+        this.inp.push(a);
+    }
+
+
+    this.output1 = new Node(20, 0, 1, this);
+    this.controlSignalInput = new Node(0,5*this.inputSize , 0, this,this.controlSignalSize);
+    //nodeList - List of Lists - all nodes of object here - used for refreshing when direction changes
+    this.nodeList=[this.inp,[this.output1,this.controlSignalInput]];
+    scope.andGates.push(this);
+
+    //fn to create save Json Data of object
+    this.saveObject = function() {
+        // var data = {
+        //     x: this.element.x,
+        //     y: this.element.y,
+        //     inputs: this.inputs,
+        //     inp: this.inp.map(findNode),
+        //     output1: findNode(this.output1),
+        //     dir:this.direction,
+        // }
+        // return data;
+    }
+
+    // checks if the module has enough information to resolve
+    this.isResolvable = function() {
+        return this.controlSignalInput.value!==undefined&&this.inp[this.controlSignalInput.value].value!==undefined;
+    }
+
+    //resolve output values based on inputData
+    this.resolve = function() {
+
+        if (this.isResolvable() == false) {
+            return;
+        }
+        this.output1.value = this.inp[this.controlSignalInput.value].value;
+        this.scope.stack.push(this.output1);
+    }
+
+    //fn to update everything - location, hover etc
+    this.update = function() {
+
+        var updated = false;
+        //nodes updation
+        for (var j = 0; j < this.inputSize; j++)
+            updated |= this.inp[j].update();
+        updated |= this.output1.update();
+        updated |= this.controlSignalInput.update();
+        //module update
+        updated |= this.element.update();
+        return updated;
+    }
+
+    //fn to draw
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+
+        ctx.beginPath();
+        ctx.lineWidth = 3 ;
+        ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
+        ctx.fillStyle = "rgba(255, 255, 32,0.5)";
+        var xx = this.element.x;
+        var yy = this.element.y;
+
+        rect2(ctx,-20,-5*this.inputSize-10,40,10*this.inputSize+10,xx,yy,this.direction);
+        ctx.closePath();
+
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+        // this.element.update();
+
+        for (var i = 0; i < this.inputSize; i++)
+            this.inp[i].draw();
+
+        this.output1.draw();
+        this.controlSignalInput.draw();
+
+        //for debugging
+        if (this.element.b.hover)
+            console.log(this,this.id);
+    }
+
+    //fn to delete object
+    this.delete = function() {
+        //delete all object nodes
+        this.output1.delete();
+        this.controlSignalInput.delete();
+        for (var i = 0; i < this.inputSize; i++) {
+            this.inp[i].delete();
+        }
+        simulationArea.lastSelected = undefined;
+        this.scope.andGates.clean(this);
+    }
+}
+
+
 function loadSevenSegmentDisplay(data, scope) {
     var v = new SevenSegDisplay(data["x"], data["y"], scope);
     v.a = replace(v.a, data["a"]);
@@ -620,7 +733,6 @@ function NotGate(x, y, scope, dir,bitWidth=1) {
     }
 
 }
-
 
 function Adder(x, y, scope, dir,bitWidth=1) {
     this.bitWidth=bitWidth;

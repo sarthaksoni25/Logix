@@ -29,6 +29,9 @@ function addOutput() {
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
 }
+function addMultiplexer() {
+    var a = new Multiplexer(200, 150, globalScope, 'left');
+}
 
 function addClock() {
     var a = new Clock(200, 150, 2, globalScope, 'left');
@@ -55,6 +58,7 @@ function addSplitter() {
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("groundButton").addEventListener("click", addGround);
 document.getElementById("andButton").addEventListener("click", addAnd);
+document.getElementById("multiplexerButton").addEventListener("click", addMultiplexer);
 document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
 document.getElementById("inputButton").addEventListener("click", addInput);
