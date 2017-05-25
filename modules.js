@@ -827,19 +827,20 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     this.bitWidth=bitWidth;
     this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.bitWidthSplit=prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
+    this.splitCount=this.bitWidthSplit.length;
     this.id = 'Splitter' + uniqueIdCounter;
     uniqueIdCounter++;
     // this.flip=-1;
     this.scope = scope;
 
-    this.element = new Element(x, y, "Splitter", 10, this,(this.bitWidthSplit.length-1)*10+10);
-    this.yOffset=(this.bitWidthSplit.length/2-1)*20;
+    this.element = new Element(x, y, "Splitter", 10, this,(this.splitCount-1)*10+10);
+    this.yOffset=(this.splitCount/2-1)*20;
     this.direction=dir;
     this.inp1 = new Node(-10, 10+this.yOffset, 0, this,this.bitWidth);
 
     this.outputs = [];
-    for(var i=0;i<this.bitWidthSplit.length;i++)
-        this.outputs.push(new Node(10, -i*20+this.yOffset, 0, this,this.bitWidthSplit[i]));
+    for(var i=0;i<this.splitCount;i++)
+        this.outputs.push(new Node(20, i*20-this.yOffset-20, 0, this,this.bitWidthSplit[i]));
 
 
     this.nodeList=[[this.inp1],this.outputs];
@@ -859,9 +860,9 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         var resolvable=false;
         if(this.inp1.value!==undefined)resolvable=true;
         var i;
-        for(i=0;i<this.bitWidthSplit.length;i++)
+        for(i=0;i<this.splitCount;i++)
             if(this.outputs[i].value===undefined)break;
-        if(i==this.bitWidthSplit.length)resolvable=true;
+        if(i==this.splitCount)resolvable=true;
         return resolvable;
     }
 
@@ -871,13 +872,13 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         }
         if(this.inp1.value!==undefined){
             var bitCount=1;
-            for(var i=0;i<this.bitWidthSplit.length;i++){
+            for(var i=0;i<this.splitCount;i++){
                 var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
                 if(this.outputs[i].value===undefined){
                     this.outputs[i].value=bitSplitValue;
                     this.scope.stack.push(this.outputs[i]);
                 }
-                else if(this.outputs[i].value!=bitSplitValue){
+                else if(this.outputs[this.splitCount-i-1].value!=bitSplitValue){
                     console.log("CONTENTION");
                 }
                 bitCount+=this.bitWidthSplit[i];
@@ -885,7 +886,7 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         }
         else{
             var n=0;
-            for(var i=this.bitWidthSplit.length-1;i>=0;i--){
+            for(var i=this.splitCount-1;i>=0;i--){
                 n<<=this.bitWidthSplit[i];
                 n+=this.outputs[i].value;
                 // var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
@@ -910,7 +911,7 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
     this.update = function() {
         var updated = false;
         // updated |= this.output1.update();
-        for (var j = 0; j < this.bitWidthSplit.length; j++) {
+        for (var j = 0; j < this.splitCount; j++) {
             updated |= this.outputs[j].update();
         }
         updated |= this.inp1.update();
@@ -931,12 +932,16 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         // drawLine(ctx, -10, -10, xx, y2, color, width)
         moveTo(ctx,-10,10+this.yOffset,xx,yy,this.direction);
         lineTo(ctx,0,0+this.yOffset,xx,yy,this.direction);
-        lineTo(ctx,0,-20*(this.bitWidthSplit.length-1)+this.yOffset,xx,yy,this.direction);
+        lineTo(ctx,0,-20*(this.splitCount-1)+this.yOffset,xx,yy,this.direction);
 
-        for(var i=0;i<this.bitWidthSplit.length;i++){
+        var bitCount=0;
+        for(var i=this.splitCount-1;i>=0;i--){
         moveTo(ctx,0,-20*i+this.yOffset,xx,yy,this.direction);
-        lineTo(ctx,10,-20*i+this.yOffset,xx,yy,this.direction);
+        lineTo(ctx,20,-20*i+this.yOffset,xx,yy,this.direction);
+        fillText2(ctx,bitCount+":"+(bitCount+this.bitWidthSplit[this.splitCount-i-1]),10,-20*i+14+this.yOffset,xx,yy,this.direction);
+        bitCount+=this.bitWidthSplit[this.splitCount-i-1];
         }
+        // ctx.closePath();
         // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         // ctx.closePath();
         // if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -945,7 +950,7 @@ function Splitter(x, y, scope, dir,bitWidth=1) {
         // arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
         // ctx.stroke();
         this.inp1.draw();
-        for (var j = 0; j < this.bitWidthSplit.length; j++)
+        for (var j = 0; j < this.splitCount; j++)
             this.outputs[j].draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
