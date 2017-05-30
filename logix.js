@@ -6,7 +6,7 @@ toBeUpdated=true;
 wireToBeChecked=0; // when node disconnects from another node
 willBeUpdated=false;
 function scheduleUpdate(){
-
+    return;
     if(willBeUpdated)return;
 
     if(simulationArea.mouseDown)
@@ -42,7 +42,10 @@ function Scope(name = "localScope") {
     }
     this.name = name;
     this.stack = [];
+    this.hexdis = [];
+    this.adders = [];
     this.inputs = [];
+    this.splitters = [];
     this.grounds = [];
     this.andGates = [];
     this.sevenseg = [];
@@ -56,7 +59,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -100,7 +103,10 @@ function setup() {
 function resetup() {
     width = window.innerWidth ;
     height = window.innerHeight ;
-    simulationArea.setup();
+    simulationArea.canvas.width=width;
+    simulationArea.canvas.height=height;
+    // simulationArea.setup();
+    scheduleUpdate();
 }
 
 window.onresize = resetup;
@@ -112,6 +118,10 @@ window.addEventListener('orientationchange', resetup);
 function play() {
 
     console.log("simulation");
+
+    for (var i = 0; i < globalScope.flipflops.length; i++) {
+        globalScope.stack.push(globalScope.flipflops[i]);
+    }
 
     for (var i = 0; i < globalScope.allNodes.length; i++)
         globalScope.allNodes[i].reset();
@@ -131,6 +141,7 @@ function play() {
     for (var i = 0; i < globalScope.outputs.length; i++) {
         globalScope.stack.push(globalScope.outputs[i]);
     }
+
     while (globalScope.stack.length) {
         var elem = globalScope.stack.pop();
         elem.resolve();
@@ -151,13 +162,21 @@ var simulationArea = {
     oldx:0,
     oldy:0,
     scale:1,
+    clickCount:0, //double click
+    lock:"unlocked",
+    timer: function(){
+      ckickTimer=setTimeout(function() {
+      simulationArea.clickCount = 0;
+    }, 600);
+    },
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        // this.interval = setInterval(update, 50);
+        this.interval = setInterval(update, 100);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
+
         window.addEventListener('mousemove', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -186,6 +205,10 @@ var simulationArea = {
             if(e.keyCode==40&&simulationArea.lastSelected!=undefined){
 						 newDirection(simulationArea.lastSelected,'up');
 						}
+            if((e.keyCode==113||e.keyCode==81)&&simulationArea.lastSelected!=undefined){
+                    if(simulationArea.lastSelected.bitWidth!==undefined)
+					     newBitWidth(simulationArea.lastSelected,parseInt(prompt("Enter new bitWidth"),10));
+			}
             // zoom in (+)
             if(e.keyCode==187 && simulationArea.scale < 4){
                 changeScale(.1);
@@ -210,6 +233,20 @@ var simulationArea = {
             simulationArea.mouseDown = true;
             simulationArea.oldx=simulationArea.ox;
             simulationArea.oldy=simulationArea.oy;
+            if(simulationArea.clickCount===0 )
+            {
+                simulationArea.clickCount++;
+                simulationArea.timer();
+            }
+            else if(simulationArea.clickCount===1){
+              simulationArea.clickCount=0;
+              if(simulationArea.lock==="locked")
+                simulationArea.lock = "unlocked";
+              else
+                simulationArea.lock = "locked";
+              console.log("Double",simulationArea.lock);
+            }
+
         });
         window.addEventListener('mouseup', function(e) {
             update();
@@ -335,11 +372,16 @@ function dots() {
 
 }
 
-function Element(x, y, type, r, parent) {
+function Element(x, y, type, width, parent,height=undefined) {
     this.type = type;
     this.x = x;
     this.y = y;
-    this.b = new Button(x, y, r, "rgba(255,255,255,0)", "rgba(0,0,0,1)");
+    if(height==undefined)
+        this.height=width;
+    else
+        this.height=height;
+    this.width=width;
+    this.b = new Button(x, y, this.width,this.height,parent);
     this.isResolved = false;
     this.update = function() {
         var updated = false;
@@ -355,10 +397,13 @@ function Element(x, y, type, r, parent) {
     }
 }
 
-function Button(x, y, radius) {
+function Button(x, y, width, height,parent) {
+    this.width=width;
+    this.height=height;
     this.x = x;
     this.y = y;
-    this.radius = radius;
+    this.parent=parent;
+    // this.radius = radius;
     this.clicked = false;
     this.hover = false;
     this.oldx=x;
@@ -401,11 +446,16 @@ function Button(x, y, radius) {
     //     return false;
     // }
     this.isHover = function() {
-        if (distance(this.x, this.y, simulationArea.mouseX, simulationArea.mouseY) < this.radius) return true;
+        // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
+        var width,height;
+        [width,height]=rotate(this.width,this.height,this.parent.direction);
+        width=Math.abs(width);
+        height=Math.abs(height);
+        if (Math.abs(this.x-simulationArea.mouseX)<=width &&Math.abs(this.y-simulationArea.mouseY)<=height) return true;
         return false;
     }
 }
-
+//
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }

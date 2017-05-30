@@ -14,6 +14,19 @@ function replace(node, index) {
     return node;
 }
 
+function extractBits(num,start,end){
+    return (num<<(32-end))>>>(32-(end-start+1));
+}
+
+function bin2dec(binString){
+    return parseInt(binString, 2);
+}
+function dec2bin(dec,bitWidth=undefined){
+   // only for positive nos
+    var bin = (dec).toString(2);
+    if(bitWidth==undefined)return bin;
+    return '0'.repeat(bitWidth-bin.length)+bin;
+}
 //find Index of a node
 function findNode(x) {
     return x.scope.allNodes.indexOf(x);
@@ -33,18 +46,24 @@ function extractNode(x, scope, parent) {
 //output node=1
 //input node=0
 //intermediate node =2
-function Node(x, y, type, parent) {
+function Node(x, y, type, parent,bitWidth=undefined) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
     this.leftx=x;
+    if(bitWidth==undefined){
+        this.bitWidth=parent.bitWidth;
+    }
+    else {
+        this.bitWidth=bitWidth;
+    }
     this.lefty=y;
     this.x=x;
     this.y=y;
 
     this.type = type;
     this.connections = new Array();
-    this.value = -1;
+    this.value = undefined;
     this.radius = 5;
     this.clicked = false;
     this.hover = false;
@@ -94,11 +113,11 @@ function Node(x, y, type, parent) {
     this.prevy = this.absY();
 
     this.isResolvable = function() {
-        return this.value != -1;
+        return this.value != undefined;
     }
 
     this.reset = function() {
-        this.value = -1;
+        this.value = undefined;
     }
 
     this.connect = function(n) {
@@ -108,19 +127,34 @@ function Node(x, y, type, parent) {
     }
 
     this.resolve = function() {
-        if (this.value == -1) {
+        if (this.value == undefined) {
             return;
-        } else if (this.type == 0) {
+        }
+        if (this.type == 0) {
             if (this.parent.isResolvable())
                 this.scope.stack.push(this.parent);
-        } else if (this.type == 1 || this.type == 2) {
-            for (var i = 0; i < this.connections.length; i++) {
-                if (this.connections[i].value != this.value) {
+        }
+
+        for (var i = 0; i < this.connections.length; i++) {
+            if (this.connections[i].value !=this.value) {
+
+                if(this.connections[i].type==1&&this.connections[i].value!=undefined){
+                    console.log("CONTENTION");
+                }
+                else if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
+                    this.connections[i].bitWidth=this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
                 }
+                else {
+                    console.log("BIT WIDTH ERROR");
+                }
             }
+            // else if(this.connections[i].value!=this.value){
+            //     console.log("CONTENTION");
+            // }
         }
+
     }
 
     this.draw = function() {

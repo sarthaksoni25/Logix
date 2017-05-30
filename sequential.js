@@ -2,47 +2,65 @@ function clockTick() {
     for (var i = 0; i < globalScope.clocks.length; i++)
         globalScope.clocks[i].toggleState(); //tick clock!
     if (globalScope.clocks.length) {
-        play(); // simulate
+        play();
+        // toBeUpdated=true;
+        // update(); // simulate
     }
 }
 
-function FlipFlop(x, y, scope, dir) {
-    // this.func = FlipFlop;
-    // [x, y, scope, dir] = list;
+function FlipFlop(x, y, scope, dir,bitWidth) {
+    this.bitWidth=bitWidth;
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.direction = dir;
-    // this.list = list;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
-    this.element = new Element(x, y, "FlipFlip", 40, this);
-    this.clockInp = new Node(-20, -10, 0, this);
+    this.element = new Element(x, y, "FlipFlip", 20, this);
+    this.clockInp = new Node(-20, -10, 0, this,1);
     this.dInp = new Node(-20, +10, 0, this);
     this.qOutput = new Node(20, -10, 1, this);
+    this.reset = new Node(20, 10, 0, this,1);
     this.masterState = 0;
     this.slaveState = 0;
     this.prevClockState = 0;
     scope.flipflops.push(this);
     this.wasClicked = false;
-    this.nodeList=[[this.clockInp,this.dInp,this.qOutput]];
-
+    this.nodeList=[[this.clockInp,this.dInp,this.qOutput,this.reset]];
+    this.newBitWidth=function(bitWidth){
+        this.bitWidth=bitWidth;
+        this.dInp.bitWidth=bitWidth;
+        this.qOutput.bitWidth=bitWidth;
+    }
     this.isResolvable = function() {
         return true;
     }
     this.resolve = function() {
+        if(this.reset.value==1){
+
+            if(this.masterState!=0){
+                this.masterState=this.slaveState=0;
+            }
+            if (this.qOutput.value != this.slaveState) {
+                this.qOutput.value = this.slaveState;
+                this.scope.stack.push(this.qOutput);
+            }
+            return;
+        }
         if (this.clockInp.value == this.prevClockState) {
-            if (this.clockInp.value == 0 && this.dInp.value != -1) {
+            if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
             }
-        } else if (this.clockInp.value != -1) {
+        } else if (this.clockInp.value != undefined) {
             if (this.clockInp.value == 1) {
                 this.slaveState = this.masterState;
-            } else if (this.clockInp.value == 0 && this.dInp.value != -1) {
+            } else if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
             }
             this.prevClockState = this.clockInp.value;
         }
 
         if (this.qOutput.value != this.slaveState) {
+            // if(this.qOutput.value!= undefined)toBeUpdated=true;
             this.qOutput.value = this.slaveState;
             this.scope.stack.push(this.qOutput);
             console.log("hit", this.slaveState);
@@ -54,6 +72,7 @@ function FlipFlop(x, y, scope, dir) {
         updated |= this.dInp.update();
         updated |= this.clockInp.update();
         updated |= this.qOutput.update();
+        updated |= this.reset.update();
         updated |= this.element.update();
 
         if (simulationArea.mouseDown == false)
@@ -96,6 +115,7 @@ function FlipFlop(x, y, scope, dir) {
 
         this.dInp.draw();
         this.qOutput.draw();
+        this.reset.draw();
         this.clockInp.draw();
 
     }
@@ -117,7 +137,7 @@ function Clock(x, y, f, scope , dir) {
     this.timeInterval = 1000 / f;
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
-    this.output1 = new Node(10, 0, 1, this);
+    this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;
     scope.clocks.push(this);

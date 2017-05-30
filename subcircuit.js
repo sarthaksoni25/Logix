@@ -7,7 +7,7 @@ function loadSubCircuit(savedData, scope) {
 
 //subCircuit
 function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
-
+    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.savedData=savedData;
     this.direction=dir;
     this.scope = scope;
@@ -79,43 +79,43 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
             if (this.localScope.inputs.length % 2 == 1) {
                 for (var i = this.localScope.inputs.length / 2 - 1.5; i >= 0; i--) {
                     console.log(i);
-                    var a = new Node(-30, -10 * (i + 1), 0, this);
+                    var a = new Node(-30, -10 * (i + 1), 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
                 }
                 var a = new Node(-30, 0, 0, this);
                 this.inputNodes.push(a);
                 for (var i = this.localScope.inputs.length / 2+.5; i < this.localScope.inputs.length; i++) {
-                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1.5), 0, this);
+                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1.5), 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
                 }
             } else {
                 for (var i = 0; i < this.localScope.inputs.length / 2; i++) {
-                    var a = new Node(-30, -10 * (i + 1), 0, this);
+                    var a = new Node(-30, -10 * (i + 1), 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
                 }
                 for (var i = this.localScope.inputs.length / 2; i < this.localScope.inputs.length; i++) {
-                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length / 2), 0, this);
+                    var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length / 2), 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
                 }
             }
             if (this.localScope.outputs.length % 2 == 1) {
                 for (var i = this.localScope.outputs.length / 2 - 1; i >= 0; i--) {
-                    var a = new Node(30, -10 * (i + 1), 1, this);
+                    var a = new Node(30, -10 * (i + 1), 1, this,this.localScope.inputs[i].bitWidth);
                     this.outputNodes.push(a);
                 }
                 var a = new Node(30, 0, 1, this);
                 this.outputNodes.push(a);
                 for (var i = this.localScope.outputs.length / 2 + 1; i < this.localScope.outputs.length; i++) {
-                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this);
+                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this,this.localScope.inputs[i].bitWidth);
                     this.outputNodes.push(a);
                 }
             } else {
                 for (var i = 0; i < this.localScope.outputs.length / 2; i++) {
-                    var a = new Node(30, -10 * (i + 1), 1, this);
+                    var a = new Node(30, -10 * (i + 1), 1, this,this.localScope.inputs[i].bitWidth);
                     this.outputNodes.push(a);
                 }
                 for (var i = this.localScope.outputs.length / 2; i < this.localScope.outputs.length; i++) {
-                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length / 2), 1, this);
+                    var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length / 2), 1, this,this.localScope.inputs[i].bitWidth);
                     this.outputNodes.push(a);
                 }
             }

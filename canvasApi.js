@@ -88,6 +88,10 @@ function rect2(ctx,x1,y1,x2,y2,xx,yy,dir){
 }
 
 function newDirection(obj,dir){
+    if(obj.newDirection!==undefined){
+        obj.newDirection(dir);
+        return;
+    }
     if(obj.direction==undefined)return;
     obj.direction=dir;
     for(var i =0;i<obj.nodeList.length;i++){
@@ -147,6 +151,7 @@ function drawLine(ctx, x1, y1, x2, y2, color, width) {
     ctx.stroke();
 }
 
+
 function drawCircle(ctx, x1, y1, r, color) {
     // r = r*simulationArea.scale;
     x1 = x1*simulationArea.scale;
@@ -162,5 +167,31 @@ function fillText(ctx,str, x1, y1 ) {
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
     ctx.font = 20*simulationArea.scale+"px Georgia";
+    // ctx.font = 20+"px Georgia";
     ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
+}
+function fillText2(ctx,str, x1, y1,xx,yy,dir) {
+    angle={
+        "left":0,
+        "right":0,
+        "up":Math.PI/2,
+        "down":-Math.PI/2,
+    }
+    x1 = x1*simulationArea.scale;
+    y1 = y1*simulationArea.scale;
+    [x1,y1]=rotate(x1,y1,dir);
+    xx = xx*simulationArea.scale;
+    yy = yy*simulationArea.scale;
+
+    ctx.font = 14*simulationArea.scale+"px Georgia";
+    // ctx.font = 20+"px Georgia";
+    console.log(str);
+    ctx.save();
+ ctx.translate( xx+x1+simulationArea.ox, yy+ y1+simulationArea.oy);
+ ctx.rotate(angle[dir]);
+ ctx.textAlign = "center";
+ ctx.fillText(str, 0, 0);
+ ctx.restore();
+    // ctx.fillText(str, xx+x1+simulationArea.ox,yy+ y1+simulationArea.oy);
+
 }
