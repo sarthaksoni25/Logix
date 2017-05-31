@@ -35,7 +35,7 @@ function findNode(x) {
 }
 
 function loadNode(data, scope) {
-    var n = new Node(data["x"], data["y"], data["type"], scope.root);
+    var n = new Node(data["x"], data["y"], data["type"], scope.root,data["bitWidth"]);
 }
 
 //get Node in index x in scope and set parent
@@ -94,6 +94,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             x: this.x,
             y: this.y,
             type: this.type,
+            bitWidth:this.bitWidth,
             connections: [],
         }
         for (var i = 0; i < this.connections.length; i++) {

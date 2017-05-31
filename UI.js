@@ -44,14 +44,14 @@ function addHexDis() {
     var a = new HexDisplay(400, 150);
 }
 function addAdder() {
-    var a = new Adder(400, 150,globalScope,"left",bitWidth=1);
+    var a = new Adder(400, 150,globalScope,"left",);
 }
 
 function addSubCircuit() {
     var a = new SubCircuit(400, 150);
 }
 function addSplitter() {
-    var a = new Splitter(400, 400, globalScope, "left",bitWidth=1);
+    var a = new Splitter(400, 400, globalScope, "left",);
 }
 
 

@@ -139,10 +139,15 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
     }
 }
 
-function Multiplexer(x, y, scope,  dir,bitWidth=undefined) {
+function loadMultiplexer(data, scope) {
+    var v = new Multiplexer(data["x"], data["y"], scope, data["inputs"],data["dir"],data["bitWidth"],data["controlSignalSize"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
+}
+function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
-    this.controlSignalSize=parseInt(prompt("Enter control signal bitWidth"),10);
+    this.controlSignalSize=controlSignalSize||parseInt(prompt("Enter control signal bitWidth"),10);
     this.inputSize=1<<this.controlSignalSize;
     this.scope = scope;
     this.id = 'and' + uniqueIdCounter;
@@ -169,15 +174,17 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined) {
 
     //fn to create save Json Data of object
     this.saveObject = function() {
-        // var data = {
-        //     x: this.element.x,
-        //     y: this.element.y,
-        //     inputs: this.inputs,
-        //     inp: this.inp.map(findNode),
-        //     output1: findNode(this.output1),
-        //     dir:this.direction,bitWidth:this.bitWidth,
-        // }
-        // return data;
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            inputs: this.inputs,
+            inp: this.inp.map(findNode),
+            output1: findNode(this.output1),
+            dir:this.direction,
+            bitWidth:this.bitWidth,
+            controlSignalSize:this.controlSignalSize,
+        }
+        return data;
     }
 
     // checks if the module has enough information to resolve
@@ -252,7 +259,6 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined) {
     }
 }
 
-
 function loadSevenSegmentDisplay(data, scope) {
     var v = new SevenSegDisplay(data["x"], data["y"], scope);
     v.a = replace(v.a, data["a"]);
@@ -266,7 +272,7 @@ function loadSevenSegmentDisplay(data, scope) {
 }
 
 function SevenSegDisplay(x, y, scope = globalScope) {
-    this.bitWidth=undefined;
+    this.bitWidth=1;
     this.element = new Element(x, y, "SevenSegmentDisplay", 30, this,50);
     this.scope = scope;
     this.nodeList=[];
@@ -302,7 +308,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
             c: findNode(this.c),
             d: findNode(this.d),
             dot: findNode(this.dot),
-            dir:this.direction,bitWidth:this.bitWidth,
+
         }
         return data;
     }
@@ -391,6 +397,12 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         scope.sevenseg.clean(this);
     }
 }
+
+function loadHexDisplay(data, scope) {
+    var v = new HexDisplay(data["x"], data["y"], scope);
+    v.inp = replace(v.inp, data["inp"]);
+
+}
 function HexDisplay(x, y, scope = globalScope) {
     // this.bitWidth=undefined;
     this.element = new Element(x, y, "SevenSegmentDisplay", 30, this,50);
@@ -420,16 +432,8 @@ function HexDisplay(x, y, scope = globalScope) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            g: findNode(this.g),
-            f: findNode(this.f),
-            a: findNode(this.a),
-            b: findNode(this.b),
-            d: findNode(this.d),
-            e: findNode(this.e),
-            c: findNode(this.c),
-            d: findNode(this.d),
-            dot: findNode(this.dot),
-            dir:this.direction,bitWidth:this.bitWidth,
+            inp: findNode(this.inp),
+
         }
         return data;
     }
@@ -739,6 +743,15 @@ function NotGate(x, y, scope, dir,bitWidth=undefined) {
 
 }
 
+function loadAdder(data, scope) {
+    var v = new Adder(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
+    v.inpA = replace(v.inpA, data["inpA"]);
+    v.inpB = replace(v.inpB, data["inpB"]);
+    v.carryIn = replace(v.carryIn, data["carryIn"]);
+    v.carryOut = replace(v.carryOut, data["carryOut"]);
+    v.sum = replace(v.sum, data["sum"]);
+}
+
 function Adder(x, y, scope, dir,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
@@ -757,14 +770,18 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
     scope.adders.push(this);
     // this.nodeList=[[this.inpA,this.inpB,this.carryIn,this.sum,this.carryOut]];
     this.saveObject = function() {
-        // var data = {
-        //     x: this.element.x,
-        //     y: this.element.y,
-        //     output1: findNode(this.output1),
-        //     inp1: findNode(this.inp1),
-        //     dir:this.direction,bitWidth:this.bitWidth,
-        // }
-        // return data;
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            inpA: findNode(this.inpA),
+            inpB: findNode(this.inpB),
+            carryIn: findNode(this.carryIn),
+            carryOut: findNode(this.carryOut),
+            sum: findNode(this.sum),
+            dir:this.direction,
+            bitWidth:this.bitWidth,
+        }
+        return data;
     }
 
     this.isResolvable = function() {
@@ -829,6 +846,12 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
 
 }
 
+function loadSplitter(data, scope) {
+    var v = new Splitter(data["x"], data["y"], scope, data["inputs"],data["dir"],data["bitWidth"]);
+    v.inp1 = replace(v.inp1, data["inp1"]);
+    for (var i = 0; i < data["inputs"]; i++) v.outputs[i] = replace(v.outputs[i], data["outputs"][i]);
+}
+
 function Splitter(x, y, scope, dir,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
@@ -856,9 +879,11 @@ function Splitter(x, y, scope, dir,bitWidth=undefined) {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            output1: findNode(this.output1),
+            // output findNode(this.output1),
+            outputs: this.outputs.map(findNode),
             inp1: findNode(this.inp1),
-            dir:this.direction,bitWidth:this.bitWidth,
+            dir:this.direction,
+            bitWidth:this.bitWidth,
         }
         return data;
     }
@@ -989,7 +1014,6 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
     // this.list=list;
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     this.nodeList=[];
-    this.bitWidth=prompt("Enter bitwidth: ");
     this.direction=dir;
     // this.prevDir = dir;
     this.state = 0;
@@ -999,6 +1023,7 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
     this.output1 = new Node( this.bitWidth*10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
+
     // this.nodeList=[[this.output1]];
     this.saveObject = function() {
         var data = {
@@ -1018,8 +1043,9 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         this.scope.stack.push(this.output1);
     }
     this.newBitWidth=function(bitWidth){
-        this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
+        this.bitWidth=bitWidth;//||parseInt(prompt("Enter bitWidth"),10);
         this.state=0;
+        this.output1.bitWidth=bitWidth;
         this.element.b.width=10*this.bitWidth;
         if(this.direction=="left"){
             this.output1.x=10*this.bitWidth;
@@ -1123,12 +1149,13 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         this.output1.refresh();
 
     }
+    // this.newDirection(dir);
     this.findPos = function(){
       return Math.round((simulationArea.mouseX-this.element.x+10*this.bitWidth)/20.0);
     }
 }
 function loadGround(data, scope) {
-    var v = new Ground(data["x"], data["y"], scope);
+    var v = new Ground(data["x"], data["y"], scope,data["bitWidth"]);
     v.output1 = replace(v.output1, data["output1"]);
 }
 
@@ -1157,6 +1184,7 @@ function Ground(x, y, scope = globalScope,bitWidth=undefined) {
             x: this.element.x,
             y: this.element.y,
             output1: findNode(this.output1),
+            bitWidth:this.bitWidth,
         }
         return data;
     }
@@ -1202,7 +1230,7 @@ function Ground(x, y, scope = globalScope,bitWidth=undefined) {
 }
 
 function loadPower(data, scope) {
-    var v = new Power(data["x"], data["y"], scope);
+    var v = new Power(data["x"], data["y"], scope,data["bitWidth"]);
     v.output1 = replace(v.output1, data["output1"]);
 }
 
@@ -1229,6 +1257,7 @@ function Power(x, y, scope = globalScope,bitWidth=undefined) {
             x: this.element.x,
             y: this.element.y,
             output1: findNode(this.output1),
+            bitWidth: this.bitWidth,
         }
         return data;
     }
@@ -1305,7 +1334,8 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
     }
     this.newBitWidth=function(bitWidth){
         this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-        this.state=0;
+        this.state=undefined;
+        this.output1.bitWidth=bitWidth;
         this.element.b.width=10*this.bitWidth;
         if(this.direction=="left"){
             this.inp1.x=10*this.bitWidth;
@@ -1382,7 +1412,7 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
         this.inp1.refresh();
 
     }
-
+    // this.newDirection(dir);
 }
 
 function newBitWidth(obj,bitWidth){
@@ -1396,14 +1426,3 @@ function newBitWidth(obj,bitWidth){
             obj.nodeList[i].bitWidth=bitWidth;
 
 }
-// function delete(obj){
-//     if(obj.delete!==undefined){
-//         obj.delete();
-//         return;
-//     }
-//     for(var i=0;i<obj.nodeList.length;i++)
-//         for(var j=0;j<obj.nodeList[i].length;j++)
-//             obj.nodeList[i][j].delete();
-//     simulationArea.lastSelected = undefined;
-//
-// }

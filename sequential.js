@@ -8,9 +8,16 @@ function clockTick() {
     }
 }
 
+function loadAdder(data, scope) {
+    var v = new FlipFlop(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
+    v.clockInp = replace(v.clockInp, data["clockInp"]);
+    v.dInp = replace(v.dInp, data["dInp"]);
+    v.qOutput = replace(v.qOutput, data["qOutput"]);
+    v.reset = replace(v.reset, data["reset"]);
+}
+
 function FlipFlop(x, y, scope, dir,bitWidth) {
-    this.bitWidth=bitWidth;
-    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     this.direction = dir;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
@@ -67,7 +74,19 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
             console.log("hit", this.slaveState);
         }
     }
-
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            clockInp: findNode(this.clockInp),
+            dInp: findNode(this.dInp),
+            qOutput: findNode(this.qOutput),
+            reset: findNode(this.reset),
+            dir:this.direction,
+            bitWidth:this.bitWidth,
+        }
+        return data;
+    }
     // this.update = function() {
     //     var updated = false;
     //     updated |= this.dInp.update();
@@ -129,13 +148,17 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
 
     }
 }
+function loadClock(data, scope) {
+    var v = new Clock(data["x"], data["y"], scope,data["dir"]);
+    v.output1 = replace(v.output1, data["clockInp"]);
 
-function Clock(x, y, f, scope , dir) {
+}
+function Clock(x, y, scope , dir) {
     this.direction=dir;
     this.id = 'clock' + uniqueIdCounter;
-    this.f = f;
+    // this.f = f;
     this.scope = scope;
-    this.timeInterval = 1000 / f;
+    // this.timeInterval = 1000 / f;
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
     this.nodeList=[];
@@ -146,6 +169,16 @@ function Clock(x, y, f, scope , dir) {
     this.wasClicked = false;
     this.interval = null;
     // this.nodeList=[[this.output1]];
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            dir:this.direction,
+
+        }
+        return data;
+    }
 
     this.resolve = function() {
         this.output1.value = this.state;
