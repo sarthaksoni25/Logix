@@ -11,10 +11,16 @@ function Save() {
     data["allNodes"] = globalScope.allNodes.map(extract);
     data["andGates"] = globalScope.andGates.map(extract);
     data["orGates"] = globalScope.orGates.map(extract);
+    data["multiplexers"] = globalScope.multiplexers.map(extract);
+    data["adders"] = globalScope.adders.map(extract);
+    data["splitters"] = globalScope.splitters.map(extract);
     data["notGates"] = globalScope.notGates.map(extract);
     data["sevenseg"] = globalScope.sevenseg.map(extract);
+    data["hexdis"] = globalScope.hexdis.map(extract);
     data["grounds"] = globalScope.grounds.map(extract);
     data["powers"] = globalScope.powers.map(extract);
+    data["clocks"] = globalScope.clocks.map(extract);
+    data["flipflops"] = globalScope.flipflops.map(extract);
     data["subCircuits"] = globalScope.subCircuits.map(extract);
     // data["wires"]=globalScope.wires.map(extract);
     data["nodes"] = []
@@ -54,6 +60,21 @@ function load(scope, data) {
     if (data["andGates"]) data["andGates"].map(function(x) {
         return loadAnd(x, scope);
     });
+    if (data["multiplexers"]) data["multiplexers"].map(function(x) {
+        return loadMultiplexer(x, scope);
+    });
+    if (data["splitters"]) data["splitters"].map(function(x) {
+        return loadSplitter(x, scope);
+    });
+    if (data["adders"]) data["adders"].map(function(x) {
+        return loadAdder(x, scope);
+    });
+    if (data["clocks"]) data["clocks"].map(function(x) {
+        return loadClock(x, scope);
+    });
+    if (data["flipflops"]) data["flipflops"].map(function(x) {
+        return loadFlipFlop(x, scope);
+    });
     if (data["orGates"]) data["orGates"].map(function(x) {
         return loadOr(x, scope);
     });
@@ -62,6 +83,9 @@ function load(scope, data) {
     });
     if (data["sevenseg"]) data["sevenseg"].map(function(x) {
         return loadSevenSegmentDisplay(x, scope);
+    });
+    if (data["hexdis"]) data["hexdis"].map(function(x) {
+        return loadHexDisplay(x, scope);
     });
     if (data["powers"]) data["powers"].map(function(x) {
         return loadPower(x, scope);

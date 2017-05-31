@@ -1,13 +1,13 @@
 
 function loadSubCircuit(savedData, scope) {
-    var v = new SubCircuit(savedData["x"], savedData["y"], scope, savedData);
+    var v = new SubCircuit(savedData["x"], savedData["y"], scope, savedData["dir"],savedData);
     // for (var i = 0; i < v.inputNodes.length; i++) v.inputNodes[i] = replace(v.inputNodes[i], data["inputNodes"][i]);
     // for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
 }
 
 //subCircuit
-function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
-    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
+    // this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.savedData=savedData;
     this.direction=dir;
     this.scope = scope;
@@ -16,9 +16,10 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
     uniqueIdCounter++;
     this.element = new Element(x, y, "subCircuit", 35, this);
     this.scope.subCircuits.push(this);
+    this.nodeList=[];
     this.inputNodes = [];
     this.outputNodes = [];
-    this.nodeList=[this.inputNodes,this.outputNodes];
+    // this.nodeList=[this.inputNodes,this.outputNodes];
     this.width = 0;
     this.height = 0;
     // this.deleted=false;
@@ -64,6 +65,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
             dataHash: this.dataHash,
             height:this.height,
             width:this.width,
+            dir:direction,
             inputNodes: this.inputNodes.map(findNode),
             outputNodes: this.outputNodes.map(findNode),
         }
@@ -82,7 +84,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
                     var a = new Node(-30, -10 * (i + 1), 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
                 }
-                var a = new Node(-30, 0, 0, this);
+                var a = new Node(-30, 0, 0, this,this.localScope.inputs[i].bitWidth);
                 this.inputNodes.push(a);
                 for (var i = this.localScope.inputs.length / 2+.5; i < this.localScope.inputs.length; i++) {
                     var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1.5), 0, this,this.localScope.inputs[i].bitWidth);
@@ -103,7 +105,7 @@ function SubCircuit(x, y, scope = globalScope, savedData=undefined,dir="left") {
                     var a = new Node(30, -10 * (i + 1), 1, this,this.localScope.inputs[i].bitWidth);
                     this.outputNodes.push(a);
                 }
-                var a = new Node(30, 0, 1, this);
+                var a = new Node(30, 0, 1, this,this.localScope.inputs[i].bitWidth);
                 this.outputNodes.push(a);
                 for (var i = this.localScope.outputs.length / 2 + 1; i < this.localScope.outputs.length; i++) {
                     var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this,this.localScope.inputs[i].bitWidth);

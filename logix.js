@@ -48,6 +48,7 @@ function Scope(name = "localScope") {
     this.splitters = [];
     this.grounds = [];
     this.andGates = [];
+    this.multiplexers = [];
     this.sevenseg = [];
     this.clocks = [];
     this.flipflops = [];
@@ -59,7 +60,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates,this.multiplexers, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment

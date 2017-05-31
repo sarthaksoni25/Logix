@@ -8,7 +8,7 @@ function clockTick() {
     }
 }
 
-function loadAdder(data, scope) {
+function loadFlipFlop(data, scope) {
     var v = new FlipFlop(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
     v.clockInp = replace(v.clockInp, data["clockInp"]);
     v.dInp = replace(v.dInp, data["dInp"]);
@@ -150,7 +150,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
 }
 function loadClock(data, scope) {
     var v = new Clock(data["x"], data["y"], scope,data["dir"]);
-    v.output1 = replace(v.output1, data["clockInp"]);
+    v.output1 = replace(v.output1, data["output1"]);
 
 }
 function Clock(x, y, scope , dir) {
@@ -159,9 +159,10 @@ function Clock(x, y, scope , dir) {
     // this.f = f;
     this.scope = scope;
     // this.timeInterval = 1000 / f;
+    this.nodeList=[];
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
-    this.nodeList=[];
+    console.log(scope);
     this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;

@@ -13,6 +13,7 @@ function replace(node, index) {
     node = scope.allNodes[index];
     node.parent = parent;
     parent.nodeList.push(node);
+    node.updateRotation();
     return node;
 }
 
@@ -78,8 +79,13 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.count = 0;
 
     //This fn is called during rotations and setup
-    this.refresh=function(){
+
+    this.updateRotation=function(){
         [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+    }
+    this.refresh=function(){
+        // [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+        this.updateRotation();
         for (var i = 0; i < this.connections.length; i++) {
             this.connections[i].connections.clean(this);
         }
@@ -91,8 +97,8 @@ function Node(x, y, type, parent,bitWidth=undefined) {
 
     this.saveObject = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            x: this.leftx,
+            y: this.lefty,
             type: this.type,
             bitWidth:this.bitWidth,
             connections: [],

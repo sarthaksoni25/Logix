@@ -34,7 +34,7 @@ function addMultiplexer() {
 }
 
 function addClock() {
-    var a = new Clock(200, 150, 2, globalScope, 'left');
+    var a = new Clock(200, 150, globalScope, 'left');
 }
 
 function addSevenSeg() {

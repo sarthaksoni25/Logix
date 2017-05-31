@@ -140,9 +140,10 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
 }
 
 function loadMultiplexer(data, scope) {
-    var v = new Multiplexer(data["x"], data["y"], scope, data["inputs"],data["dir"],data["bitWidth"],data["controlSignalSize"]);
+    var v = new Multiplexer(data["x"], data["y"], scope,data["dir"],data["bitWidth"],data["controlSignalSize"]);
     v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
+    v.controlSignalInput = replace(v.controlSignalInput, data["controlSignalInput"]);
+    for (var i = 0; i < v.inp.length; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
@@ -150,7 +151,7 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
     this.controlSignalSize=controlSignalSize||parseInt(prompt("Enter control signal bitWidth"),10);
     this.inputSize=1<<this.controlSignalSize;
     this.scope = scope;
-    this.id = 'and' + uniqueIdCounter;
+    this.id = 'Multiplexer' + uniqueIdCounter;
     this.nodeList=[];
     uniqueIdCounter++;
     this.element = new Element(x, y, "Multiplexer", 20, this,5*(this.inputSize));
@@ -170,7 +171,7 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
     this.controlSignalInput = new Node(0,5*this.inputSize , 0, this,this.controlSignalSize);
     //nodeList - List of Lists - all nodes of object here - used for refreshing when direction changes
     // this.nodeList=[this.inp,[this.output1,this.controlSignalInput]];
-    scope.andGates.push(this);
+    scope.multiplexers.push(this);
 
     //fn to create save Json Data of object
     this.saveObject = function() {
@@ -180,6 +181,7 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
             inputs: this.inputs,
             inp: this.inp.map(findNode),
             output1: findNode(this.output1),
+            controlSignalInput: findNode(this.controlSignalInput),
             dir:this.direction,
             bitWidth:this.bitWidth,
             controlSignalSize:this.controlSignalSize,
@@ -847,15 +849,15 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
 }
 
 function loadSplitter(data, scope) {
-    var v = new Splitter(data["x"], data["y"], scope, data["inputs"],data["dir"],data["bitWidth"]);
+    var v = new Splitter(data["x"], data["y"], scope,data["dir"],data["bitWidth"],data["bitWidthSplit"]);
     v.inp1 = replace(v.inp1, data["inp1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.outputs[i] = replace(v.outputs[i], data["outputs"][i]);
+    for (var i = 0; i < v.outputs.length; i++) v.outputs[i] = replace(v.outputs[i], data["outputs"][i]);
 }
 
-function Splitter(x, y, scope, dir,bitWidth=undefined) {
+function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
-    this.bitWidthSplit=prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
+    this.bitWidthSplit=bitWidthSplit||prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
     this.splitCount=this.bitWidthSplit.length;
     this.id = 'Splitter' + uniqueIdCounter;
     uniqueIdCounter++;
@@ -881,6 +883,7 @@ function Splitter(x, y, scope, dir,bitWidth=undefined) {
             y: this.element.y,
             // output findNode(this.output1),
             outputs: this.outputs.map(findNode),
+            bitWidthSplit: this.bitWidthSplit,
             inp1: findNode(this.inp1),
             dir:this.direction,
             bitWidth:this.bitWidth,
