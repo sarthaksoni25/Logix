@@ -190,7 +190,8 @@ var simulationArea = {
             scheduleUpdate();
             wireToBeChecked=1;
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.delete(); // delete key
+                // simulationArea.lastSelected.delete(); // delete key
+                deleteObj(simulationArea.lastSelected);
             }
             //change direction fns
             if(e.keyCode==37&&simulationArea.lastSelected!=undefined){
@@ -309,7 +310,7 @@ function update() {
 
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= globalScope.objects[i][j].update();
+            updated |= updateObj(globalScope.objects[i][j]);
     toBeUpdated |= updated;
 
     if (toBeUpdated && simulationArea.mouseDown == false) {
@@ -340,7 +341,7 @@ function update() {
     dots(); // draw dots
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= globalScope.objects[i][j].draw();
+            updated |= drawObj(globalScope.objects[i][j]);;
 
 }
 
@@ -392,9 +393,9 @@ function Element(x, y, type, width, parent,height=undefined) {
         return updated;
     }
 
-    this.draw = function() {
-        return this.b.draw();
-    }
+    // this.draw = function() {
+    //     return this.b.draw();
+    // }
 }
 
 function Button(x, y, width, height,parent) {
@@ -408,9 +409,9 @@ function Button(x, y, width, height,parent) {
     this.hover = false;
     this.oldx=x;
     this.oldy=y;
-    this.draw = function() {
-
-    }
+    // this.draw = function() {
+    //
+    // }
     this.update = function() {
 
         if (!simulationArea.mouseDown) this.hover = false;
@@ -448,7 +449,8 @@ function Button(x, y, width, height,parent) {
     this.isHover = function() {
         // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
         var width,height;
-        [width,height]=rotate(this.width,this.height,this.parent.direction);
+        // [width,height]=rotate(this.width,this.height,this.parent.direction);
+        [width,height]=rotate(this.width,this.height,"left");
         width=Math.abs(width);
         height=Math.abs(height);
         if (Math.abs(this.x-simulationArea.mouseX)<=width &&Math.abs(this.y-simulationArea.mouseY)<=height) return true;
@@ -458,4 +460,38 @@ function Button(x, y, width, height,parent) {
 //
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+}
+
+function deleteObj(obj){
+    if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++){
+            obj.nodeList[i].delete();
+        }
+
+    obj.delete();
+}
+
+function updateObj(obj){
+    var update=false;
+    if(obj.update===undefined){
+        // if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++){
+            update|=obj.nodeList[i].update();
+        }
+        update|=obj.element.update();
+    }
+    else{
+        update|=obj.update();
+    }
+    return update;
+}
+
+function drawObj(obj){
+    // var update=false;
+    obj.draw();
+
+    if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++)
+            obj.nodeList[i].draw();
+
 }

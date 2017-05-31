@@ -15,6 +15,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
+    this.nodeList=[];
     this.element = new Element(x, y, "FlipFlip", 20, this);
     this.clockInp = new Node(-20, -10, 0, this,1);
     this.dInp = new Node(-20, +10, 0, this);
@@ -25,7 +26,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     this.prevClockState = 0;
     scope.flipflops.push(this);
     this.wasClicked = false;
-    this.nodeList=[[this.clockInp,this.dInp,this.qOutput,this.reset]];
+    // this.nodeList=[[this.clockInp,this.dInp,this.qOutput,this.reset]];
     this.newBitWidth=function(bitWidth){
         this.bitWidth=bitWidth;
         this.dInp.bitWidth=bitWidth;
@@ -67,28 +68,28 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         }
     }
 
-    this.update = function() {
-        var updated = false;
-        updated |= this.dInp.update();
-        updated |= this.clockInp.update();
-        updated |= this.qOutput.update();
-        updated |= this.reset.update();
-        updated |= this.element.update();
-
-        if (simulationArea.mouseDown == false)
-            this.wasClicked = false;
-
-        if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
-            // this.toggleState();
-            this.wasClicked = true;
-        }
-
-
-        if (this.element.b.hover)
-            console.log(this,this.id);
-        return updated;
-
-    }
+    // this.update = function() {
+    //     var updated = false;
+    //     updated |= this.dInp.update();
+    //     updated |= this.clockInp.update();
+    //     updated |= this.qOutput.update();
+    //     updated |= this.reset.update();
+    //     updated |= this.element.update();
+    //
+    //     if (simulationArea.mouseDown == false)
+    //         this.wasClicked = false;
+    //
+    //     if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
+    //         // this.toggleState();
+    //         this.wasClicked = true;
+    //     }
+    //
+    //
+    //     if (this.element.b.hover)
+    //         console.log(this,this.id);
+    //     return updated;
+    //
+    // }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -113,16 +114,16 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         fillText(ctx,this.slaveState.toString(), xx - 5 , yy + 5);
         ctx.stroke();
 
-        this.dInp.draw();
-        this.qOutput.draw();
-        this.reset.draw();
-        this.clockInp.draw();
+        // this.dInp.draw();
+        // this.qOutput.draw();
+        // this.reset.draw();
+        // this.clockInp.draw();
 
     }
     this.delete = function() {
-        this.dInp.delete();
-        this.qOutput.delete();
-        this.clockInp.delete();
+        // this.dInp.delete();
+        // this.qOutput.delete();
+        // this.clockInp.delete();
         simulationArea.lastSelected = undefined;
         scope.flipflops.clean(this);
 
@@ -137,13 +138,14 @@ function Clock(x, y, f, scope , dir) {
     this.timeInterval = 1000 / f;
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
+    this.nodeList=[];
     this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;
     scope.clocks.push(this);
     this.wasClicked = false;
     this.interval = null;
-    this.nodeList=[[this.output1]];
+    // this.nodeList=[[this.output1]];
 
     this.resolve = function() {
         this.output1.value = this.state;
@@ -206,12 +208,12 @@ function Clock(x, y, f, scope , dir) {
         }
         ctx.stroke();
 
-        this.element.draw();
-        this.output1.draw();
+        // this.element.draw();
+        // this.output1.draw();
 
     }
     this.delete = function() {
-        this.output1.delete();
+        // this.output1.delete();
         simulationArea.lastSelected = undefined;
         scope.clocks.clean(this);
 

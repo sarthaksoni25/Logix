@@ -8,9 +8,11 @@ function constructNodeConnections(node, data) {
 function replace(node, index) {
     scope = node.scope;
     parent = node.parent;
+    parent.nodeList.clean(node);
     node.delete();
     node = scope.allNodes[index];
     node.parent = parent;
+    parent.nodeList.push(node);
     return node;
 }
 
@@ -50,6 +52,9 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
+    if(type!=2&&this.parent.nodeList!==undefined)
+        this.parent.nodeList.push(this);
+    // console.log(this.parent.nodeList);
     this.leftx=x;
     if(bitWidth==undefined){
         this.bitWidth=parent.bitWidth;

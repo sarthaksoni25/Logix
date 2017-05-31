@@ -95,11 +95,11 @@ function newDirection(obj,dir){
     if(obj.direction==undefined)return;
     obj.direction=dir;
     for(var i =0;i<obj.nodeList.length;i++){
-        for (var j=0;j<obj.nodeList[i].length;j++){
+        // for (var j=0;j<obj.nodeList[i].length;j++){
             // wireToBeChecked=1;
-            obj.nodeList[i][j].refresh();
+            obj.nodeList[i].refresh();
             // wireToBeChecked=1;
-        }
+        // }
     }
 
     //oldMethod for changing direction
