@@ -1,10 +1,7 @@
 function clockTick() {
-    for (var i = 0; i < globalScope.clocks.length; i++)
-        globalScope.clocks[i].toggleState(); //tick clock!
-    if (globalScope.clocks.length) {
+    if(globalScope.clocks.length+globalScope.subCircuits.length>0){
+        globalScope.clockTick();
         play();
-        // toBeUpdated=true;
-        // update(); // simulate
     }
 }
 

@@ -26,6 +26,10 @@ Array.prototype.clean = function(deleteValue) {
     }
     return this;
 };
+Array.prototype.extend = function (other_array) {
+    /* you should include a test to check whether other_array really is an array */
+    other_array.forEach(function(v) {this.push(v)}, this);
+}
 
 //fn to check if an elem is in an array
 Array.prototype.contains = function(value) {
@@ -39,6 +43,12 @@ function Scope(name = "localScope") {
         element: new Element(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
         direction:'left'
+    }
+    this.clockTick=function() {
+        for (var i = 0; i < this.clocks.length; i++)
+            this.clocks[i].toggleState(); //tick clock!
+        for (var i = 0; i < this.subCircuits.length; i++)
+            this.subCircuits[i].localScope.clockTick(); //tick clock!
     }
     this.name = name;
     this.stack = [];
@@ -116,35 +126,39 @@ window.onresize = resetup;
 window.addEventListener('orientationchange', resetup);
 
 //Main fn that resolves circuit
-function play() {
+function play(scope=globalScope) {
 
     console.log("simulation");
 
-    for (var i = 0; i < globalScope.flipflops.length; i++) {
-        globalScope.stack.push(globalScope.flipflops[i]);
+    for (var i = 0; i < scope.flipflops.length; i++) {
+        scope.stack.push(scope.flipflops[i]);
+    }
+    for (var i = 0; i < scope.subCircuits.length; i++) {
+        if(scope.subCircuits[i].isResolvable())
+            scope.stack.push(scope.subCircuits[i]);
     }
 
-    for (var i = 0; i < globalScope.allNodes.length; i++)
-        globalScope.allNodes[i].reset();
+    for (var i = 0; i < scope.allNodes.length; i++)
+        scope.allNodes[i].reset();
 
-    for (var i = 0; i < globalScope.inputs.length; i++) {
-        globalScope.stack.push(globalScope.inputs[i]);
+    for (var i = 0; i < scope.inputs.length; i++) {
+        scope.stack.push(scope.inputs[i]);
     }
-    for (var i = 0; i < globalScope.grounds.length; i++) {
-        globalScope.stack.push(globalScope.grounds[i]);
+    for (var i = 0; i < scope.grounds.length; i++) {
+        scope.stack.push(scope.grounds[i]);
     }
-    for (var i = 0; i < globalScope.powers.length; i++) {
-        globalScope.stack.push(globalScope.powers[i]);
+    for (var i = 0; i < scope.powers.length; i++) {
+        scope.stack.push(scope.powers[i]);
     }
-    for (var i = 0; i < globalScope.clocks.length; i++) {
-        globalScope.stack.push(globalScope.clocks[i]);
+    for (var i = 0; i < scope.clocks.length; i++) {
+        scope.stack.push(scope.clocks[i]);
     }
-    for (var i = 0; i < globalScope.outputs.length; i++) {
-        globalScope.stack.push(globalScope.outputs[i]);
+    for (var i = 0; i < scope.outputs.length; i++) {
+        scope.stack.push(scope.outputs[i]);
     }
 
-    while (globalScope.stack.length) {
-        var elem = globalScope.stack.pop();
+    while (scope.stack.length) {
+        var elem = scope.stack.pop();
         elem.resolve();
     }
 
