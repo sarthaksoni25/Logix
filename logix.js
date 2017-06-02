@@ -65,12 +65,14 @@ function Scope(name = "localScope") {
     this.subCircuits = [];
     this.orGates = [];
     this.notGates = [];
+    this.triStates = [];
+    this.rams = [];
     this.outputs = [];
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates,this.multiplexers, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.rams,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates,this.multiplexers, this.sevenseg, this.orGates,this.triStates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -130,14 +132,18 @@ function play(scope=globalScope) {
 
     console.log("simulation");
 
-    for (var i = 0; i < scope.flipflops.length; i++) {
-        scope.stack.push(scope.flipflops[i]);
+    for (var i = 0; i < scope.clocks.length; i++) {
+        scope.stack.push(scope.clocks[i]);
     }
+
+
     for (var i = 0; i < scope.subCircuits.length; i++) {
         if(scope.subCircuits[i].isResolvable())
             scope.stack.push(scope.subCircuits[i]);
     }
-
+    for (var i = 0; i < scope.flipflops.length; i++) {
+        scope.stack.push(scope.flipflops[i]);
+    }
     for (var i = 0; i < scope.allNodes.length; i++)
         scope.allNodes[i].reset();
 
@@ -150,15 +156,14 @@ function play(scope=globalScope) {
     for (var i = 0; i < scope.powers.length; i++) {
         scope.stack.push(scope.powers[i]);
     }
-    for (var i = 0; i < scope.clocks.length; i++) {
-        scope.stack.push(scope.clocks[i]);
-    }
+
     for (var i = 0; i < scope.outputs.length; i++) {
         scope.stack.push(scope.outputs[i]);
     }
 
     while (scope.stack.length) {
         var elem = scope.stack.pop();
+        console.log("DEBUG",elem);
         elem.resolve();
     }
 
@@ -224,6 +229,10 @@ var simulationArea = {
             if((e.keyCode==113||e.keyCode==81)&&simulationArea.lastSelected!=undefined){
                     if(simulationArea.lastSelected.bitWidth!==undefined)
 					     newBitWidth(simulationArea.lastSelected,parseInt(prompt("Enter new bitWidth"),10));
+			}
+            if((e.keyCode==108||e.keyCode==76)&&simulationArea.lastSelected!=undefined){
+                    if(simulationArea.lastSelected.setLabel!==undefined)
+					     simulationArea.lastSelected.setLabel();
 			}
             // zoom in (+)
             if(e.keyCode==187 && simulationArea.scale < 4){

@@ -5,7 +5,7 @@ function extract(obj) {
 
 //fn to create save data
 function Save() {
-    var data = {};
+    var data = {title:prompt("EnterName:")};
     data["inputs"] = globalScope.inputs.map(extract);
     data["outputs"] = globalScope.outputs.map(extract);
     data["allNodes"] = globalScope.allNodes.map(extract);
@@ -15,6 +15,7 @@ function Save() {
     data["adders"] = globalScope.adders.map(extract);
     data["splitters"] = globalScope.splitters.map(extract);
     data["notGates"] = globalScope.notGates.map(extract);
+    data["triStates"] = globalScope.triStates.map(extract);
     data["sevenseg"] = globalScope.sevenseg.map(extract);
     data["hexdis"] = globalScope.hexdis.map(extract);
     data["grounds"] = globalScope.grounds.map(extract);
@@ -79,7 +80,12 @@ function load(scope, data) {
         return loadOr(x, scope);
     });
     if (data["notGates"]) data["notGates"].map(function(x) {
+        console.log("SDSDS");
         return loadNot(x, scope);
+    });
+    if (data["triStates"]) data["triStates"].map(function(x) {
+        return loadTriState(x, scope);
+
     });
     if (data["sevenseg"]) data["sevenseg"].map(function(x) {
         return loadSevenSegmentDisplay(x, scope);

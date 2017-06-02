@@ -11,6 +11,7 @@ function loadFlipFlop(data, scope) {
     v.dInp = replace(v.dInp, data["dInp"]);
     v.qOutput = replace(v.qOutput, data["qOutput"]);
     v.reset = replace(v.reset, data["reset"]);
+    v.en = replace(v.en, data["en"]);
 }
 
 function FlipFlop(x, y, scope, dir,bitWidth) {
@@ -21,10 +22,11 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     this.scope = scope;
     this.nodeList=[];
     this.element = new Element(x, y, "FlipFlip", 20, this);
-    this.clockInp = new Node(-20, -10, 0, this,1);
-    this.dInp = new Node(-20, +10, 0, this);
-    this.qOutput = new Node(20, -10, 1, this);
-    this.reset = new Node(20, 10, 0, this,1);
+    this.clockInp = new Node(-20, +10, 0, this,1);
+    this.dInp = new Node(-20, -10, 0, this);
+    this.qOutput = new Node(20,-10, 1, this);
+    this.reset = new Node(10, 20, 0, this,1);
+    this.en = new Node(-10, 20, 0, this,1);
     this.masterState = 0;
     this.slaveState = 0;
     this.prevClockState = 0;
@@ -42,15 +44,24 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
     this.resolve = function() {
         if(this.reset.value==1){
 
-            if(this.masterState!=0){
-                this.masterState=this.slaveState=0;
-            }
+            this.masterState=this.slaveState=0;
+
             if (this.qOutput.value != this.slaveState) {
                 this.qOutput.value = this.slaveState;
                 this.scope.stack.push(this.qOutput);
             }
             return;
         }
+
+        if(this.en.value==0){
+            if (this.qOutput.value != this.slaveState) {
+                this.qOutput.value = this.slaveState;
+                this.scope.stack.push(this.qOutput);
+                // console.log("hit", this.slaveState);
+            }
+            return;
+        }
+
         if (this.clockInp.value == this.prevClockState) {
             if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
@@ -79,6 +90,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
             dInp: findNode(this.dInp),
             qOutput: findNode(this.qOutput),
             reset: findNode(this.reset),
+            en: findNode(this.en),
             dir:this.direction,
             bitWidth:this.bitWidth,
         }
@@ -116,9 +128,9 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx,xx - 20 , yy - 20, 40, 40);
-        moveTo(ctx,-20,-15,xx,yy,this.direction);
-        lineTo(ctx,-15,-10,xx,yy,this.direction);
-        lineTo(ctx,-20,-5,xx,yy,this.direction);
+        moveTo(ctx,-20,5,xx,yy,this.direction);
+        lineTo(ctx,-15,10,xx,yy,this.direction);
+        lineTo(ctx,-20,15,xx,yy,this.direction);
 
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();

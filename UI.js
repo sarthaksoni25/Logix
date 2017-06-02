@@ -1,5 +1,5 @@
 function addAnd() {
-    var a = new AndGate(200, 150, globalScope, 2, 'left');
+    var a = new AndGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
 }
 
 function addPower() {
@@ -11,11 +11,14 @@ function addGround() {
 }
 
 function addOr() {
-    var or = new OrGate(200, 150);
+    var or = new OrGate(200, 150,globalScope, prompt("No of inputs:"));
 }
 
 function addNot() {
-    var npt = new NotGate(200, 150, globalScope, 'left');
+    var a = new NotGate(200, 150, globalScope, 'left');
+}
+function addTriState() {
+    var a = new TriState(200, 150, globalScope, 'left');
 }
 
 function addInput() {
@@ -46,6 +49,9 @@ function addHexDis() {
 function addAdder() {
     var a = new Adder(400, 150,globalScope,"left",);
 }
+function addRam() {
+    var a = new Ram(400, 150,globalScope,"left",);
+}
 
 function addSubCircuit() {
     var a = new SubCircuit(400, 150);
@@ -61,9 +67,11 @@ document.getElementById("andButton").addEventListener("click", addAnd);
 document.getElementById("multiplexerButton").addEventListener("click", addMultiplexer);
 document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
+document.getElementById("triStateButton").addEventListener("click", addTriState);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);
 document.getElementById("adderButton").addEventListener("click", addAdder);
+document.getElementById("ramButton").addEventListener("click", addRam);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);

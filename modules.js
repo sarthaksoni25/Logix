@@ -745,6 +745,97 @@ function NotGate(x, y, scope, dir,bitWidth=undefined) {
 
 }
 
+function loadTriState(data, scope) {
+    var v = new TriState(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    v.inp1 = replace(v.inp1, data["inp1"]);
+    v.state = replace(v.state, data["state"]);
+}
+
+function TriState(x, y, scope, dir,bitWidth=undefined) {
+    this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
+    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.id = 'not' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.element = new Element(x, y, "not", 15, this);
+    this.nodeList=[];
+    this.direction=dir;
+    this.inp1 = new Node(-10, 0, 0, this);
+    this.output1 = new Node(10, 0, 1, this);
+    this.state = new Node(0, 0, 0, this,1);
+    scope.triStates.push(this);
+    // this.nodeList=[[this.inp1,this.output1]];
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            inp1: findNode(this.inp1),
+            state: findNode(this.state),
+            dir:this.direction,bitWidth:this.bitWidth,
+        }
+        return data;
+    }
+    this.newBitWidth=function(bitWidth) {
+        this.inp1.bitWidth=bitWidth;
+        this.output1.bitWidth=bitWidth;
+        this.bitWidth=bitWidth;
+    }
+
+    this.isResolvable = function() {
+        return this.inp1.value != undefined&&this.state.value==1;
+    }
+
+    this.resolve = function() {
+        if (this.isResolvable() == false) {
+            return;
+        }
+        this.output1.value = this.inp1.value;//>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
+        this.scope.stack.push(this.output1);
+    }
+    // this.update = function() {
+    //     var updated = false;
+    //     updated |= this.output1.update();
+    //     updated |= this.inp1.update();
+    //     updated |= this.element.update();
+    //     return updated;
+    // }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.lineWidth = 3 ;
+
+        var xx = this.element.x;
+        var yy = this.element.y;
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(255, 255, 32,1)";
+        moveTo(ctx,-10,-10,xx,yy,this.direction);
+        lineTo(ctx,10,0,xx,yy,this.direction);
+        lineTo(ctx,-10,10,xx,yy,this.direction);
+        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
+        ctx.closePath();
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+        // ctx.beginPath();
+        // arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
+        // ctx.stroke();
+        // this.inp1.draw();
+        // this.output1.draw();
+        if (this.element.b.isHover())
+            console.log(this,this.id);
+    }
+    this.delete = function() {
+        // this.output1.delete();
+        // this.inp1.delete();
+        simulationArea.lastSelected = undefined;
+        scope.triStates.clean(this);
+    }
+
+}
+
 function loadAdder(data, scope) {
     var v = new Adder(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
     v.inpA = replace(v.inpA, data["inpA"]);
@@ -802,17 +893,6 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
         this.scope.stack.push(this.carryOut);
         this.scope.stack.push(this.sum);
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     // updated |= this.output1.update();
-    //     updated |= this.inpA.update();
-    //     updated |= this.inpB.update();
-    //     updated |= this.carryIn.update();
-    //     updated |= this.carryOut.update();
-    //     updated |= this.sum.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -827,23 +907,85 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        // this.inpA.draw();
-        // this.inpB.draw();
-        // this.carryIn.draw();
-        // this.carryOut.draw();
-        // this.sum.draw();
-        // this.output1.draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
     }
     this.delete = function() {
-        // this.inpA.delete();
-        // this.inpB.delete();
-        // this.sum.delete();
-        // this.carryOut.delete();
-        // this.carryIn.delete();
+
         simulationArea.lastSelected = undefined;
         scope.adders.clean(this);
+    }
+
+}
+
+function loadRam(data, scope) {
+    var v = new Ram(data["x"], data["y"], scope,data["dir"],data["data"]);
+    v.memAddr = replace(v.memAddr, data["memAddr"]);
+    v.dataOut = replace(v.dataOut, data["dataOut"]);
+}
+function Ram(x, y, scope, dir,data=undefined) {
+    // this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
+    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.id = 'Ram' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.element = new Element(x, y, "not", 30, this);
+    this.direction=dir;
+    this.nodeList=[];
+    this.memAddr = new Node(-30, 0, 0, this,4);
+    // this.inpB = new Node(-20, 0, 0, this,this.bitWidth);
+    // this.carryIn = new Node(-20, 10, 0, this,1);
+    this.data=data||prompt("Enter data").split(' ').map(function(x){return parseInt(x,16);});
+    console.log(this.data);
+    this.dataOut = new Node(30, 0, 1, this,8);
+    // this.carryOut = new Node(20, 10, 1, this,1);
+
+    scope.rams.push(this);
+    // this.nodeList=[[this.inpA,this.inpB,this.carryIn,this.sum,this.carryOut]];
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            memAddr: findNode(this.memAddr),
+            dataOut: findNode(this.dataOut),
+            dir:this.direction,
+            data:this.data,
+        }
+        return data;
+    }
+
+    this.isResolvable = function() {
+        return this.memAddr.value != undefined;
+    }
+
+    this.resolve = function() {
+        if (this.isResolvable() == false) {
+            return;
+        }
+        this.dataOut.value=this.data[this.memAddr.value];
+        this.scope.stack.push(this.dataOut);
+    }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3 ;
+        var xx = this.element.x;
+        var yy = this.element.y;
+        ctx.beginPath();
+        rect(ctx,xx - 30, yy - 30, 60, 60);
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+
+        if (this.element.b.isHover())
+            console.log(this,this.id);
+    }
+    this.delete = function() {
+
+        simulationArea.lastSelected = undefined;
+        scope.rams.clean(this);
     }
 
 }
@@ -1005,6 +1147,9 @@ function loadInput(data, scope) {
 
     var v = new Input(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
     v.output1 = replace(v.output1, data["output1"]);
+    v.state=data["state"];
+    v.label=data["label"];
+
 }
 
 function Input(x, y, scope, dir,bitWidth=undefined) {
@@ -1026,7 +1171,10 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
     this.output1 = new Node( this.bitWidth*10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
-
+    this.label="";
+    this.setLabel=function(){
+        this.label=prompt("Enter Label:");
+    }
     // this.nodeList=[[this.output1]];
     this.saveObject = function() {
         var data = {
@@ -1034,6 +1182,8 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
             y: this.element.y,
             output1: findNode(this.output1),
             dir:this.direction,bitWidth:this.bitWidth,
+            label:this.label,
+            state:this.state,
         }
         return data;
     }
@@ -1052,9 +1202,11 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         this.element.b.width=10*this.bitWidth;
         if(this.direction=="left"){
             this.output1.x=10*this.bitWidth;
+            this.output1.leftx=10*this.bitWidth;
         }
         else if(this.direction=="right"){
             this.output1.x=-10*this.bitWidth;
+            this.output1.leftx=10*this.bitWidth;
         }
     }
     // String.prototype.replaceAt=function(index, replacement) {
@@ -1121,12 +1273,47 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.font = "20px Georgia";
+        // ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
+        ctx.textAlign="center";
         var bin = dec2bin(this.state,this.bitWidth);
         for(var k=0;k<this.bitWidth;k++)
-          fillText(ctx,bin[k], xx-10*this.bitWidth+5+(k)*20, yy + 5);
-        ctx.stroke();
+          fillText(ctx,bin[k], xx-10*this.bitWidth+10+(k)*20, yy + 5);
+        ctx.fill();
+
+
+
+        if(this.direction=="left"){
+            ctx.beginPath();
+            ctx.textAlign="right";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx-10*this.bitWidth-10, yy + 5,14);
+            ctx.fill();
+        }
+        else if(this.direction=="right"){
+            ctx.beginPath();
+            ctx.textAlign="left";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx+10*this.bitWidth+10, yy + 5,14);
+            ctx.fill();
+        }
+        else if(this.direction=="up"){
+            ctx.beginPath();
+            ctx.textAlign="center";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx, yy + 5-25,14);
+            ctx.fill();
+        }
+        else if(this.direction=="down"){
+            ctx.beginPath();
+            ctx.textAlign="center";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx, yy + 5+25,14);
+            ctx.fill();
+        }
+
+
+
 
         // this.element.draw();
         // this.output1.draw();
@@ -1139,6 +1326,7 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
 
     }
     this.newDirection=function(dir){
+        if(dir==this.direction)return;
         this.output1.refresh();
         if(dir=="left" || dir=="right"){
             this.output1.leftx = 10*this.bitWidth;
@@ -1307,6 +1495,7 @@ function loadOutput(data, scope) {
 
     var v = new Output(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
     v.inp1 = replace(v.inp1, data["inp1"]);
+    v.label=data["label"];
 }
 
 function Output(x, y, scope, dir,bitWidth=undefined) {
@@ -1331,21 +1520,29 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
             x: this.element.x,
             y: this.element.y,
             inp1: scope.allNodes.indexOf(this.inp1),
-            dir:this.direction,bitWidth:this.bitWidth,
+            dir:this.direction,
+            bitWidth:this.bitWidth,
+            label:this.label,
         }
         return data;
     }
+    this.label="";
     this.newBitWidth=function(bitWidth){
         this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
         this.state=undefined;
-        this.output1.bitWidth=bitWidth;
+        this.inp1.bitWidth=bitWidth;
         this.element.b.width=10*this.bitWidth;
         if(this.direction=="left"){
             this.inp1.x=10*this.bitWidth;
+            this.inp1.leftx=10*this.bitWidth;
         }
         else if(this.direction=="right"){
-            this.inp1.x=-10*this.bitWidth;
+            this.inp1.x=10*this.bitWidth;
+            this.inp1.leftx=-10*this.bitWidth;
         }
+    }
+    this.setLabel=function(){
+        this.label=prompt("Enter Label:");
     }
     this.resolve = function() {
         this.state = this.inp1.value;
@@ -1383,13 +1580,45 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
+        ctx.textAlign="center";
         if(this.state===undefined)
             var bin='x'.repeat(this.bitWidth);
         else
             var bin = dec2bin(this.state,this.bitWidth);
         for(var k=0;k<this.bitWidth;k++)
-          fillText(ctx,bin[k], xx-10*this.bitWidth+5+(k)*20, yy + 5);
+          fillText(ctx,bin[k], xx-10*this.bitWidth+10+(k)*20, yy + 5);
         ctx.stroke();
+
+
+        if(this.direction=="left"){
+            ctx.beginPath();
+            ctx.textAlign="right";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx-10*this.bitWidth-10, yy + 5,14);
+            ctx.fill();
+        }
+        else if(this.direction=="right"){
+            ctx.beginPath();
+            ctx.textAlign="left";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx+10*this.bitWidth+10, yy + 5,14);
+            ctx.fill();
+        }
+        else if(this.direction=="up"){
+            ctx.beginPath();
+            ctx.textAlign="center";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx, yy + 5-25,14);
+            ctx.fill();
+        }
+        else if(this.direction=="down"){
+            ctx.beginPath();
+            ctx.textAlign="center";
+            ctx.fillStyle = "black";
+            fillText(ctx,this.label, xx, yy + 5+25,14);
+            ctx.fill();
+        }
+
 
         // this.element.draw();
         // this.inp1.draw();

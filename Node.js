@@ -96,6 +96,11 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.refresh();
 
     this.saveObject = function() {
+
+        if(this.type==2){
+            this.leftx=this.x;
+            this.lefty=this.y;
+        }
         var data = {
             x: this.leftx,
             y: this.lefty,

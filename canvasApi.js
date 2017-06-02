@@ -163,10 +163,11 @@ function drawCircle(ctx, x1, y1, r, color) {
     ctx.fill();
 }
 
-function fillText(ctx,str, x1, y1 ) {
+function fillText(ctx,str, x1, y1,fontSize=20) {
+    // console.log(x1,y1,"coordinates");
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
-    ctx.font = 20*simulationArea.scale+"px Georgia";
+    ctx.font = fontSize*simulationArea.scale+"px Georgia";
     // ctx.font = 20+"px Georgia";
     ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
 }
