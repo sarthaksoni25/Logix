@@ -1,5 +1,5 @@
 function constructNodeConnections(node, data) {
-    console.log(data["connections"].length);
+    // console.log(data["connections"].length);
     for (var i = 0; i < data["connections"].length; i++)
         if (!node.connections.contains(node.scope.allNodes[data["connections"][i]])) node.connect(node.scope.allNodes[data["connections"][i]]);
 }
@@ -156,7 +156,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             if (this.connections[i].value !=this.value) {
 
                 if(this.connections[i].type==1&&this.connections[i].value!=undefined){
-                    console.log("CONTENTION");
+                    console.log("CONTENTION",this.connections[i].value,this.value);
                 }
                 else if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
                     this.connections[i].bitWidth=this.bitWidth;

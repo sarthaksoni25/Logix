@@ -758,7 +758,7 @@ function TriState(x, y, scope, dir,bitWidth=undefined) {
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
-    this.element = new Element(x, y, "not", 15, this);
+    this.element = new Element(x, y, "triState", 15, this);
     this.nodeList=[];
     this.direction=dir;
     this.inp1 = new Node(-10, 0, 0, this);
@@ -784,15 +784,20 @@ function TriState(x, y, scope, dir,bitWidth=undefined) {
     }
 
     this.isResolvable = function() {
-        return this.inp1.value != undefined&&this.state.value==1;
+        return this.inp1.value != undefined&&this.state.value!==undefined;
     }
 
     this.resolve = function() {
         if (this.isResolvable() == false) {
             return;
         }
-        this.output1.value = this.inp1.value;//>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
-        this.scope.stack.push(this.output1);
+        if(this.state.value==1){
+            this.output1.value = this.inp1.value;//>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
+            this.scope.stack.push(this.output1);
+        }
+        else{
+            this.output1.value=undefined;
+        }
     }
     // this.update = function() {
     //     var updated = false;
@@ -1051,12 +1056,9 @@ function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
             var bitCount=1;
             for(var i=0;i<this.splitCount;i++){
                 var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
-                if(this.outputs[i].value===undefined){
+                if(this.outputs[i].value!=bitSplitValue){
                     this.outputs[i].value=bitSplitValue;
                     this.scope.stack.push(this.outputs[i]);
-                }
-                else if(this.outputs[this.splitCount-i-1].value!=bitSplitValue){
-                    console.log("CONTENTION");
                 }
                 bitCount+=this.bitWidthSplit[i];
             }
@@ -1167,7 +1169,7 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
     this.state = 0;
     this.element = new Element(x, y, "input", 10*this.bitWidth, this,10);
     this.state=bin2dec(this.state);// in integer format
-    console.log(this.state);
+    // console.log(this.state);
     this.output1 = new Node( this.bitWidth*10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
@@ -1252,8 +1254,8 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         }
 
 
-        if (this.element.b.hover)
-            console.log(this,this.id);
+        // if (this.element.b.hover)
+        //     console.log(this,this.id);
         return updated;
 
     }

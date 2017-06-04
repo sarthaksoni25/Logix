@@ -49,7 +49,7 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
 
 
     http.onload = function() {
-        console.log(this.parent);
+        // console.log(this.parent);
         if (http.responseText == "ERROR") {
             alert("Error: could not load ");
             this.parent.delete();

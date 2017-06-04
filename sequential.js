@@ -1,8 +1,9 @@
 function clockTick() {
-    if(globalScope.clocks.length+globalScope.subCircuits.length>0){
+    // if(globalScope.clocks.length+globalScope.subCircuits.length>0){
         globalScope.clockTick();
-        play();
-    }
+        toBeUpdated=true;
+        update();
+    // }
 }
 
 function loadFlipFlop(data, scope) {
@@ -39,7 +40,9 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         this.qOutput.bitWidth=bitWidth;
     }
     this.isResolvable = function() {
-        return true;
+        if(this.dInp.value==undefined)return true;
+        else if(this.en.value!=undefined)return true;
+        return false;
     }
     this.resolve = function() {
         if(this.reset.value==1){
@@ -58,6 +61,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
                 this.qOutput.value = this.slaveState;
                 this.scope.stack.push(this.qOutput);
                 // console.log("hit", this.slaveState);
+                this.prevClockState = this.clockInp.value;
             }
             return;
         }
@@ -79,7 +83,7 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
             // if(this.qOutput.value!= undefined)toBeUpdated=true;
             this.qOutput.value = this.slaveState;
             this.scope.stack.push(this.qOutput);
-            console.log("hit", this.slaveState);
+            // console.log("hit", this.slaveState);
         }
     }
     this.saveObject = function() {
@@ -139,7 +143,8 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        fillText(ctx,this.slaveState.toString(), xx - 5 , yy + 5);
+        ctx.textAlign="center";
+        fillText(ctx,this.slaveState.toString(16), xx, yy + 5);
         ctx.stroke();
 
         // this.dInp.draw();
@@ -171,7 +176,7 @@ function Clock(x, y, scope , dir) {
     this.nodeList=[];
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
-    console.log(scope);
+    // console.log(scope);
     this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;

@@ -16,6 +16,7 @@ function Save() {
     data["splitters"] = globalScope.splitters.map(extract);
     data["notGates"] = globalScope.notGates.map(extract);
     data["triStates"] = globalScope.triStates.map(extract);
+    data["rams"] = globalScope.rams.map(extract);
     data["sevenseg"] = globalScope.sevenseg.map(extract);
     data["hexdis"] = globalScope.hexdis.map(extract);
     data["grounds"] = globalScope.grounds.map(extract);
@@ -64,6 +65,9 @@ function load(scope, data) {
     if (data["multiplexers"]) data["multiplexers"].map(function(x) {
         return loadMultiplexer(x, scope);
     });
+    if (data["rams"]) data["rams"].map(function(x) {
+        return loadRam(x, scope);
+    });
     if (data["splitters"]) data["splitters"].map(function(x) {
         return loadSplitter(x, scope);
     });
@@ -80,7 +84,7 @@ function load(scope, data) {
         return loadOr(x, scope);
     });
     if (data["notGates"]) data["notGates"].map(function(x) {
-        console.log("SDSDS");
+        // console.log("SDSDS");
         return loadNot(x, scope);
     });
     if (data["triStates"]) data["triStates"].map(function(x) {

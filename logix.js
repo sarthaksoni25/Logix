@@ -130,12 +130,11 @@ window.addEventListener('orientationchange', resetup);
 //Main fn that resolves circuit
 function play(scope=globalScope) {
 
-    console.log("simulation");
+    // console.log("simulation");
 
-    for (var i = 0; i < scope.clocks.length; i++) {
-        scope.stack.push(scope.clocks[i]);
-    }
 
+    for (var i = 0; i < scope.allNodes.length; i++)
+        scope.allNodes[i].reset();
 
     for (var i = 0; i < scope.subCircuits.length; i++) {
         if(scope.subCircuits[i].isResolvable())
@@ -144,11 +143,13 @@ function play(scope=globalScope) {
     for (var i = 0; i < scope.flipflops.length; i++) {
         scope.stack.push(scope.flipflops[i]);
     }
-    for (var i = 0; i < scope.allNodes.length; i++)
-        scope.allNodes[i].reset();
 
     for (var i = 0; i < scope.inputs.length; i++) {
         scope.stack.push(scope.inputs[i]);
+    }
+
+    for (var i = 0; i < scope.clocks.length; i++) {
+        scope.stack.push(scope.clocks[i]);
     }
     for (var i = 0; i < scope.grounds.length; i++) {
         scope.stack.push(scope.grounds[i]);
@@ -163,7 +164,7 @@ function play(scope=globalScope) {
 
     while (scope.stack.length) {
         var elem = scope.stack.pop();
-        console.log("DEBUG",elem);
+        // console.log("DEBUG",elem);
         elem.resolve();
     }
 
