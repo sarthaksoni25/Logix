@@ -5,6 +5,12 @@ unit = 10;
 toBeUpdated=true;
 wireToBeChecked=0; // when node disconnects from another node
 willBeUpdated=false;
+
+function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+
 function scheduleUpdate(){
     return;
     if(willBeUpdated)return;
@@ -199,6 +205,7 @@ var simulationArea = {
         this.mouseDown = false;
 
         window.addEventListener('mousemove', function(e) {
+            // return;
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseRawX = (e.clientX - rect.left);
@@ -247,6 +254,7 @@ var simulationArea = {
             // update();
         })
         window.addEventListener('mousedown', function(e) {
+            // return;
             update();
             scheduleUpdate();
             simulationArea.lastSelected = undefined;
@@ -272,9 +280,19 @@ var simulationArea = {
                 simulationArea.lock = "locked";
               console.log("Double",simulationArea.lock);
             }
-
+            console.log(simulationArea.mouseDown);
+        });
+        window.addEventListener('dblclick', function(e) {
+            if(simulationArea.lastSelected.dataHash!==undefined){
+                var prevHash=window.location.hash;
+                window.location.hash=simulationArea.lastSelected.dataHash;
+                // console.log(simulationArea.lastSelected.dataHash);
+                openInNewTab(window.location.href);
+                window.location.hash=prevHash;
+            }
         });
         window.addEventListener('mouseup', function(e) {
+            // return;
             update();
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -284,30 +302,59 @@ var simulationArea = {
             simulationArea.mouseDownY = Math.round((simulationArea.mouseDownY - simulationArea.oy/simulationArea.scale )/ unit) * unit;
 
             simulationArea.mouseDown = false;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchmove', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) ;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseRawX = (e.touches[0].clientX - rect.left) ;
+            simulationArea.mouseRawY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
         })
         window.addEventListener('touchstart', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
 
-            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
+            simulationArea.mouseDownRawX = (e.touches[0].clientX - rect.left);
+            simulationArea.mouseDownRawY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseRawX = (e.touches[0].clientX - rect.left);
+            simulationArea.mouseRawY = (e.touches[0].clientY - rect.top);
+            simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
+            simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
+            simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
             simulationArea.mouseDown = true;
+            simulationArea.oldx=simulationArea.ox;
+            simulationArea.oldy=simulationArea.oy;
+
+
+            simulationArea.mouseDown = true;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchend', function(e) {
             scheduleUpdate();
+            // update();
             var rect = simulationArea.canvas.getBoundingClientRect();
+            simulationArea.mouseDownY=simulationArea.mouseY;
+            simulationArea.mouseDownX=simulationArea.mouseX;
+            // simulationArea.mouseDownRawX = (e.touches[0].clientX - rect.left);
+            // simulationArea.mouseDownRawY = (e.touches[0].clientY - rect.top) ;
+            // simulationArea.mouseRawX = (e.touches[0].clientX - rect.left);
+            // simulationArea.mouseRawY = (e.touches[0].clientY - rect.top);
+            // simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
+            // simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
+            // simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            // simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
             simulationArea.mouseDown = false;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchleave', function(e) {
             scheduleUpdate();
+            // update();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDown = false;
         });
@@ -354,6 +401,9 @@ function update() {
         //pane canvas
         simulationArea.ox=(simulationArea.mouseRawX-simulationArea.mouseDownRawX)+simulationArea.oldx;
         simulationArea.oy=(simulationArea.mouseRawY-simulationArea.mouseDownRawY)+simulationArea.oldy;
+        simulationArea.ox=Math.round(simulationArea.ox);
+        simulationArea.oy=Math.round(simulationArea.oy);
+
     }
     else if(simulationArea.lastSelected==globalScope.root){
         simulationArea.lastSelected=undefined;
