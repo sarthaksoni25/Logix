@@ -61,7 +61,7 @@ function arc(ctx,sx,sy,radius,start,stop,xx,yy,dir){        //ox-x of origin, xx
   yy = yy*simulationArea.scale;
   radius*=simulationArea.scale;
   [newStart,newStop,counterClock]=rotateAngle(start,stop,dir);
-  // console.log(Sx,Sy);
+  // //console.log(Sx,Sy);
   ctx.arc(xx+simulationArea.ox+Sx,yy+simulationArea.oy+Sy,radius,newStart,newStop,counterClock);
 }
 
@@ -95,11 +95,11 @@ function newDirection(obj,dir){
     if(obj.direction==undefined)return;
     obj.direction=dir;
     for(var i =0;i<obj.nodeList.length;i++){
-        for (var j=0;j<obj.nodeList[i].length;j++){
+        // for (var j=0;j<obj.nodeList[i].length;j++){
             // wireToBeChecked=1;
-            obj.nodeList[i][j].refresh();
+            obj.nodeList[i].refresh();
             // wireToBeChecked=1;
-        }
+        // }
     }
 
     //oldMethod for changing direction
@@ -163,10 +163,11 @@ function drawCircle(ctx, x1, y1, r, color) {
     ctx.fill();
 }
 
-function fillText(ctx,str, x1, y1 ) {
+function fillText(ctx,str, x1, y1,fontSize=20) {
+    // //console.log(x1,y1,"coordinates");
     x1 = x1*simulationArea.scale;
     y1 = y1*simulationArea.scale;
-    ctx.font = 20*simulationArea.scale+"px Georgia";
+    ctx.font = fontSize*simulationArea.scale+"px Georgia";
     // ctx.font = 20+"px Georgia";
     ctx.fillText(str, x1+simulationArea.ox, y1+simulationArea.oy);
 }
@@ -185,7 +186,7 @@ function fillText2(ctx,str, x1, y1,xx,yy,dir) {
 
     ctx.font = 14*simulationArea.scale+"px Georgia";
     // ctx.font = 20+"px Georgia";
-    console.log(str);
+    //console.log(str);
     ctx.save();
  ctx.translate( xx+x1+simulationArea.ox, yy+ y1+simulationArea.oy);
  ctx.rotate(angle[dir]);

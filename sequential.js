@@ -1,51 +1,71 @@
 function clockTick() {
-    for (var i = 0; i < globalScope.clocks.length; i++)
-        globalScope.clocks[i].toggleState(); //tick clock!
-    if (globalScope.clocks.length) {
-        play();
-        // toBeUpdated=true;
-        // update(); // simulate
-    }
+    // if(globalScope.clocks.length+globalScope.subCircuits.length>0){
+        globalScope.clockTick();
+        toBeUpdated=true;
+        update();
+    // }
+}
+
+function loadFlipFlop(data, scope) {
+    var v = new FlipFlop(data["x"], data["y"], scope,data["dir"],data["bitWidth"]);
+    v.clockInp = replace(v.clockInp, data["clockInp"]);
+    v.dInp = replace(v.dInp, data["dInp"]);
+    v.qOutput = replace(v.qOutput, data["qOutput"]);
+    v.reset = replace(v.reset, data["reset"]);
+    v.en = replace(v.en, data["en"]);
 }
 
 function FlipFlop(x, y, scope, dir,bitWidth) {
-    this.bitWidth=bitWidth;
-    this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+    this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     this.direction = dir;
     this.id = 'FlipFlip' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
+    this.nodeList=[];
     this.element = new Element(x, y, "FlipFlip", 20, this);
-    this.clockInp = new Node(-20, -10, 0, this,1);
-    this.dInp = new Node(-20, +10, 0, this);
-    this.qOutput = new Node(20, -10, 1, this);
-    this.reset = new Node(20, 10, 0, this,1);
+    this.clockInp = new Node(-20, +10, 0, this,1);
+    this.dInp = new Node(-20, -10, 0, this);
+    this.qOutput = new Node(20,-10, 1, this);
+    this.reset = new Node(10, 20, 0, this,1);
+    this.en = new Node(-10, 20, 0, this,1);
     this.masterState = 0;
     this.slaveState = 0;
     this.prevClockState = 0;
     scope.flipflops.push(this);
     this.wasClicked = false;
-    this.nodeList=[[this.clockInp,this.dInp,this.qOutput,this.reset]];
+    // this.nodeList=[[this.clockInp,this.dInp,this.qOutput,this.reset]];
     this.newBitWidth=function(bitWidth){
         this.bitWidth=bitWidth;
         this.dInp.bitWidth=bitWidth;
         this.qOutput.bitWidth=bitWidth;
     }
     this.isResolvable = function() {
-        return true;
+        if(this.dInp.value==undefined)return true;
+        else if(this.en.value!=undefined)return true;
+        return false;
     }
     this.resolve = function() {
         if(this.reset.value==1){
 
-            if(this.masterState!=0){
-                this.masterState=this.slaveState=0;
-            }
+            this.masterState=this.slaveState=0;
+
             if (this.qOutput.value != this.slaveState) {
                 this.qOutput.value = this.slaveState;
                 this.scope.stack.push(this.qOutput);
             }
             return;
         }
+
+        if(this.en.value==0){
+            if (this.qOutput.value != this.slaveState) {
+                this.qOutput.value = this.slaveState;
+                this.scope.stack.push(this.qOutput);
+                // console.log("hit", this.slaveState);
+                this.prevClockState = this.clockInp.value;
+            }
+            return;
+        }
+
         if (this.clockInp.value == this.prevClockState) {
             if (this.clockInp.value == 0 && this.dInp.value != undefined) {
                 this.masterState = this.dInp.value;
@@ -63,32 +83,45 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
             // if(this.qOutput.value!= undefined)toBeUpdated=true;
             this.qOutput.value = this.slaveState;
             this.scope.stack.push(this.qOutput);
-            console.log("hit", this.slaveState);
+            // console.log("hit", this.slaveState);
         }
     }
-
-    this.update = function() {
-        var updated = false;
-        updated |= this.dInp.update();
-        updated |= this.clockInp.update();
-        updated |= this.qOutput.update();
-        updated |= this.reset.update();
-        updated |= this.element.update();
-
-        if (simulationArea.mouseDown == false)
-            this.wasClicked = false;
-
-        if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
-            // this.toggleState();
-            this.wasClicked = true;
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            clockInp: findNode(this.clockInp),
+            dInp: findNode(this.dInp),
+            qOutput: findNode(this.qOutput),
+            reset: findNode(this.reset),
+            en: findNode(this.en),
+            dir:this.direction,
+            bitWidth:this.bitWidth,
         }
-
-
-        if (this.element.b.hover)
-            console.log(this,this.id);
-        return updated;
-
+        return data;
     }
+    // this.update = function() {
+    //     var updated = false;
+    //     updated |= this.dInp.update();
+    //     updated |= this.clockInp.update();
+    //     updated |= this.qOutput.update();
+    //     updated |= this.reset.update();
+    //     updated |= this.element.update();
+    //
+    //     if (simulationArea.mouseDown == false)
+    //         this.wasClicked = false;
+    //
+    //     if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
+    //         // this.toggleState();
+    //         this.wasClicked = true;
+    //     }
+    //
+    //
+    //     if (this.element.b.hover)
+    //         console.log(this,this.id);
+    //     return updated;
+    //
+    // }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -99,9 +132,9 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx,xx - 20 , yy - 20, 40, 40);
-        moveTo(ctx,-20,-15,xx,yy,this.direction);
-        lineTo(ctx,-15,-10,xx,yy,this.direction);
-        lineTo(ctx,-20,-5,xx,yy,this.direction);
+        moveTo(ctx,-20,5,xx,yy,this.direction);
+        lineTo(ctx,-15,10,xx,yy,this.direction);
+        lineTo(ctx,-20,15,xx,yy,this.direction);
 
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
@@ -110,40 +143,57 @@ function FlipFlop(x, y, scope, dir,bitWidth) {
         ctx.beginPath();
         ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
-        fillText(ctx,this.slaveState.toString(), xx - 5 , yy + 5);
+        ctx.textAlign="center";
+        fillText(ctx,this.slaveState.toString(16), xx, yy + 5);
         ctx.stroke();
 
-        this.dInp.draw();
-        this.qOutput.draw();
-        this.reset.draw();
-        this.clockInp.draw();
+        // this.dInp.draw();
+        // this.qOutput.draw();
+        // this.reset.draw();
+        // this.clockInp.draw();
 
     }
     this.delete = function() {
-        this.dInp.delete();
-        this.qOutput.delete();
-        this.clockInp.delete();
+        // this.dInp.delete();
+        // this.qOutput.delete();
+        // this.clockInp.delete();
         simulationArea.lastSelected = undefined;
         scope.flipflops.clean(this);
 
     }
 }
+function loadClock(data, scope) {
+    var v = new Clock(data["x"], data["y"], scope,data["dir"]);
+    v.output1 = replace(v.output1, data["output1"]);
 
-function Clock(x, y, f, scope , dir) {
+}
+function Clock(x, y, scope , dir) {
     this.direction=dir;
     this.id = 'clock' + uniqueIdCounter;
-    this.f = f;
+    // this.f = f;
     this.scope = scope;
-    this.timeInterval = 1000 / f;
+    // this.timeInterval = 1000 / f;
+    this.nodeList=[];
     uniqueIdCounter++;
     this.element = new Element(x, y, "clock", 15, this);
+    // console.log(scope);
     this.output1 = new Node(10, 0, 1, this,1);
     this.state = 0;
     this.output1.value = this.state;
     scope.clocks.push(this);
     this.wasClicked = false;
     this.interval = null;
-    this.nodeList=[[this.output1]];
+    // this.nodeList=[[this.output1]];
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            dir:this.direction,
+
+        }
+        return data;
+    }
 
     this.resolve = function() {
         this.output1.value = this.state;
@@ -206,12 +256,12 @@ function Clock(x, y, f, scope , dir) {
         }
         ctx.stroke();
 
-        this.element.draw();
-        this.output1.draw();
+        // this.element.draw();
+        // this.output1.draw();
 
     }
     this.delete = function() {
-        this.output1.delete();
+        // this.output1.delete();
         simulationArea.lastSelected = undefined;
         scope.clocks.clean(this);
 

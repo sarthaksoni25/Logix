@@ -1,5 +1,5 @@
 function constructNodeConnections(node, data) {
-    console.log(data["connections"].length);
+    // console.log(data["connections"].length);
     for (var i = 0; i < data["connections"].length; i++)
         if (!node.connections.contains(node.scope.allNodes[data["connections"][i]])) node.connect(node.scope.allNodes[data["connections"][i]]);
 }
@@ -8,9 +8,12 @@ function constructNodeConnections(node, data) {
 function replace(node, index) {
     scope = node.scope;
     parent = node.parent;
+    parent.nodeList.clean(node);
     node.delete();
     node = scope.allNodes[index];
     node.parent = parent;
+    parent.nodeList.push(node);
+    node.updateRotation();
     return node;
 }
 
@@ -33,7 +36,7 @@ function findNode(x) {
 }
 
 function loadNode(data, scope) {
-    var n = new Node(data["x"], data["y"], data["type"], scope.root);
+    var n = new Node(data["x"], data["y"], data["type"], scope.root,data["bitWidth"]);
 }
 
 //get Node in index x in scope and set parent
@@ -50,6 +53,9 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
+    if(type!=2&&this.parent.nodeList!==undefined)
+        this.parent.nodeList.push(this);
+    // console.log(this.parent.nodeList);
     this.leftx=x;
     if(bitWidth==undefined){
         this.bitWidth=parent.bitWidth;
@@ -73,8 +79,13 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.count = 0;
 
     //This fn is called during rotations and setup
-    this.refresh=function(){
+
+    this.updateRotation=function(){
         [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+    }
+    this.refresh=function(){
+        // [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+        this.updateRotation();
         for (var i = 0; i < this.connections.length; i++) {
             this.connections[i].connections.clean(this);
         }
@@ -85,10 +96,16 @@ function Node(x, y, type, parent,bitWidth=undefined) {
     this.refresh();
 
     this.saveObject = function() {
+
+        if(this.type==2){
+            this.leftx=this.x;
+            this.lefty=this.y;
+        }
         var data = {
-            x: this.x,
-            y: this.y,
+            x: this.leftx,
+            y: this.lefty,
             type: this.type,
+            bitWidth:this.bitWidth,
             connections: [],
         }
         for (var i = 0; i < this.connections.length; i++) {
@@ -139,7 +156,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             if (this.connections[i].value !=this.value) {
 
                 if(this.connections[i].type==1&&this.connections[i].value!=undefined){
-                    console.log("CONTENTION");
+                    console.log("CONTENTION",this.connections[i].value,this.value);
                 }
                 else if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
                     this.connections[i].bitWidth=this.bitWidth;
@@ -330,7 +347,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             }
             updated = true;
 
-            simulationArea.lastSelected = undefined;
+            if(simulationArea.lastSelected==this)simulationArea.lastSelected = undefined;
         }
 
         if (this.type == 2) {
@@ -348,7 +365,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2) simulationArea.lastSelected = this;
+        if (this.clicked && this.type == 2&&simulationArea.lastSelected==undefined) simulationArea.lastSelected = this;
         return updated;
 
 

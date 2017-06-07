@@ -5,6 +5,12 @@ unit = 10;
 toBeUpdated=true;
 wireToBeChecked=0; // when node disconnects from another node
 willBeUpdated=false;
+
+function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+
 function scheduleUpdate(){
     return;
     if(willBeUpdated)return;
@@ -26,6 +32,10 @@ Array.prototype.clean = function(deleteValue) {
     }
     return this;
 };
+Array.prototype.extend = function (other_array) {
+    /* you should include a test to check whether other_array really is an array */
+    other_array.forEach(function(v) {this.push(v)}, this);
+}
 
 //fn to check if an elem is in an array
 Array.prototype.contains = function(value) {
@@ -40,6 +50,12 @@ function Scope(name = "localScope") {
         scope: this,
         direction:'left'
     }
+    this.clockTick=function() {
+        for (var i = 0; i < this.clocks.length; i++)
+            this.clocks[i].toggleState(); //tick clock!
+        for (var i = 0; i < this.subCircuits.length; i++)
+            this.subCircuits[i].localScope.clockTick(); //tick clock!
+    }
     this.name = name;
     this.stack = [];
     this.hexdis = [];
@@ -48,18 +64,21 @@ function Scope(name = "localScope") {
     this.splitters = [];
     this.grounds = [];
     this.andGates = [];
+    this.multiplexers = [];
     this.sevenseg = [];
     this.clocks = [];
     this.flipflops = [];
     this.subCircuits = [];
     this.orGates = [];
     this.notGates = [];
+    this.triStates = [];
+    this.rams = [];
     this.outputs = [];
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.sevenseg, this.orGates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.splitters, this.hexdis,this.adders,this.rams,this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates,this.multiplexers, this.sevenseg, this.orGates,this.triStates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -115,35 +134,43 @@ window.onresize = resetup;
 window.addEventListener('orientationchange', resetup);
 
 //Main fn that resolves circuit
-function play() {
+function play(scope=globalScope) {
 
-    console.log("simulation");
+    // console.log("simulation");
 
-    for (var i = 0; i < globalScope.flipflops.length; i++) {
-        globalScope.stack.push(globalScope.flipflops[i]);
-    }
 
-    for (var i = 0; i < globalScope.allNodes.length; i++)
-        globalScope.allNodes[i].reset();
+    for (var i = 0; i < scope.allNodes.length; i++)
+        scope.allNodes[i].reset();
 
-    for (var i = 0; i < globalScope.inputs.length; i++) {
-        globalScope.stack.push(globalScope.inputs[i]);
+    for (var i = 0; i < scope.subCircuits.length; i++) {
+        if(scope.subCircuits[i].isResolvable())
+            scope.stack.push(scope.subCircuits[i]);
     }
-    for (var i = 0; i < globalScope.grounds.length; i++) {
-        globalScope.stack.push(globalScope.grounds[i]);
-    }
-    for (var i = 0; i < globalScope.powers.length; i++) {
-        globalScope.stack.push(globalScope.powers[i]);
-    }
-    for (var i = 0; i < globalScope.clocks.length; i++) {
-        globalScope.stack.push(globalScope.clocks[i]);
-    }
-    for (var i = 0; i < globalScope.outputs.length; i++) {
-        globalScope.stack.push(globalScope.outputs[i]);
+    for (var i = 0; i < scope.flipflops.length; i++) {
+        scope.stack.push(scope.flipflops[i]);
     }
 
-    while (globalScope.stack.length) {
-        var elem = globalScope.stack.pop();
+    for (var i = 0; i < scope.inputs.length; i++) {
+        scope.stack.push(scope.inputs[i]);
+    }
+
+    for (var i = 0; i < scope.clocks.length; i++) {
+        scope.stack.push(scope.clocks[i]);
+    }
+    for (var i = 0; i < scope.grounds.length; i++) {
+        scope.stack.push(scope.grounds[i]);
+    }
+    for (var i = 0; i < scope.powers.length; i++) {
+        scope.stack.push(scope.powers[i]);
+    }
+
+    for (var i = 0; i < scope.outputs.length; i++) {
+        scope.stack.push(scope.outputs[i]);
+    }
+
+    while (scope.stack.length) {
+        var elem = scope.stack.pop();
+        // console.log("DEBUG",elem);
         elem.resolve();
     }
 
@@ -162,6 +189,7 @@ var simulationArea = {
     oldx:0,
     oldy:0,
     scale:1,
+
     clickCount:0, //double click
     lock:"unlocked",
     timer: function(){
@@ -178,6 +206,7 @@ var simulationArea = {
         this.mouseDown = false;
 
         window.addEventListener('mousemove', function(e) {
+            // return;
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseRawX = (e.clientX - rect.left);
@@ -190,7 +219,8 @@ var simulationArea = {
             scheduleUpdate();
             wireToBeChecked=1;
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.delete(); // delete key
+                // simulationArea.lastSelected.delete(); // delete key
+                deleteObj(simulationArea.lastSelected);
             }
             //change direction fns
             if(e.keyCode==37&&simulationArea.lastSelected!=undefined){
@@ -209,6 +239,13 @@ var simulationArea = {
                     if(simulationArea.lastSelected.bitWidth!==undefined)
 					     newBitWidth(simulationArea.lastSelected,parseInt(prompt("Enter new bitWidth"),10));
 			}
+            if((e.keyCode==67||e.keyCode==99)){
+					simulationArea.changeClockTime(prompt("Enter Time:"));
+			}
+            if((e.keyCode==108||e.keyCode==76)&&simulationArea.lastSelected!=undefined){
+                    if(simulationArea.lastSelected.setLabel!==undefined)
+					     simulationArea.lastSelected.setLabel();
+			}
             // zoom in (+)
             if(e.keyCode==187 && simulationArea.scale < 4){
                 changeScale(.1);
@@ -220,7 +257,21 @@ var simulationArea = {
             }
             // update();
         })
+        window.addEventListener('dblclick', function(e) {
+            // if(simulationArea.lastSelected.dataHash!==undefined){
+            //     var prevHash=window.location.hash;
+            //     window.location.hash=simulationArea.lastSelected.dataHash;
+            //     // console.log(simulationArea.lastSelected.dataHash);
+            //     openInNewTab(window.location.href);
+            //     window.location.hash=prevHash;
+            // }
+            if(simulationArea.lastSelected.dblclick!==undefined){
+                simulationArea.lastSelected.dblclick();
+            }
+            console.log(simulationArea.mouseDown,"mouseDOn");
+        });
         window.addEventListener('mousedown', function(e) {
+            // return;
             update();
             scheduleUpdate();
             simulationArea.lastSelected = undefined;
@@ -246,9 +297,12 @@ var simulationArea = {
                 simulationArea.lock = "locked";
               console.log("Double",simulationArea.lock);
             }
-
+            // console.log(simulationArea.mouseDown);
+            console.log(simulationArea.mouseDown,"mouseDOn");
         });
+
         window.addEventListener('mouseup', function(e) {
+            // return;
             update();
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
@@ -258,33 +312,66 @@ var simulationArea = {
             simulationArea.mouseDownY = Math.round((simulationArea.mouseDownY - simulationArea.oy/simulationArea.scale )/ unit) * unit;
 
             simulationArea.mouseDown = false;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchmove', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) ;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseRawX = (e.touches[0].clientX - rect.left) ;
+            simulationArea.mouseRawY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
         })
         window.addEventListener('touchstart', function(e) {
             scheduleUpdate();
             var rect = simulationArea.canvas.getBoundingClientRect();
 
-            simulationArea.mouseDownX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseDownY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
-            simulationArea.mouseX = (e.touches[0].clientX - rect.left) * simulationArea.scale;
-            simulationArea.mouseY = (e.touches[0].clientY - rect.top) * simulationArea.scale;
+            simulationArea.mouseDownRawX = (e.touches[0].clientX - rect.left);
+            simulationArea.mouseDownRawY = (e.touches[0].clientY - rect.top) ;
+            simulationArea.mouseRawX = (e.touches[0].clientX - rect.left);
+            simulationArea.mouseRawY = (e.touches[0].clientY - rect.top);
+            simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
+            simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
+            simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
             simulationArea.mouseDown = true;
+            simulationArea.oldx=simulationArea.ox;
+            simulationArea.oldy=simulationArea.oy;
+
+
+            simulationArea.mouseDown = true;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchend', function(e) {
             scheduleUpdate();
+            // update();
             var rect = simulationArea.canvas.getBoundingClientRect();
+            simulationArea.mouseDownY=simulationArea.mouseY;
+            simulationArea.mouseDownX=simulationArea.mouseX;
+            // simulationArea.mouseDownRawX = (e.touches[0].clientX - rect.left);
+            // simulationArea.mouseDownRawY = (e.touches[0].clientY - rect.top) ;
+            // simulationArea.mouseRawX = (e.touches[0].clientX - rect.left);
+            // simulationArea.mouseRawY = (e.touches[0].clientY - rect.top);
+            // simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
+            // simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
+            // simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
+            // simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
+
             simulationArea.mouseDown = false;
+            console.log(simulationArea.mouseDown);
         });
         window.addEventListener('touchleave', function(e) {
             scheduleUpdate();
+            // update();
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDown = false;
         });
+    },
+    changeClockTime(t){
+        clearInterval(this.ClockInterval);
+        this.ClockInterval=setInterval(clockTick,t);
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -309,7 +396,7 @@ function update() {
 
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= globalScope.objects[i][j].update();
+            updated |= updateObj(globalScope.objects[i][j]);
     toBeUpdated |= updated;
 
     if (toBeUpdated && simulationArea.mouseDown == false) {
@@ -328,6 +415,9 @@ function update() {
         //pane canvas
         simulationArea.ox=(simulationArea.mouseRawX-simulationArea.mouseDownRawX)+simulationArea.oldx;
         simulationArea.oy=(simulationArea.mouseRawY-simulationArea.mouseDownRawY)+simulationArea.oldy;
+        simulationArea.ox=Math.round(simulationArea.ox);
+        simulationArea.oy=Math.round(simulationArea.oy);
+
     }
     else if(simulationArea.lastSelected==globalScope.root){
         simulationArea.lastSelected=undefined;
@@ -340,7 +430,7 @@ function update() {
     dots(); // draw dots
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= globalScope.objects[i][j].draw();
+            updated |= drawObj(globalScope.objects[i][j]);;
 
 }
 
@@ -392,9 +482,9 @@ function Element(x, y, type, width, parent,height=undefined) {
         return updated;
     }
 
-    this.draw = function() {
-        return this.b.draw();
-    }
+    // this.draw = function() {
+    //     return this.b.draw();
+    // }
 }
 
 function Button(x, y, width, height,parent) {
@@ -408,9 +498,9 @@ function Button(x, y, width, height,parent) {
     this.hover = false;
     this.oldx=x;
     this.oldy=y;
-    this.draw = function() {
-
-    }
+    // this.draw = function() {
+    //
+    // }
     this.update = function() {
 
         if (!simulationArea.mouseDown) this.hover = false;
@@ -448,7 +538,8 @@ function Button(x, y, width, height,parent) {
     this.isHover = function() {
         // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
         var width,height;
-        [width,height]=rotate(this.width,this.height,this.parent.direction);
+        // [width,height]=rotate(this.width,this.height,this.parent.direction);
+        [width,height]=rotate(this.width,this.height,"left");
         width=Math.abs(width);
         height=Math.abs(height);
         if (Math.abs(this.x-simulationArea.mouseX)<=width &&Math.abs(this.y-simulationArea.mouseY)<=height) return true;
@@ -458,4 +549,38 @@ function Button(x, y, width, height,parent) {
 //
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+}
+
+function deleteObj(obj){
+    if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++){
+            obj.nodeList[i].delete();
+        }
+
+    obj.delete();
+}
+
+function updateObj(obj){
+    var update=false;
+    if(obj.update===undefined){
+        // if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++){
+            update|=obj.nodeList[i].update();
+        }
+        update|=obj.element.update();
+    }
+    else{
+        update|=obj.update();
+    }
+    return update;
+}
+
+function drawObj(obj){
+    // var update=false;
+    obj.draw();
+
+    if(obj.nodeList!==undefined)
+        for(var i=0;i<obj.nodeList.length;i++)
+            obj.nodeList[i].draw();
+
 }
