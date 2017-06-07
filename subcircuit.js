@@ -62,6 +62,13 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
     this.newDirection=function(dir) {
         //dummy
     }
+    this.dblclick=function(){
+        var prevHash=window.location.hash;
+        window.location.hash=simulationArea.lastSelected.dataHash;
+           // console.log(simulationArea.lastSelected.dataHash);
+        openInNewTab(window.location.href);
+        window.location.hash=prevHash;
+    }
     this.saveObject = function() {
         var data = {
             x: this.element.x,

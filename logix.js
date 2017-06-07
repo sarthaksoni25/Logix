@@ -189,6 +189,7 @@ var simulationArea = {
     oldx:0,
     oldy:0,
     scale:1,
+
     clickCount:0, //double click
     lock:"unlocked",
     timer: function(){
@@ -238,6 +239,9 @@ var simulationArea = {
                     if(simulationArea.lastSelected.bitWidth!==undefined)
 					     newBitWidth(simulationArea.lastSelected,parseInt(prompt("Enter new bitWidth"),10));
 			}
+            if((e.keyCode==67||e.keyCode==99)){
+					simulationArea.changeClockTime(prompt("Enter Time:"));
+			}
             if((e.keyCode==108||e.keyCode==76)&&simulationArea.lastSelected!=undefined){
                     if(simulationArea.lastSelected.setLabel!==undefined)
 					     simulationArea.lastSelected.setLabel();
@@ -253,6 +257,19 @@ var simulationArea = {
             }
             // update();
         })
+        window.addEventListener('dblclick', function(e) {
+            // if(simulationArea.lastSelected.dataHash!==undefined){
+            //     var prevHash=window.location.hash;
+            //     window.location.hash=simulationArea.lastSelected.dataHash;
+            //     // console.log(simulationArea.lastSelected.dataHash);
+            //     openInNewTab(window.location.href);
+            //     window.location.hash=prevHash;
+            // }
+            if(simulationArea.lastSelected.dblclick!==undefined){
+                simulationArea.lastSelected.dblclick();
+            }
+            console.log(simulationArea.mouseDown,"mouseDOn");
+        });
         window.addEventListener('mousedown', function(e) {
             // return;
             update();
@@ -280,17 +297,10 @@ var simulationArea = {
                 simulationArea.lock = "locked";
               console.log("Double",simulationArea.lock);
             }
-            console.log(simulationArea.mouseDown);
+            // console.log(simulationArea.mouseDown);
+            console.log(simulationArea.mouseDown,"mouseDOn");
         });
-        window.addEventListener('dblclick', function(e) {
-            if(simulationArea.lastSelected.dataHash!==undefined){
-                var prevHash=window.location.hash;
-                window.location.hash=simulationArea.lastSelected.dataHash;
-                // console.log(simulationArea.lastSelected.dataHash);
-                openInNewTab(window.location.href);
-                window.location.hash=prevHash;
-            }
-        });
+
         window.addEventListener('mouseup', function(e) {
             // return;
             update();
@@ -358,6 +368,10 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDown = false;
         });
+    },
+    changeClockTime(t){
+        clearInterval(this.ClockInterval);
+        this.ClockInterval=setInterval(clockTick,t);
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);

@@ -31,12 +31,18 @@ function Wire(node1, node2, scope) {
         if(wireToBeChecked&&this.checkConnections()){this.delete();return;} // SLOW , REMOVE
         if (simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
             // if(this.checkConnections()){this.delete();return;}
+            simulationArea.selected = true;
+            simulationArea.lastSelected=this;
             var n = new Node(simulationArea.mouseDownX, simulationArea.mouseDownY, 2, this.scope.root);
             this.converge(n);
             n.clicked = true;
             n.wasClicked = true;
-            simulationArea.selected = true;
             updated = true;
+        }
+        if(simulationArea.lastSelected==this){
+            console.log("HITT");
+            // simulationArea.lastSelected=undefined;
+            // simulationArea.selected=false;
         }
 
         if (this.node1.deleted || this.node2.deleted) this.delete(); //if either of the nodes are deleted

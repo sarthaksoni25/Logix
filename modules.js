@@ -958,7 +958,9 @@ function Ram(x, y, scope, dir,data=undefined) {
         }
         return data;
     }
-
+    this.dblclick=function(){
+        this.data=prompt("Enter data").split(' ').map(function(x){return parseInt(x,16);});
+    }
     this.isResolvable = function() {
         return this.memAddr.value != undefined;
     }

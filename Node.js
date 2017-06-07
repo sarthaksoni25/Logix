@@ -347,7 +347,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             }
             updated = true;
 
-            simulationArea.lastSelected = undefined;
+            if(simulationArea.lastSelected==this)simulationArea.lastSelected = undefined;
         }
 
         if (this.type == 2) {
@@ -365,7 +365,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2) simulationArea.lastSelected = this;
+        if (this.clicked && this.type == 2&&simulationArea.lastSelected==undefined) simulationArea.lastSelected = this;
         return updated;
 
 
