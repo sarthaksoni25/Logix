@@ -27,5 +27,5 @@ else if(isset($_POST["retrieve"])){
   exit();
 }
 else
-require("logix.html");
+require("index.html");
 ?>
