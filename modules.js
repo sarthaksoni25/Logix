@@ -42,8 +42,6 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
     }
 
     this.output1 = new Node(20, 0, 1, this);
-    //nodeList - List of Lists - all nodes of object here - used for refreshing when direction changes
-    // this.nodeList=[this.inp,[this.output1]];
     scope.andGates.push(this);
 
     //fn to create save Json Data of object
@@ -80,19 +78,6 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
         this.scope.stack.push(this.output1);
     }
 
-    //fn to update everything - location, hover etc
-    // this.update = function() {
-    //
-    //     var updated = false;
-    //     //nodes updation
-    //     for (var j = 0; j < inputLength; j++)
-    //         updated |= this.inp[j].update();
-    //     updated |= this.output1.update();
-    //     //module update
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
-
     //fn to draw
     this.draw = function() {
 
@@ -107,7 +92,6 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
 
         moveTo(ctx,-10,-20,xx,yy,this.direction);
         lineTo(ctx,0,-20,xx,yy,this.direction);
-        // ctx.arc(xx, yy, 20, -Math.PI / 2, Math.PI / 2);
         arc(ctx,0,0,20,(-Math.PI/2),(Math.PI/2),xx,yy,this.direction);
         lineTo(ctx,-10,20,xx,yy,this.direction);
         lineTo(ctx,-10,-20,xx,yy,this.direction);
@@ -115,12 +99,6 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
-        // this.element.update();
-
-        // for (var i = 0; i < inputLength; i++)
-        //     this.inp[i].draw();
-        //
-        // this.output1.draw();
 
         //for debugging
         if (this.element.b.hover)
@@ -129,11 +107,6 @@ function AndGate(x, y, scope, inputLength, dir,bitWidth=undefined) {
 
     //fn to delete object
     this.delete = function() {
-        //delete all object nodes
-        // this.output1.delete();
-        // for (var i = 0; i < inputLength; i++) {
-        //     this.inp[i].delete();
-        // }
         simulationArea.lastSelected = undefined;
         this.scope.andGates.clean(this);
     }
@@ -147,7 +120,7 @@ function loadMultiplexer(data, scope) {
 }
 function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.controlSignalSize=controlSignalSize||parseInt(prompt("Enter control signal bitWidth"),10);
     this.inputSize=1<<this.controlSignalSize;
     this.scope = scope;
@@ -157,7 +130,6 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
     this.element = new Element(x, y, "Multiplexer", 20, this,5*(this.inputSize));
     this.inp = [];
     this.direction=dir;
-
 
     //variable inputLength , node creation
 
@@ -169,8 +141,6 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
 
     this.output1 = new Node(20, 0, 1, this);
     this.controlSignalInput = new Node(0,5*this.inputSize , 0, this,this.controlSignalSize);
-    //nodeList - List of Lists - all nodes of object here - used for refreshing when direction changes
-    // this.nodeList=[this.inp,[this.output1,this.controlSignalInput]];
     scope.multiplexers.push(this);
 
     //fn to create save Json Data of object
@@ -204,20 +174,6 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
         this.scope.stack.push(this.output1);
     }
 
-    //fn to update everything - location, hover etc
-    // this.update = function() {
-    //
-    //     var updated = false;
-    //     //nodes updation
-    //     for (var j = 0; j < this.inputSize; j++)
-    //         updated |= this.inp[j].update();
-    //     updated |= this.output1.update();
-    //     updated |= this.controlSignalInput.update();
-    //     //module update
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
-
     //fn to draw
     this.draw = function() {
 
@@ -235,13 +191,6 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
 
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
-        // this.element.update();
-
-        // for (var i = 0; i < this.inputSize; i++)
-        //     this.inp[i].draw();
-        //
-        // this.output1.draw();
-        // this.controlSignalInput.draw();
 
         //for debugging
         if (this.element.b.hover)
@@ -250,14 +199,8 @@ function Multiplexer(x, y, scope,  dir,bitWidth=undefined,controlSignalSize=unde
 
     //fn to delete object
     this.delete = function() {
-        //delete all object nodes
-        // this.output1.delete();
-        // this.controlSignalInput.delete();
-        // for (var i = 0; i < this.inputSize; i++) {
-        //     this.inp[i].delete();
-        // }
         simulationArea.lastSelected = undefined;
-        this.scope.andGates.clean(this);
+        this.scope.multiplexers.clean(this);
     }
 }
 
@@ -291,7 +234,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
 
     this.isResolvable = function() {
         return false;
-        // return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
     }
 
     this.resolve = function() {
@@ -328,19 +270,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.stroke();
     }
 
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.a.update();
-    //     updated |= this.b.update();
-    //     updated |= this.c.update();
-    //     updated |= this.d.update();
-    //     updated |= this.e.update();
-    //     updated |= this.f.update();
-    //     updated |= this.g.update();
-    //     updated |= this.dot.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
     this.draw = function() {
         ctx = simulationArea.context;
 
@@ -356,14 +285,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        // this.drawSegment(20, -5, 20, -35, ["black", "red"][this.b.value]);
-        // this.drawSegment(20, 5, 20, 35, ["black", "red"][this.c.value]);
-        // this.drawSegment(-20, -5, -20, -35, ["black", "red"][this.f.value]);
-        // this.drawSegment(-20, 5, -20, 35, ["black", "red"][this.e.value]);
-        // this.drawSegment(-15, -40, 15, -40, ["black", "red"][this.a.value]);
-        // this.drawSegment(-15, 0, 15, 0, ["black", "red"][this.g.value]);
-        // this.drawSegment(-15, 40, 15, 40, ["black", "red"][this.d.value]);
-
         this.drawSegment(18, -3, 18, -38, ["grey", "red"][this.b.value]);
         this.drawSegment(18, 3, 18, 38, ["grey", "red"][this.c.value]);
         this.drawSegment(-18, -3, -18, -38, ["grey", "red"][this.f.value]);
@@ -376,25 +297,8 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.strokeStyle = ["black", "red"][this.dot.value];
         rect(ctx,xx + 20, yy + 40, 2, 2);
         ctx.stroke();
-
-        // this.element.draw();
-        // this.a.draw();
-        // this.b.draw();
-        // this.c.draw();
-        // this.d.draw();
-        // this.e.draw();
-        // this.f.draw();
-        // this.g.draw();
-        // this.dot.draw();
     }
     this.delete = function() {
-        // this.a.delete();
-        // this.b.delete();
-        // this.c.delete();
-        // this.d.delete();
-        // this.e.delete();
-        // this.f.delete();
-        // this.g.delete();
         simulationArea.lastSelected = undefined;
         scope.sevenseg.clean(this);
     }
@@ -411,20 +315,11 @@ function HexDisplay(x, y, scope = globalScope) {
     this.scope = scope;
     this.nodeList=[];
     this.inp=new Node(0,-50,0,this,4);
-    // this.g = new Node(-20, -50, 0, this);
-    // this.f = new Node(-10, -50, 0, this);
-    // this.a = new Node(+10, -50, 0, this);
-    // this.b = new Node(+20, -50, 0, this);
-    // this.e = new Node(-20, +50, 0, this);
-    // this.d = new Node(-10, +50, 0, this);
-    // this.c = new Node(+10, +50, 0, this);
-    // this.dot = new Node(+20, +50, 0, this);
     this.direction="left";
     scope.hexdis.push(this);
 
     this.isResolvable = function() {
         return false;
-        // return this.a.value != undefined && this.b.value != undefined && this.c.value != undefined && this.d.value != undefined && this.e.value != undefined && this.f.value != undefined && this.g.value != undefined && this.dot.value != undefined;
     }
 
     this.resolve = function() {
@@ -454,14 +349,7 @@ function HexDisplay(x, y, scope = globalScope) {
         ctx.stroke();
     }
 
-    // this.update = function() {
-    //     var updated = false;
-    //     this.inp.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
     this.draw = function() {
-        // console.log(this.inp.value);
         ctx = simulationArea.context;
 
         var xx = this.element.x;
@@ -536,12 +424,8 @@ function HexDisplay(x, y, scope = globalScope) {
         this.drawSegment(-17, 0, 17, 0, ["grey", "red"][g]);
         this.drawSegment(-15, 38, 17, 38, ["grey", "red"][d]);
 
-        // this.element.draw();
-        // this.inp.draw();
     }
     this.delete = function() {
-        // this.inp.delete();
-
         simulationArea.lastSelected = undefined;
         scope.hexdis.clean(this);
     }
@@ -555,7 +439,7 @@ function loadOr(data, scope) {
 
 function OrGate(x, y, scope = globalScope, inputs = 2,dir='left',bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'or' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -588,8 +472,6 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left',bitWidth=undefi
     this.output1 = new Node(20, 0, 1, this);
     scope.orGates.push(this);
 
-    // this.nodeList=[this.inp,[this.output1]];
-
     this.saveObject = function() {
         console.log(this.scope.allNodes);
         var data = {
@@ -618,15 +500,6 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left',bitWidth=undefi
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.output1.update();
-    //     for (var j = 0; j < inputs; j++) {
-    //         updated |= this.inp[j].update();
-    //     }
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -646,17 +519,10 @@ function OrGate(x, y, scope = globalScope, inputs = 2,dir='left',bitWidth=undefi
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
-        // for (var i = 0; i < inputs; i++)
-        //     this.inp[i].draw();
-        //
-        // this.output1.draw();;
         if (this.element.b.isHover())
             console.log(this,this.id);
     }
     this.delete = function() {
-        // this.output1.delete();
-        // for (var i = 0; i < inputs; i++)
-        //     this.inp[i].delete();
         simulationArea.lastSelected = undefined;
         scope.orGates.clean(this);
     }
@@ -670,7 +536,7 @@ function loadNot(data, scope) {
 
 function NotGate(x, y, scope, dir,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -680,7 +546,6 @@ function NotGate(x, y, scope, dir,bitWidth=undefined) {
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     scope.notGates.push(this);
-    // this.nodeList=[[this.inp1,this.output1]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -703,13 +568,6 @@ function NotGate(x, y, scope, dir,bitWidth=undefined) {
         this.output1.value = ((~this.inp1.value>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
         this.scope.stack.push(this.output1);
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.output1.update();
-    //     updated |= this.inp1.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -724,21 +582,16 @@ function NotGate(x, y, scope, dir,bitWidth=undefined) {
         moveTo(ctx,-10,-10,xx,yy,this.direction);
         lineTo(ctx,10,0,xx,yy,this.direction);
         lineTo(ctx,-10,10,xx,yy,this.direction);
-        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
         ctx.beginPath();
         arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
         ctx.stroke();
-        // this.inp1.draw();
-        // this.output1.draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
     }
     this.delete = function() {
-        // this.output1.delete();
-        // this.inp1.delete();
         simulationArea.lastSelected = undefined;
         scope.notGates.clean(this);
     }
@@ -754,7 +607,7 @@ function loadTriState(data, scope) {
 
 function TriState(x, y, scope, dir,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'not' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -765,7 +618,6 @@ function TriState(x, y, scope, dir,bitWidth=undefined) {
     this.output1 = new Node(10, 0, 1, this);
     this.state = new Node(0, 0, 0, this,1);
     scope.triStates.push(this);
-    // this.nodeList=[[this.inp1,this.output1]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -799,13 +651,6 @@ function TriState(x, y, scope, dir,bitWidth=undefined) {
             this.output1.value=undefined;
         }
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.output1.update();
-    //     updated |= this.inp1.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -820,21 +665,13 @@ function TriState(x, y, scope, dir,bitWidth=undefined) {
         moveTo(ctx,-10,-10,xx,yy,this.direction);
         lineTo(ctx,10,0,xx,yy,this.direction);
         lineTo(ctx,-10,10,xx,yy,this.direction);
-        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
-        // ctx.beginPath();
-        // arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
-        // ctx.stroke();
-        // this.inp1.draw();
-        // this.output1.draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
     }
     this.delete = function() {
-        // this.output1.delete();
-        // this.inp1.delete();
         simulationArea.lastSelected = undefined;
         scope.triStates.clean(this);
     }
@@ -852,7 +689,7 @@ function loadAdder(data, scope) {
 
 function Adder(x, y, scope, dir,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'Adder' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -866,7 +703,6 @@ function Adder(x, y, scope, dir,bitWidth=undefined) {
     this.carryOut = new Node(20, 10, 1, this,1);
 
     scope.adders.push(this);
-    // this.nodeList=[[this.inpA,this.inpB,this.carryIn,this.sum,this.carryOut]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -929,8 +765,7 @@ function loadRam(data, scope) {
     v.dataOut = replace(v.dataOut, data["dataOut"]);
 }
 function Ram(x, y, scope, dir,data=undefined) {
-    // this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'Ram' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -938,15 +773,11 @@ function Ram(x, y, scope, dir,data=undefined) {
     this.direction=dir;
     this.nodeList=[];
     this.memAddr = new Node(-30, 0, 0, this,4);
-    // this.inpB = new Node(-20, 0, 0, this,this.bitWidth);
-    // this.carryIn = new Node(-20, 10, 0, this,1);
     this.data=data||prompt("Enter data").split(' ').map(function(x){return parseInt(x,16);});
     console.log(this.data);
     this.dataOut = new Node(30, 0, 1, this,8);
-    // this.carryOut = new Node(20, 10, 1, this,1);
 
     scope.rams.push(this);
-    // this.nodeList=[[this.inpA,this.inpB,this.carryIn,this.sum,this.carryOut]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -1005,13 +836,12 @@ function loadSplitter(data, scope) {
 
 function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.bitWidthSplit=bitWidthSplit||prompt("Enter bitWidth Split").split(' ').map(function(x){return parseInt(x,10);});
     this.splitCount=this.bitWidthSplit.length;
     this.id = 'Splitter' + uniqueIdCounter;
     uniqueIdCounter++;
     this.nodeList=[];
-    // this.flip=-1;
     this.scope = scope;
 
     this.element = new Element(x, y, "Splitter", 10, this,(this.splitCount-1)*10+10);
@@ -1022,15 +852,11 @@ function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
     this.outputs = [];
     for(var i=0;i<this.splitCount;i++)
         this.outputs.push(new Node(20, i*20-this.yOffset-20, 0, this,this.bitWidthSplit[i]));
-
-
-    // this.nodeList=[[this.inp1],this.outputs];
     scope.splitters.push(this);
     this.saveObject = function() {
         var data = {
             x: this.element.x,
             y: this.element.y,
-            // output findNode(this.output1),
             outputs: this.outputs.map(findNode),
             bitWidthSplit: this.bitWidthSplit,
             inp1: findNode(this.inp1),
@@ -1070,15 +896,6 @@ function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
             for(var i=this.splitCount-1;i>=0;i--){
                 n<<=this.bitWidthSplit[i];
                 n+=this.outputs[i].value;
-                // var bitSplitValue=extractBits(this.inp1.value,bitCount,bitCount+this.bitWidthSplit[i]-1);
-                // if(this.outputs[i].value===undefined){
-                //     this.outputs[i].value=bitSplitValue;
-                //     this.scope.stack.push(this.outputs[i]);
-                // }
-                // else if(this.outputs[i].value!=bitSplitValue){
-                //     console.log("CONTENTION");
-                // }
-                // bitCount+=this.bitWidthSplit[i];
             }
             if(this.inp1.value===undefined){
                 this.inp1.value=n;
@@ -1089,16 +906,6 @@ function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
             }
         }
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     // updated |= this.output1.update();
-    //     for (var j = 0; j < this.splitCount; j++) {
-    //         updated |= this.outputs[j].update();
-    //     }
-    //     updated |= this.inp1.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -1122,26 +929,13 @@ function Splitter(x, y, scope, dir,bitWidth=undefined,bitWidthSplit=undefined) {
         fillText2(ctx,bitCount+":"+(bitCount+this.bitWidthSplit[this.splitCount-i-1]),10,-20*i+14+this.yOffset,xx,yy,this.direction);
         bitCount+=this.bitWidthSplit[this.splitCount-i-1];
         }
-        // ctx.closePath();
-        // arc(ctx,5,2*(Math.PI),0,xx,yy,this.direction,15,0);
-        // ctx.closePath();
-        // if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
-        // ctx.beginPath();
-        // arc(ctx,15,0,5,2*(Math.PI),0,xx,yy,this.direction);
-        // ctx.stroke();
-        // this.inp1.draw();
-        // for (var j = 0; j < this.splitCount; j++)
-        //     this.outputs[j].draw();
         if (this.element.b.isHover())
             console.log(this,this.id);
     }
     this.delete = function() {
         simulationArea.lastSelected = undefined;
         scope.splitters.clean(this);
-        // for(var i=0;i<this.nodeList.length;i++)
-        //     for(var j=0;j<this.nodeList[i].length;j++)
-        //         console.log(this.nodeList[i][j].delete());
 
     }
 
@@ -1157,21 +951,16 @@ function loadInput(data, scope) {
 }
 
 function Input(x, y, scope, dir,bitWidth=undefined) {
-    // this.func=Input;
-    // [x, y, scope, dir] = list;
 
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
-    // this.list=list;
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
     this.nodeList=[];
     this.direction=dir;
-    // this.prevDir = dir;
     this.state = 0;
     this.element = new Element(x, y, "input", 10*this.bitWidth, this,10);
     this.state=bin2dec(this.state);// in integer format
-    // console.log(this.state);
     this.output1 = new Node( this.bitWidth*10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
@@ -1179,7 +968,6 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
     this.setLabel=function(){
         this.label=prompt("Enter Label:");
     }
-    // this.nodeList=[[this.output1]];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -1213,32 +1001,11 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
             this.output1.leftx=10*this.bitWidth;
         }
     }
-    // String.prototype.replaceAt=function(index, replacement) {
-    //     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
-    // }
     this.toggleState = function() {
-
         var pos=this.findPos();
-        // console.log(pos);
         if(pos==0)pos=1;// minor correction
         if(pos<1||pos>this.bitWidth)return;
         this.state^=(1<<(this.bitWidth-pos));
-        // var binary = dec2bin(this.state);
-        // var newBin;
-        // // bin[pos] = ((parseInt(bin[pos])+1)%2).toString();
-        // if(binary[pos]==="0")
-        //     newBin = binary.slice(0,pos) + "1" + binary.slice(pos+1) ;
-        //
-        // else
-        //     newBin = binary.slice(0,pos) + "0" + binary.slice(pos+1) ;
-        //
-        //
-        // console.log(newBin);
-        // this.state = bin2dec(newBin);
-        // this.draw();
-        // // this.state = (this.state + 1) % 2;
-        // // this.output1.value = this.state;
-
     }
     this.update = function() {
         var updated = false;
@@ -1254,10 +1021,6 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
               this.toggleState();
           }
         }
-
-
-        // if (this.element.b.hover)
-        //     console.log(this,this.id);
         return updated;
 
     }
@@ -1272,20 +1035,16 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         var yy = this.element.y;
 
         rect2(ctx,-10*this.bitWidth,-10,20*this.bitWidth,20,xx,yy,"left");
-        // this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
-        // ctx.font = "20px Georgia";
         ctx.fillStyle = "green";
         ctx.textAlign="center";
         var bin = dec2bin(this.state,this.bitWidth);
         for(var k=0;k<this.bitWidth;k++)
           fillText(ctx,bin[k], xx-10*this.bitWidth+10+(k)*20, yy + 5);
         ctx.fill();
-
-
 
         if(this.direction=="left"){
             ctx.beginPath();
@@ -1316,15 +1075,8 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
             ctx.fill();
         }
 
-
-
-
-        // this.element.draw();
-        // this.output1.draw();
-
     }
     this.delete = function() {
-        // this.output1.delete();
         simulationArea.lastSelected = undefined;
         scope.inputs.clean(this);
 
@@ -1344,7 +1096,6 @@ function Input(x, y, scope, dir,bitWidth=undefined) {
         this.output1.refresh();
 
     }
-    // this.newDirection(dir);
     this.findPos = function(){
       return Math.round((simulationArea.mouseX-this.element.x+10*this.bitWidth)/20.0);
     }
@@ -1357,7 +1108,7 @@ function loadGround(data, scope) {
 
 function Ground(x, y, scope = globalScope,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'ground' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -1369,7 +1120,6 @@ function Ground(x, y, scope = globalScope,bitWidth=undefined) {
     scope.grounds.push(this);
     console.log(this);
     this.wasClicked = false;
-    // this.nodeList=[[this.output1]];
     this.resolve = function() {
         this.output1.value = 0;
         this.scope.stack.push(this.output1);
@@ -1383,12 +1133,6 @@ function Ground(x, y, scope = globalScope,bitWidth=undefined) {
         }
         return data;
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.output1.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -1411,14 +1155,10 @@ function Ground(x, y, scope = globalScope,bitWidth=undefined) {
         lineTo(ctx,2.5,10,xx,yy,this.direction);
         ctx.stroke();
 
-        // this.element.draw();
-        // this.output1.draw();
-
         if (this.element.b.hover)
             console.log(this,this.id);
     }
     this.delete = function() {
-        // this.output1.delete();
         simulationArea.lastSelected = undefined;
         scope.grounds.clean(this);
     }
@@ -1431,7 +1171,7 @@ function loadPower(data, scope) {
 
 function Power(x, y, scope = globalScope,bitWidth=undefined) {
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.id = 'power' + uniqueIdCounter;
     this.scope = scope;
     uniqueIdCounter++;
@@ -1441,7 +1181,6 @@ function Power(x, y, scope = globalScope,bitWidth=undefined) {
     this.output1.value = this.state;
     scope.powers.push(this);
     this.wasClicked = false;
-    // this.nodeList=[[this.output1]];
     this.resolve = function() {
 
         this.output1.value=~0>>>(32-this.bitWidth);
@@ -1456,12 +1195,6 @@ function Power(x, y, scope = globalScope,bitWidth=undefined) {
         }
         return data;
     }
-    // this.update = function() {
-    //     var updated = false;
-    //     updated |= this.output1.update();
-    //     updated |= this.element.update();
-    //     return updated;
-    // }
 
     this.draw = function() {
 
@@ -1510,14 +1243,12 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
     this.direction=dir;
     this.prevDir=dir;
     this.bitWidth=bitWidth||parseInt(prompt("Enter bitWidth"),10);
-    //this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
+
     this.element = new Element(x, y, "output", 10*this.bitWidth, this,10);
     this.nodeList=[];
     this.inp1 = new Node( this.bitWidth*10, 0, 0, this);
     this.state = undefined;
-    // this.inp1.value = this.state;
     this.scope.outputs.push(this);
-    // this.nodeList=[[this.inp1]];
 
     this.saveObject = function() {
         var data = {
@@ -1556,16 +1287,6 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
         return this.inp1.value != undefined;
     }
 
-    // this.update = function() {
-    //
-    //     var updated = false;
-    //     updated |= this.inp1.update();
-    //     updated |= this.element.update();
-    //
-    //     if (this.element.b.hover)
-    //         console.log(this,this.id);
-    //     return updated;
-    // }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -1577,7 +1298,6 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
         var yy = this.element.y;
 
         rect2(ctx,-10*this.bitWidth,-10,20*this.bitWidth,20,xx,yy,"left");
-        // this.checkNodeDirection();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
 
@@ -1622,13 +1342,8 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
             fillText(ctx,this.label, xx, yy + 5+25,14);
             ctx.fill();
         }
-
-
-        // this.element.draw();
-        // this.inp1.draw();
     }
     this.delete = function() {
-        // this.inp1.delete();
         simulationArea.lastSelected = undefined;
         this.scope.outputs.clean(this);
     }
@@ -1648,7 +1363,6 @@ function Output(x, y, scope, dir,bitWidth=undefined) {
         this.inp1.refresh();
 
     }
-    // this.newDirection(dir);
 }
 
 function newBitWidth(obj,bitWidth){
@@ -1658,7 +1372,6 @@ function newBitWidth(obj,bitWidth){
     }
     obj.bitWidth=bitWidth;
     for(var i=0;i<obj.nodeList.length;i++)
-        // for(var j=0;j<obj.nodeList[i].length;j++)
-            obj.nodeList[i].bitWidth=bitWidth;
+        obj.nodeList[i].bitWidth=bitWidth;
 
 }

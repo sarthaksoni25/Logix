@@ -258,13 +258,6 @@ var simulationArea = {
             // update();
         })
         window.addEventListener('dblclick', function(e) {
-            // if(simulationArea.lastSelected.dataHash!==undefined){
-            //     var prevHash=window.location.hash;
-            //     window.location.hash=simulationArea.lastSelected.dataHash;
-            //     // console.log(simulationArea.lastSelected.dataHash);
-            //     openInNewTab(window.location.href);
-            //     window.location.hash=prevHash;
-            // }
             if(simulationArea.lastSelected.dblclick!==undefined){
                 simulationArea.lastSelected.dblclick();
             }
@@ -350,14 +343,6 @@ var simulationArea = {
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseDownY=simulationArea.mouseY;
             simulationArea.mouseDownX=simulationArea.mouseX;
-            // simulationArea.mouseDownRawX = (e.touches[0].clientX - rect.left);
-            // simulationArea.mouseDownRawY = (e.touches[0].clientY - rect.top) ;
-            // simulationArea.mouseRawX = (e.touches[0].clientX - rect.left);
-            // simulationArea.mouseRawY = (e.touches[0].clientY - rect.top);
-            // simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX  - simulationArea.ox)/simulationArea.scale) / unit) * unit;
-            // simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy)/simulationArea.scale )/ unit) * unit;
-            // simulationArea.mouseX = Math.round(((simulationArea.mouseRawX - simulationArea.ox)/simulationArea.scale)/ unit) * unit;
-            // simulationArea.mouseY = Math.round(((simulationArea.mouseRawY- simulationArea.oy)/simulationArea.scale  )/ unit) * unit;
 
             simulationArea.mouseDown = false;
             console.log(simulationArea.mouseDown);
@@ -531,10 +516,6 @@ function Button(x, y, width, height,parent) {
 
         return false;
     }
-    // this.isClicked = function() {
-    // 		if(distance(this.x,this.y,simulationArea.mouseDownX,simulationArea.mouseDownY)<this.radius)return true;
-    //     return false;
-    // }
     this.isHover = function() {
         // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
         var width,height;
@@ -563,7 +544,6 @@ function deleteObj(obj){
 function updateObj(obj){
     var update=false;
     if(obj.update===undefined){
-        // if(obj.nodeList!==undefined)
         for(var i=0;i<obj.nodeList.length;i++){
             update|=obj.nodeList[i].update();
         }
@@ -576,7 +556,6 @@ function updateObj(obj){
 }
 
 function drawObj(obj){
-    // var update=false;
     obj.draw();
 
     if(obj.nodeList!==undefined)

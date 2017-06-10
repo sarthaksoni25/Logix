@@ -1,13 +1,10 @@
 
 function loadSubCircuit(savedData, scope) {
     var v = new SubCircuit(savedData["x"], savedData["y"], scope, savedData["dir"],savedData);
-    // for (var i = 0; i < v.inputNodes.length; i++) v.inputNodes[i] = replace(v.inputNodes[i], data["inputNodes"][i]);
-    // for (var i = 0; i < v.outputNodes.length; i++) v.outputNodes[i] = replace(v.outputNodes[i], data["outputNodes"][i]);
 }
 
 //subCircuit
 function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
-    // this.bitWidth=parseInt(prompt("Enter bitWidth"),10);
     this.savedData=savedData;
     this.direction=dir;
     this.scope = scope;
@@ -19,11 +16,9 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
     this.nodeList=[];
     this.inputNodes = [];
     this.outputNodes = [];
-    // this.nodeList=[this.inputNodes,this.outputNodes];
     this.width = 0;
     this.height = 0;
     this.title = "";
-    // this.deleted=false;
     if(savedData==undefined)
         this.dataHash = prompt("Enter Hash: ");
     if(this.savedData!=undefined){
@@ -65,7 +60,6 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
     this.dblclick=function(){
         var prevHash=window.location.hash;
         window.location.hash=simulationArea.lastSelected.dataHash;
-           // console.log(simulationArea.lastSelected.dataHash);
         openInNewTab(window.location.href);
         window.location.hash=prevHash;
     }
@@ -93,58 +87,13 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
 
         if(this.savedData==undefined){
             for (var i = 0;i<this.localScope.inputs.length;i++) {
-                    // console.log(i);
                     var a = new Node(-this.width/2, -this.localScope.inputs.length*10+20*i+10, 0, this,this.localScope.inputs[i].bitWidth);
                     this.inputNodes.push(a);
             }
             for (var i = 0;i<this.localScope.outputs.length;i++) {
-                    // console.log(i);
                     var a = new Node(this.width/2, -this.localScope.outputs.length*10+20*i+10, 1, this,this.localScope.outputs[i].bitWidth);
                     this.outputNodes.push(a);
             }
-            // if (this.localScope.inputs.length % 2 == 1) {
-            //     for (var i = this.localScope.inputs.length / 2 - 1.5; i >= 0; i--) {
-            //         console.log(i);
-            //         var a = new Node(-30, -10 * (i + 1), 0, this,this.localScope.inputs[i].bitWidth);
-            //         this.inputNodes.push(a);
-            //     }
-            //     var a = new Node(-30, 0, 0, this,this.localScope.inputs[i].bitWidth);
-            //     this.inputNodes.push(a);
-            //     for (var i = this.localScope.inputs.length / 2+.5; i < this.localScope.inputs.length; i++) {
-            //         var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length % 2 / 2 - 1.5), 0, this,this.localScope.inputs[i].bitWidth);
-            //         this.inputNodes.push(a);
-            //     }
-            // } else {
-            //     for (var i = 0; i < this.localScope.inputs.length / 2; i++) {
-            //         var a = new Node(-30, -10 * (i + 1), 0, this,this.localScope.inputs[i].bitWidth);
-            //         this.inputNodes.push(a);
-            //     }
-            //     for (var i = this.localScope.inputs.length / 2; i < this.localScope.inputs.length; i++) {
-            //         var a = new Node(-30, 10 * (i + 1 - this.localScope.inputs.length / 2), 0, this,this.localScope.inputs[i].bitWidth);
-            //         this.inputNodes.push(a);
-            //     }
-            // }
-            // if (this.localScope.outputs.length % 2 == 1) {
-            //     for (var i = this.localScope.outputs.length / 2 - 1; i >= 0; i--) {
-            //         var a = new Node(30, -10 * (i + 1), 1, this,this.localScope.inputs[i].bitWidth);
-            //         this.outputNodes.push(a);
-            //     }
-            //     var a = new Node(30, 0, 1, this,this.localScope.inputs[i].bitWidth);
-            //     this.outputNodes.push(a);
-            //     for (var i = this.localScope.outputs.length / 2 + 1; i < this.localScope.outputs.length; i++) {
-            //         var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length % 2 / 2 - 1), 1, this,this.localScope.inputs[i].bitWidth);
-            //         this.outputNodes.push(a);
-            //     }
-            // } else {
-            //     for (var i = 0; i < this.localScope.outputs.length / 2; i++) {
-            //         var a = new Node(30, -10 * (i + 1), 1, this,this.localScope.inputs[i].bitWidth);
-            //         this.outputNodes.push(a);
-            //     }
-            //     for (var i = this.localScope.outputs.length / 2; i < this.localScope.outputs.length; i++) {
-            //         var a = new Node(30, 10 * (i + 1 - this.localScope.outputs.length / 2), 1, this,this.localScope.inputs[i].bitWidth);
-            //         this.outputNodes.push(a);
-            //     }
-            // }
         }
 
     }
@@ -157,8 +106,6 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
     }
 
     this.resolve = function() {
-        // console.log("HOT");
-
         for (i = 0; i < this.localScope.inputs.length; i++) {
             this.localScope.inputs[i].state = this.inputNodes[i].value;
         }
@@ -167,21 +114,11 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
             this.localScope.stack.push(this.localScope.inputs[i]);
         }
         play(this.localScope);
-        // this.localScope.stack.extend(this.localScope.powers);
-        // this.localScope.stack.extend(this.localScope.grounds);
-        // while (this.localScope.stack.length) {
-        //     var el = this.localScope.stack.pop();
-        //     el.resolve();
-        //
-        // }
 
         for (i = 0; i < this.localScope.outputs.length; i++) {
             this.outputNodes[i].value = this.localScope.outputs[i].state;
         }
-
-        // return;
         for (i = 0; i < this.localScope.outputs.length; i++) {
-            // console.log(this.scope.stack);
             this.scope.stack.push(this.outputNodes[i]);
         }
 
@@ -213,7 +150,6 @@ function SubCircuit(x, y, scope = globalScope,dir="left",savedData=undefined) {
         ctx.closePath();
         if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
         ctx.stroke();
-        // this.element.update();
 
         ctx.beginPath();
 
