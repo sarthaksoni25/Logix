@@ -17,18 +17,19 @@ function replace(node, index) {
     return node;
 }
 
-function extractBits(num,start,end){
-    return (num<<(32-end))>>>(32-(end-start+1));
+function extractBits(num, start, end) {
+    return (num << (32 - end)) >>> (32 - (end - start + 1));
 }
 
-function bin2dec(binString){
+function bin2dec(binString) {
     return parseInt(binString, 2);
 }
-function dec2bin(dec,bitWidth=undefined){
-   // only for positive nos
+
+function dec2bin(dec, bitWidth = undefined) {
+    // only for positive nos
     var bin = (dec).toString(2);
-    if(bitWidth==undefined)return bin;
-    return '0'.repeat(bitWidth-bin.length)+bin;
+    if (bitWidth == undefined) return bin;
+    return '0'.repeat(bitWidth - bin.length) + bin;
 }
 //find Index of a node
 function findNode(x) {
@@ -36,7 +37,7 @@ function findNode(x) {
 }
 
 function loadNode(data, scope) {
-    var n = new Node(data["x"], data["y"], data["type"], scope.root,data["bitWidth"]);
+    var n = new Node(data["x"], data["y"], data["type"], scope.root, data["bitWidth"]);
 }
 
 //get Node in index x in scope and set parent
@@ -49,23 +50,22 @@ function extractNode(x, scope, parent) {
 //output node=1
 //input node=0
 //intermediate node =2
-function Node(x, y, type, parent,bitWidth=undefined) {
+function Node(x, y, type, parent, bitWidth = undefined) {
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
-    if(type!=2&&this.parent.nodeList!==undefined)
+    if (type != 2 && this.parent.nodeList !== undefined)
         this.parent.nodeList.push(this);
     // console.log(this.parent.nodeList);
-    this.leftx=x;
-    if(bitWidth==undefined){
-        this.bitWidth=parent.bitWidth;
+    this.leftx = x;
+    if (bitWidth == undefined) {
+        this.bitWidth = parent.bitWidth;
+    } else {
+        this.bitWidth = bitWidth;
     }
-    else {
-        this.bitWidth=bitWidth;
-    }
-    this.lefty=y;
-    this.x=x;
-    this.y=y;
+    this.lefty = y;
+    this.x = x;
+    this.y = y;
 
     this.type = type;
     this.connections = new Array();
@@ -80,16 +80,16 @@ function Node(x, y, type, parent,bitWidth=undefined) {
 
     //This fn is called during rotations and setup
 
-    this.updateRotation=function(){
-        [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+    this.updateRotation = function() {
+        [this.x, this.y] = rotate(this.leftx, this.lefty, this.parent.direction);
     }
-    this.refresh=function(){
+    this.refresh = function() {
         // [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
         this.updateRotation();
         for (var i = 0; i < this.connections.length; i++) {
             this.connections[i].connections.clean(this);
         }
-        this.connections=[];
+        this.connections = [];
 
     }
 
@@ -97,15 +97,15 @@ function Node(x, y, type, parent,bitWidth=undefined) {
 
     this.saveObject = function() {
 
-        if(this.type==2){
-            this.leftx=this.x;
-            this.lefty=this.y;
+        if (this.type == 2) {
+            this.leftx = this.x;
+            this.lefty = this.y;
         }
         var data = {
             x: this.leftx,
             y: this.lefty,
             type: this.type,
-            bitWidth:this.bitWidth,
+            bitWidth: this.bitWidth,
             connections: [],
         }
         for (var i = 0; i < this.connections.length; i++) {
@@ -153,17 +153,15 @@ function Node(x, y, type, parent,bitWidth=undefined) {
         }
 
         for (var i = 0; i < this.connections.length; i++) {
-            if (this.connections[i].value !=this.value) {
+            if (this.connections[i].value != this.value) {
 
-                if(this.connections[i].type==1&&this.connections[i].value!=undefined){
-                    console.log("CONTENTION",this.connections[i].value,this.value);
-                }
-                else if(this.connections[i].bitWidth==this.bitWidth||this.connections[i].type==2){
-                    this.connections[i].bitWidth=this.bitWidth;
+                if (this.connections[i].type == 1 && this.connections[i].value != undefined) {
+                    console.log("CONTENTION", this.connections[i].value, this.value);
+                } else if (this.connections[i].bitWidth == this.bitWidth || this.connections[i].type == 2) {
+                    this.connections[i].bitWidth = this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
-                }
-                else {
+                } else {
                     console.log("BIT WIDTH ERROR");
                 }
             }
@@ -176,22 +174,22 @@ function Node(x, y, type, parent,bitWidth=undefined) {
 
     this.draw = function() {
         if (this.isHover())
-            console.log(this,this.id);
+            console.log(this, this.id);
 
         var ctx = simulationArea.context;
 
         if (this.clicked) {
             if (this.prev == 'x') {
-                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
-                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
+                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3);
+                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3);
             } else if (this.prev == 'y') {
-                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
-                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
+                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
+                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3);
             } else {
                 if (Math.abs(this.x + this.parent.element.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.element.y - simulationArea.mouseY)) {
-                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
+                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3);
                 } else {
-                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
+                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
                 }
             }
         }
@@ -200,13 +198,13 @@ function Node(x, y, type, parent,bitWidth=undefined) {
         }
 
         if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
-          ctx.strokeStyle ="green";
-          ctx.beginPath();
-          ctx.lineWidth= 3 ;
-          arc(ctx,this.x,this.y, 8, 0, Math.PI * 2,this.parent.element.x,this.parent.element.y,"left");
-          ctx.closePath();
-          ctx.stroke();
-        //   console.log("HIT");
+            ctx.strokeStyle = "green";
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.element.x, this.parent.element.y, "left");
+            ctx.closePath();
+            ctx.stroke();
+            //   console.log("HIT");
         }
 
 
@@ -347,7 +345,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             }
             updated = true;
 
-            if(simulationArea.lastSelected==this)simulationArea.lastSelected = undefined;
+            if (simulationArea.lastSelected == this) simulationArea.lastSelected = undefined;
         }
 
         if (this.type == 2) {
@@ -365,7 +363,7 @@ function Node(x, y, type, parent,bitWidth=undefined) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2&&simulationArea.lastSelected==undefined) simulationArea.lastSelected = this;
+        if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
         return updated;
 
 

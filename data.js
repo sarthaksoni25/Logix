@@ -5,7 +5,9 @@ function extract(obj) {
 
 //fn to create save data
 function Save() {
-    var data = {title:prompt("EnterName:")};
+    var data = {
+        title: prompt("EnterName:")
+    };
     data["inputs"] = globalScope.inputs.map(extract);
     data["outputs"] = globalScope.outputs.map(extract);
     data["allNodes"] = globalScope.allNodes.map(extract);
