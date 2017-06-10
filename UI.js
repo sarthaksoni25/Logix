@@ -11,12 +11,13 @@ function addGround() {
 }
 
 function addOr() {
-    var or = new OrGate(200, 150,globalScope, prompt("No of inputs:"));
+    var or = new OrGate(200, 150, globalScope, prompt("No of inputs:"));
 }
 
 function addNot() {
     var a = new NotGate(200, 150, globalScope, 'left');
 }
+
 function addTriState() {
     var a = new TriState(200, 150, globalScope, 'left');
 }
@@ -32,6 +33,7 @@ function addOutput() {
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
 }
+
 function addMultiplexer() {
     var a = new Multiplexer(200, 150, globalScope, 'left');
 }
@@ -43,21 +45,25 @@ function addClock() {
 function addSevenSeg() {
     var a = new SevenSegDisplay(400, 150);
 }
+
 function addHexDis() {
     var a = new HexDisplay(400, 150);
 }
+
 function addAdder() {
-    var a = new Adder(400, 150,globalScope,"left",);
+    var a = new Adder(400, 150, globalScope, "left", );
 }
+
 function addRam() {
-    var a = new Ram(400, 150,globalScope,"left",);
+    var a = new Ram(400, 150, globalScope, "left", );
 }
 
 function addSubCircuit() {
     var a = new SubCircuit(400, 150);
 }
+
 function addSplitter() {
-    var a = new Splitter(400, 400, globalScope, "left",);
+    var a = new Splitter(400, 400, globalScope, "left", );
 }
 
 

@@ -18,9 +18,9 @@ function Wire(node1, node2, scope) {
     this.scope.wires.push(this);
 
     //to check if nodes are disconnected
-    this.checkConnections=function(){
-        var check=!node1.connections.contains(node2)||!node2.connections.contains(node1);
-        if(check)this.delete();
+    this.checkConnections = function() {
+        var check = !node1.connections.contains(node2) || !node2.connections.contains(node1);
+        if (check) this.delete();
         return check;
     }
 
@@ -28,21 +28,21 @@ function Wire(node1, node2, scope) {
     this.update = function() {
 
         var updated = false;
-        if(wireToBeChecked&&this.checkConnections()){this.delete();return;} // SLOW , REMOVE
+        if (wireToBeChecked && this.checkConnections()) {
+            this.delete();
+            return;
+        } // SLOW , REMOVE
         if (simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
-            // if(this.checkConnections()){this.delete();return;}
             simulationArea.selected = true;
-            simulationArea.lastSelected=this;
+            simulationArea.lastSelected = this;
             var n = new Node(simulationArea.mouseDownX, simulationArea.mouseDownY, 2, this.scope.root);
             this.converge(n);
             n.clicked = true;
             n.wasClicked = true;
             updated = true;
         }
-        if(simulationArea.lastSelected==this){
-            console.log("HITT");
-            // simulationArea.lastSelected=undefined;
-            // simulationArea.selected=false;
+        if (simulationArea.lastSelected == this) {
+            // console.log("HITT");
         }
 
         if (this.node1.deleted || this.node2.deleted) this.delete(); //if either of the nodes are deleted
@@ -78,9 +78,9 @@ function Wire(node1, node2, scope) {
     this.draw = function() {
         ctx = simulationArea.context;
         var color;
-        if(this.node1.value==undefined)
-            color="red";
-        else if(this.node1.bitWidth==1)
+        if (this.node1.value == undefined)
+            color = "red";
+        else if (this.node1.bitWidth == 1)
             color = ["red", "DarkGreen", "Lime"][this.node1.value + 1];
         else
             color = "black";

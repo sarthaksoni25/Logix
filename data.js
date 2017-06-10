@@ -5,7 +5,9 @@ function extract(obj) {
 
 //fn to create save data
 function Save() {
-    var data = {title:prompt("EnterName:")};
+    var data = {
+        title: prompt("EnterName:")
+    };
     data["inputs"] = globalScope.inputs.map(extract);
     data["outputs"] = globalScope.outputs.map(extract);
     data["allNodes"] = globalScope.allNodes.map(extract);
@@ -24,7 +26,6 @@ function Save() {
     data["clocks"] = globalScope.clocks.map(extract);
     data["flipflops"] = globalScope.flipflops.map(extract);
     data["subCircuits"] = globalScope.subCircuits.map(extract);
-    // data["wires"]=globalScope.wires.map(extract);
     data["nodes"] = []
     for (var i = 0; i < globalScope.nodes.length; i++)
         data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
@@ -47,7 +48,6 @@ function Save() {
 //fn to load from data
 function load(scope, data) {
 
-    // buildNode(data["allNodes"][0]);
     data["allNodes"].map(function(x) {
         return loadNode(x, scope)
     });
@@ -84,7 +84,6 @@ function load(scope, data) {
         return loadOr(x, scope);
     });
     if (data["notGates"]) data["notGates"].map(function(x) {
-        // console.log("SDSDS");
         return loadNot(x, scope);
     });
     if (data["triStates"]) data["triStates"].map(function(x) {
@@ -109,6 +108,3 @@ function load(scope, data) {
     scope.wires.map(function(x) {
         x.updateData()
     })
-    // scope.allNodes.map(constructNodeConnections);
-    // console.log(globalScope);
-}
