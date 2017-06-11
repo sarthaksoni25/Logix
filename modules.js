@@ -474,7 +474,7 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = 
     scope.orGates.push(this);
 
     this.saveObject = function() {
-        console.log(this.scope.allNodes);
+        // console.log(this.scope.allNodes);
         var data = {
             x: this.element.x,
             y: this.element.y,
