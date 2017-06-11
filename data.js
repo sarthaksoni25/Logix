@@ -4,31 +4,36 @@ function extract(obj) {
 }
 
 //fn to create save data
+function backUp(){
+        var data={};
+        data["inputs"] = globalScope.inputs.map(extract);
+        data["outputs"] = globalScope.outputs.map(extract);
+        data["allNodes"] = globalScope.allNodes.map(extract);
+        data["andGates"] = globalScope.andGates.map(extract);
+        data["orGates"] = globalScope.orGates.map(extract);
+        data["multiplexers"] = globalScope.multiplexers.map(extract);
+        data["adders"] = globalScope.adders.map(extract);
+        data["splitters"] = globalScope.splitters.map(extract);
+        data["notGates"] = globalScope.notGates.map(extract);
+        data["triStates"] = globalScope.triStates.map(extract);
+        data["rams"] = globalScope.rams.map(extract);
+        data["sevenseg"] = globalScope.sevenseg.map(extract);
+        data["hexdis"] = globalScope.hexdis.map(extract);
+        data["grounds"] = globalScope.grounds.map(extract);
+        data["powers"] = globalScope.powers.map(extract);
+        data["clocks"] = globalScope.clocks.map(extract);
+        data["flipflops"] = globalScope.flipflops.map(extract);
+        data["subCircuits"] = globalScope.subCircuits.map(extract);
+        data["nodes"] = []
+        for (var i = 0; i < globalScope.nodes.length; i++)
+            data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
+        return data
+
+}
+
 function Save() {
-    var data = {
-        title: prompt("EnterName:")
-    };
-    data["inputs"] = globalScope.inputs.map(extract);
-    data["outputs"] = globalScope.outputs.map(extract);
-    data["allNodes"] = globalScope.allNodes.map(extract);
-    data["andGates"] = globalScope.andGates.map(extract);
-    data["orGates"] = globalScope.orGates.map(extract);
-    data["multiplexers"] = globalScope.multiplexers.map(extract);
-    data["adders"] = globalScope.adders.map(extract);
-    data["splitters"] = globalScope.splitters.map(extract);
-    data["notGates"] = globalScope.notGates.map(extract);
-    data["triStates"] = globalScope.triStates.map(extract);
-    data["rams"] = globalScope.rams.map(extract);
-    data["sevenseg"] = globalScope.sevenseg.map(extract);
-    data["hexdis"] = globalScope.hexdis.map(extract);
-    data["grounds"] = globalScope.grounds.map(extract);
-    data["powers"] = globalScope.powers.map(extract);
-    data["clocks"] = globalScope.clocks.map(extract);
-    data["flipflops"] = globalScope.flipflops.map(extract);
-    data["subCircuits"] = globalScope.subCircuits.map(extract);
-    data["nodes"] = []
-    for (var i = 0; i < globalScope.nodes.length; i++)
-        data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
+    var data=backUp();
+    data["title"]=prompt("EnterName:");
 
     //covnvert to text
     data = JSON.stringify(data)
@@ -107,4 +112,5 @@ function load(scope, data) {
     });
     scope.wires.map(function(x) {
         x.updateData()
-    })
+    });
+}

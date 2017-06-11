@@ -5,7 +5,8 @@ unit = 10;
 toBeUpdated = true;
 wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
-
+var backups=[]
+loading=false
 function openInNewTab(url) {
     var win = window.open(url, '_blank');
     win.focus();
@@ -21,6 +22,14 @@ function scheduleUpdate() {
         setTimeout(update, 200);
     willBeUpdated = true;
 
+}
+function scheduleBackup() {
+    // setTimeout(function(){
+        var backup=backUp();
+        // if(backups.length==0||backups[backups.length-1]!=backup){
+            backups.push(backup);
+        // }
+    // }, 1000);
 }
 //fn to remove elem in array
 Array.prototype.clean = function(deleteValue) {
@@ -105,6 +114,7 @@ function setup() {
                 data = JSON.parse(http.responseText);
                 console.log(data);
                 load(globalScope, data);
+                backups.push(backUp())
             }
         }
 
@@ -113,10 +123,10 @@ function setup() {
     toBeUpdated = true;
     width = window.innerWidth;
     height = window.innerHeight;
-
     //setup simulationArea
     simulationArea.setup();
     scheduleUpdate();
+
 
 }
 
@@ -139,7 +149,7 @@ window.addEventListener('orientationchange', resetup);
 function play(scope = globalScope) {
 
     // console.log("simulation");
-
+    if(loading==true)return;
 
     for (var i = 0; i < scope.allNodes.length; i++)
         scope.allNodes[i].reset();
@@ -228,6 +238,21 @@ var simulationArea = {
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'right');
             }
+            if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
+                if(backups.length==0)return;
+                var backupOx=simulationArea.ox;
+                var backupOy=simulationArea.oy;
+                simulationArea.ox=0;
+                simulationArea.oy=0;
+                globalScope=new Scope("globalScope");
+                loading=true;
+                load(globalScope,backups.pop());
+                console.log("UNDO");
+                loading=false;
+                simulationArea.ox=backupOx;
+                simulationArea.oy=backupOy;
+            }
+            // console.log(e.key.charCodeAt(0));
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'down');
             }
@@ -267,6 +292,7 @@ var simulationArea = {
         });
         window.addEventListener('mousedown', function(e) {
             // return;
+            scheduleBackup();
             update();
             scheduleUpdate();
             simulationArea.lastSelected = undefined;
@@ -295,6 +321,7 @@ var simulationArea = {
         });
 
         window.addEventListener('mouseup', function(e) {
+
             // return;
             update();
             scheduleUpdate();
@@ -366,6 +393,8 @@ var simulationArea = {
 //fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
+
+    if(loading==true)return;
     // console.log("UPDATE");
     willBeUpdated = false;
     var updated = false;
