@@ -1268,6 +1268,7 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
     }
     this.label = "";
     this.newBitWidth = function(bitWidth) {
+        // console.log(this.direction);
         this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
         this.state = undefined;
         this.inp1.bitWidth = bitWidth;
@@ -1276,8 +1277,8 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
             this.inp1.x = 10 * this.bitWidth;
             this.inp1.leftx = 10 * this.bitWidth;
         } else if (this.direction == "right") {
-            this.inp1.x = 10 * this.bitWidth;
-            this.inp1.leftx = -10 * this.bitWidth;
+            this.inp1.x = -10 * this.bitWidth;
+            this.inp1.leftx = 10 * this.bitWidth;
         }
     }
     this.setLabel = function() {
