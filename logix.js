@@ -211,6 +211,7 @@ var simulationArea = {
     oldx: 0,
     oldy: 0,
     scale: 1,
+    shiftDown:false,
 
     clickCount: 0, //double click
     lock: "unlocked",
@@ -226,6 +227,7 @@ var simulationArea = {
         this.interval = setInterval(update, 100);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
+        // this.shiftDown=false;
 
         window.addEventListener('mousemove', function(e) {
             // return;
@@ -237,12 +239,24 @@ var simulationArea = {
             simulationArea.mouseY = Math.round(((simulationArea.mouseRawY - simulationArea.oy) / simulationArea.scale) / unit) * unit;
 
         });
+        window.addEventListener('keyup', function(e) {
+            if (e.keyCode == 16) {
+                // simulationArea.lastSelected.delete(); // delete key
+                simulationArea.shiftDown=false;
+            }
+        });
         window.addEventListener('keydown', function(e) {
             scheduleUpdate();
             wireToBeChecked = 1;
+            // e.preventDefault();
+           console.log("KEY:"+e.keyCode);
             if (e.keyCode == 8 && simulationArea.lastSelected != undefined) {
                 // simulationArea.lastSelected.delete(); // delete key
                 deleteObj(simulationArea.lastSelected);
+            }
+            if (e.keyCode == 16) {
+                // simulationArea.lastSelected.delete(); // delete key
+                simulationArea.shiftDown=true;
             }
             //change direction fns
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
@@ -262,7 +276,7 @@ var simulationArea = {
                 simulationArea.ox=backupOx;
                 simulationArea.oy=backupOy;
             }
-            // console.log(e.key.charCodeAt(0));
+
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'down');
             }
@@ -283,6 +297,7 @@ var simulationArea = {
                 if (simulationArea.lastSelected.setLabel !== undefined)
                     simulationArea.lastSelected.setLabel();
             }
+
             // zoom in (+)
             if (e.keyCode == 187 && simulationArea.scale < 4) {
                 changeScale(.1);
@@ -292,6 +307,7 @@ var simulationArea = {
 
                 changeScale(-.1);
             }
+            // console.log()
             // update();
         })
         window.addEventListener('dblclick', function(e) {
