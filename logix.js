@@ -1,4 +1,5 @@
 var width;
+
 var height;
 uniqueIdCounter = 0;
 unit = 10;
@@ -7,6 +8,10 @@ wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
 var backups=[]
 loading=false
+
+function showError(error){
+    console.log("ERROR: "+error);
+}
 function openInNewTab(url) {
     var win = window.open(url, '_blank');
     win.focus();
@@ -179,11 +184,16 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.outputs.length; i++) {
         scope.stack.push(scope.outputs[i]);
     }
-
+    var stepCount=0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
         // console.log("DEBUG",elem);
         elem.resolve();
+        stepCount++;
+        if(stepCount>1000){
+            showError("Simulation Stack limit exceeded: maybe due to cyclic paths");
+            return;
+        }
     }
 
 }
@@ -413,7 +423,7 @@ function update() {
             updated |= updateObj(globalScope.objects[i][j]);
     toBeUpdated |= updated;
 
-    if (toBeUpdated && simulationArea.mouseDown == false) {
+    if (toBeUpdated ) {
         toBeUpdated = false;
         play();
     }
