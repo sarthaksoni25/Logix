@@ -77,6 +77,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
+    this.highlighted=false;
 
     //This fn is called during rotations and setup
 
@@ -135,6 +136,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
 
     this.reset = function() {
         this.value = undefined;
+        this.highlighted=false;
     }
 
     this.connect = function(n) {
@@ -156,13 +158,19 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             if (this.connections[i].value != this.value) {
 
                 if (this.connections[i].type == 1 && this.connections[i].value != undefined) {
-                    console.log("CONTENTION", this.connections[i].value, this.value);
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("Contention Error: "+this.value+" and "+this.connections[i].value);
+                    // console.log("CONTENTION", this.connections[i].value, this.value);
                 } else if (this.connections[i].bitWidth == this.bitWidth || this.connections[i].type == 2) {
                     this.connections[i].bitWidth = this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
                 } else {
-                    console.log("BIT WIDTH ERROR");
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("BitWidth Error: "+this.bitWidth+" and "+this.connections[i].bitWidth);
+                    // console.log("BIT WIDTH ERROR");
                 }
             }
             // else if(this.connections[i].value!=this.value){
@@ -193,11 +201,14 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                 }
             }
         }
-        if (this.type != 2) {
-            drawCircle(ctx, this.absX(), this.absY(), 3, "green");
-        }
+        // if (this.type != 2) {
 
-        if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
+            var color=(this.bitWidth!=1||this.value==undefined)?"black":["green","lightgreen"][this.value];
+            if(this.type==1||this.type==0)color="green";
+            drawCircle(ctx, this.absX(), this.absY(), 3, color);
+        // }
+
+        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;
