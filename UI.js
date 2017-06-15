@@ -51,11 +51,11 @@ function addHexDis() {
 }
 
 function addAdder() {
-    var a = new Adder(400, 150, globalScope, "left", );
+    var a = new Adder(400, 150, globalScope, 'left');
 }
 
 function addRam() {
-    var a = new Ram(400, 150, globalScope, "left", );
+    var a = new Ram(400, 150, globalScope, 'left');
 }
 
 function addSubCircuit() {
@@ -63,7 +63,7 @@ function addSubCircuit() {
 }
 
 function addSplitter() {
-    var a = new Splitter(400, 400, globalScope, "left", );
+    var a = new Splitter(400, 400, globalScope, 'left');
 }
 
 
