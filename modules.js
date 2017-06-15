@@ -1376,3 +1376,14 @@ function newBitWidth(obj, bitWidth) {
         obj.nodeList[i].bitWidth = bitWidth;
 
 }
+
+function saveasimg() {
+    //window.open(simulationArea.canvas.toDataURL('image/png'));
+    var gh = simulationArea.canvas.toDataURL('image/png');
+    var filename = filename || prompt("Enter imagename");
+    var anchor  = document.createElement('a');
+    anchor.href = gh;
+    anchor.download = filename+'.png';
+
+    anchor.click()
+}
