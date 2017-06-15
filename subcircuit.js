@@ -136,7 +136,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         var yy = this.element.y;
         rect2(ctx, -this.width / 2, -this.height / 2, this.width, this.height, xx, yy, this.direction);
         ctx.closePath();
-        if (this.element.b.hover || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();

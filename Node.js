@@ -209,7 +209,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             drawCircle(ctx, this.absX(), this.absY(), 3, color);
         // }
 
-        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)||simulationArea.multipleObjectSelections.contains(this)) {
+        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected&&!simulationArea.shiftDown)||simulationArea.multipleObjectSelections.contains(this)) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;

@@ -110,7 +110,7 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
         lineTo(ctx, -20, 15, xx, yy, this.direction);
 
 
-        if (this.element.b.hover || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -179,7 +179,7 @@ function Clock(x, y, scope, dir) {
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx, xx - 10, yy - 10, 20, 20);
-        if (this.element.b.hover || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
