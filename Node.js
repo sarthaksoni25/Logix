@@ -1,5 +1,5 @@
 function constructNodeConnections(node, data) {
-    console.log(data["connections"].length);
+    // console.log(data["connections"].length);
     for (var i = 0; i < data["connections"].length; i++)
         if (!node.connections.contains(node.scope.allNodes[data["connections"][i]])) node.connect(node.scope.allNodes[data["connections"][i]]);
 }
@@ -8,19 +8,36 @@ function constructNodeConnections(node, data) {
 function replace(node, index) {
     scope = node.scope;
     parent = node.parent;
+    parent.nodeList.clean(node);
     node.delete();
     node = scope.allNodes[index];
     node.parent = parent;
+    parent.nodeList.push(node);
+    node.updateRotation();
     return node;
 }
 
+function extractBits(num, start, end) {
+    return (num << (32 - end)) >>> (32 - (end - start + 1));
+}
+
+function bin2dec(binString) {
+    return parseInt(binString, 2);
+}
+
+function dec2bin(dec, bitWidth = undefined) {
+    // only for positive nos
+    var bin = (dec).toString(2);
+    if (bitWidth == undefined) return bin;
+    return '0'.repeat(bitWidth - bin.length) + bin;
+}
 //find Index of a node
 function findNode(x) {
     return x.scope.allNodes.indexOf(x);
 }
 
 function loadNode(data, scope) {
-    var n = new Node(data["x"], data["y"], data["type"], scope.root);
+    var n = new Node(data["x"], data["y"], data["type"], scope.root, data["bitWidth"]);
 }
 
 //get Node in index x in scope and set parent
@@ -33,18 +50,27 @@ function extractNode(x, scope, parent) {
 //output node=1
 //input node=0
 //intermediate node =2
-function Node(x, y, type, parent) {
+function Node(x, y, type, parent, bitWidth = undefined) {
+    this.objectType="Node";
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
-    this.leftx=x;
-    this.lefty=y;
-    this.x=x;
-    this.y=y;
+    if (type != 2 && this.parent.nodeList !== undefined)
+        this.parent.nodeList.push(this);
+    // console.log(this.parent.nodeList);
+    this.leftx = x;
+    if (bitWidth == undefined) {
+        this.bitWidth = parent.bitWidth;
+    } else {
+        this.bitWidth = bitWidth;
+    }
+    this.lefty = y;
+    this.x = x;
+    this.y = y;
 
     this.type = type;
     this.connections = new Array();
-    this.value = -1;
+    this.value = undefined;
     this.radius = 5;
     this.clicked = false;
     this.hover = false;
@@ -52,24 +78,36 @@ function Node(x, y, type, parent) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
+    this.highlighted=false;
 
     //This fn is called during rotations and setup
-    this.refresh=function(){
-        [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+
+    this.updateRotation = function() {
+        [this.x, this.y] = rotate(this.leftx, this.lefty, this.parent.direction);
+    }
+    this.refresh = function() {
+        // [this.x,this.y]=rotate(this.leftx,this.lefty,this.parent.direction);
+        this.updateRotation();
         for (var i = 0; i < this.connections.length; i++) {
             this.connections[i].connections.clean(this);
         }
-        this.connections=[];
+        this.connections = [];
 
     }
 
     this.refresh();
 
     this.saveObject = function() {
+
+        if (this.type == 2) {
+            this.leftx = this.x;
+            this.lefty = this.y;
+        }
         var data = {
-            x: this.x,
-            y: this.y,
+            x: this.leftx,
+            y: this.lefty,
             type: this.type,
+            bitWidth: this.bitWidth,
             connections: [],
         }
         for (var i = 0; i < this.connections.length; i++) {
@@ -94,11 +132,12 @@ function Node(x, y, type, parent) {
     this.prevy = this.absY();
 
     this.isResolvable = function() {
-        return this.value != -1;
+        return this.value != undefined;
     }
 
     this.reset = function() {
-        this.value = -1;
+        this.value = undefined;
+        this.highlighted=false;
     }
 
     this.connect = function(n) {
@@ -108,54 +147,76 @@ function Node(x, y, type, parent) {
     }
 
     this.resolve = function() {
-        if (this.value == -1) {
+        if (this.value == undefined) {
             return;
-        } else if (this.type == 0) {
+        }
+        if (this.type == 0) {
             if (this.parent.isResolvable())
                 this.scope.stack.push(this.parent);
-        } else if (this.type == 1 || this.type == 2) {
-            for (var i = 0; i < this.connections.length; i++) {
-                if (this.connections[i].value != this.value) {
+        }
+
+        for (var i = 0; i < this.connections.length; i++) {
+            if (this.connections[i].value != this.value) {
+
+                if (this.connections[i].type == 1 && this.connections[i].value != undefined) {
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("Contention Error: "+this.value+" and "+this.connections[i].value);
+                    // console.log("CONTENTION", this.connections[i].value, this.value);
+                } else if (this.connections[i].bitWidth == this.bitWidth || this.connections[i].type == 2) {
+                    this.connections[i].bitWidth = this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
+                } else {
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("BitWidth Error: "+this.bitWidth+" and "+this.connections[i].bitWidth);
+                    // console.log("BIT WIDTH ERROR");
                 }
             }
+            // else if(this.connections[i].value!=this.value){
+            //     console.log("CONTENTION");
+            // }
         }
+
     }
 
     this.draw = function() {
         if (this.isHover())
-            console.log(this,this.id);
+            console.log(this, this.id);
 
         var ctx = simulationArea.context;
 
         if (this.clicked) {
             if (this.prev == 'x') {
-                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
-                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
+                drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3);
+                drawLine(ctx, simulationArea.mouseX, this.absY(), simulationArea.mouseX, simulationArea.mouseY, "black", 3);
             } else if (this.prev == 'y') {
-                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
-                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3 );
+                drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
+                drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3);
             } else {
                 if (Math.abs(this.x + this.parent.element.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.element.y - simulationArea.mouseY)) {
-                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3 );
+                    drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3);
                 } else {
-                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3 );
+                    drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
                 }
             }
         }
-        if (this.type != 2) {
-            drawCircle(ctx, this.absX(), this.absY(), 3, "green");
-        }
+        // if (this.type != 2) {
 
-        if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
-          ctx.strokeStyle ="green";
-          ctx.beginPath();
-          ctx.lineWidth= 3 ;
-          arc(ctx,this.x,this.y, 8, 0, Math.PI * 2,this.parent.element.x,this.parent.element.y,"left");
-          ctx.closePath();
-          ctx.stroke();
-        //   console.log("HIT");
+            var color=(this.bitWidth!=1||this.value==undefined)?"black":["green","lightgreen"][this.value];
+            if(this.type==1||this.type==0)color="green";
+            drawCircle(ctx, this.absX(), this.absY(), 3, color);
+        // }
+
+        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected&&!simulationArea.shiftDown)||simulationArea.multipleObjectSelections.contains(this)) {
+            ctx.strokeStyle = "green";
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.element.x, this.parent.element.y, "left");
+            ctx.closePath();
+            ctx.stroke();
+            //   console.log("HIT");
         }
 
 
@@ -219,16 +280,35 @@ function Node(x, y, type, parent) {
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             simulationArea.selected = this.clicked = this.hover;
             updated |= this.clicked;
-            this.wasClicked |= this.clicked;
+            // this.wasClicked |= this.clicked;
             this.prev = 'a';
         } else if (!simulationArea.mouseDown) {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
             this.count = 0;
         }
+
+        if(this.clicked&&!this.wasClicked){
+            this.wasClicked=true;
+            if(this.type==2){
+                if(simulationArea.shiftDown){
+                    simulationArea.lastSelected=undefined;
+                    if(simulationArea.multipleObjectSelections.contains(this)){
+                        simulationArea.multipleObjectSelections.clean(this);
+                    }
+                    else {
+                        simulationArea.multipleObjectSelections.push(this);
+                    }
+                }
+                else{
+                    simulationArea.lastSelected = this;
+                }
+            }
+        }
+
         if (this.wasClicked && !this.clicked) {
             this.wasClicked = false;
-            if (simulationArea.mouseDownX == this.absX() && simulationArea.mouseDownY == this.absY()) {
+            if (simulationArea.mouseX == this.absX() && simulationArea.mouseY == this.absY()) {
                 this.nodeConnect();
                 return updated;
             }
@@ -296,8 +376,11 @@ function Node(x, y, type, parent) {
             }
             updated = true;
 
-            simulationArea.lastSelected = undefined;
+            if (simulationArea.lastSelected == this) simulationArea.lastSelected = undefined;
         }
+
+
+
 
         if (this.type == 2) {
             if (this.connections.length == 2 && simulationArea.mouseDown == false) {
@@ -314,7 +397,7 @@ function Node(x, y, type, parent) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2) simulationArea.lastSelected = this;
+        // if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
         return updated;
 
 
