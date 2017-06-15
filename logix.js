@@ -4,6 +4,7 @@ var height;
 uniqueIdCounter = 0;
 unit = 10;
 toBeUpdated = true;
+updateCanvas = true;
 wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
 objectSelection=false;
@@ -18,14 +19,18 @@ function openInNewTab(url) {
     win.focus();
 }
 
-function scheduleUpdate() {
-    return;
+function scheduleUpdate(count=0) {
+    // return;
+    if(count){
+        for(var i=0;i<count;i++)
+            setTimeout(update, 10+50*i);
+    }
     if (willBeUpdated) return;
 
-    if (simulationArea.mouseDown)
+    // if (simulationArea.mouseDown)
         setTimeout(update, 100);
-    else
-        setTimeout(update, 200);
+    // else
+    //     setTimeout(update, 100);
     willBeUpdated = true;
 
 }
@@ -228,7 +233,7 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 100);
+        // this.interval = setInterval(update, 100);
         this.ClockInterval = setInterval(clockTick, 2000);
         this.mouseDown = false;
         // this.shiftDown=false;
@@ -236,6 +241,8 @@ var simulationArea = {
         window.addEventListener('mousemove', function(e) {
             // return;
             scheduleUpdate();
+            // toBeUpdated=true;
+            updateCanvas=true;
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseRawX = (e.clientX - rect.left);
             simulationArea.mouseRawY = (e.clientY - rect.top);
@@ -244,13 +251,16 @@ var simulationArea = {
 
         });
         window.addEventListener('keyup', function(e) {
+            // update();
+            scheduleUpdate(1);
             if (e.keyCode == 16) {
                 // simulationArea.lastSelected.delete(); // delete key
                 simulationArea.shiftDown=false;
             }
         });
         window.addEventListener('keydown', function(e) {
-            scheduleUpdate();
+            scheduleUpdate(1);
+            updateCanvas=true;
             wireToBeChecked = 1;
             // e.preventDefault();
            console.log("KEY:"+e.keyCode);
@@ -323,6 +333,7 @@ var simulationArea = {
             // update();
         })
         window.addEventListener('dblclick', function(e) {
+            scheduleUpdate(1);
             if (simulationArea.lastSelected.dblclick !== undefined) {
                 simulationArea.lastSelected.dblclick();
             }
@@ -335,7 +346,7 @@ var simulationArea = {
             // return;
             scheduleBackup();
             update();
-            scheduleUpdate();
+            scheduleUpdate(1);
 
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
@@ -365,8 +376,8 @@ var simulationArea = {
         window.addEventListener('mouseup', function(e) {
 
             // return;
-            update();
-            scheduleUpdate();
+            // update();
+            scheduleUpdate(1);
             var rect = simulationArea.canvas.getBoundingClientRect();
             // simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
             // simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
@@ -456,7 +467,7 @@ function update() {
     toBeUpdated |= updated;
 
     if (toBeUpdated ) {
-        toBeUpdated = false;
+        // toBeUpdated = false;
         play();
     }
 
@@ -529,21 +540,23 @@ function update() {
     }
 
     //Draw
-    simulationArea.clear();
-
-    dots(); // draw dots
-    for (var i = 0; i < globalScope.objects.length; i++)
-        for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= drawObj(globalScope.objects[i][j]);
-    if(objectSelection){
-        ctx=simulationArea.context;
-        ctx.beginPath();
-        ctx.lineWidth=2;
-        ctx.strokeStyle="black"
-        rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
-        ctx.stroke();
+    if(toBeUpdated||updateCanvas){
+        simulationArea.clear();
+        dots(); // draw dots
+        for (var i = 0; i < globalScope.objects.length; i++)
+            for (var j = 0; j < globalScope.objects[i].length; j++)
+                updated |= drawObj(globalScope.objects[i][j]);
+        if(objectSelection){
+            ctx=simulationArea.context;
+            ctx.beginPath();
+            ctx.lineWidth=2;
+            ctx.strokeStyle="black"
+            rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
+            ctx.stroke();
+        }
     }
-
+    if(toBeUpdated)scheduleUpdate();
+    toBeUpdated=updateCanvas=false;
 }
 
 function sort2(a1,a2){
