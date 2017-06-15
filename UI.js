@@ -65,9 +65,13 @@ function addSubCircuit() {
 function addSplitter() {
     var a = new Splitter(400, 400, globalScope, 'left');
 }
+function addBitSelector() {
+    var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
+}
 
 
 document.getElementById("powerButton").addEventListener("click", addPower);
+document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);
 document.getElementById("groundButton").addEventListener("click", addGround);
 document.getElementById("andButton").addEventListener("click", addAnd);
 document.getElementById("multiplexerButton").addEventListener("click", addMultiplexer);

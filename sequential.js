@@ -1,7 +1,9 @@
 function clockTick() {
     globalScope.clockTick();
+    play()
+    updateCanvas=true;
     toBeUpdated = true;
-    update();
+    scheduleUpdate();
 }
 
 function loadFlipFlop(data, scope) {
