@@ -1478,3 +1478,145 @@ function saveasimg() {
 
     anchor.click()
 }
+
+
+function Constant_val(x, y, scope, dir, bitWidth = undefined) {
+
+    this.id = 'input' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.bitWidth = bitWidth;
+    this.nodeList = [];
+    this.direction = dir;
+    this.state = dec2bin(parseInt(prompt("Enter value"), 10));
+    this.bitWidth = this.state.toString().length;
+    this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
+    this.state = bin2dec(this.state); // in integer format
+    this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
+    scope.inputs.push(this);
+    this.wasClicked = false;
+    this.label = "";
+    this.setLabel = function() {
+        this.label = prompt("Enter Label:");
+    }
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            dir: this.direction,
+            bitWidth: this.bitWidth,
+            label: this.label,
+            state: this.state,
+        }
+        return data;
+    }
+    this.isResolvable = function() {
+        return true;
+    }
+
+    this.resolve = function() {
+        this.output1.value = this.state;
+        this.scope.stack.push(this.output1);
+    }
+    this.newBitWidth = function(bitWidth) {
+        this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
+        this.state = 0;
+        this.output1.bitWidth = bitWidth;
+        this.element.b.width = 10 * this.bitWidth;
+        if (this.direction == "left") {
+            this.output1.x = 10 * this.bitWidth;
+            this.output1.leftx = 10 * this.bitWidth;
+        } else if (this.direction == "right") {
+            this.output1.x = -10 * this.bitWidth;
+            this.output1.leftx = 10 * this.bitWidth;
+        }
+    }
+    this.update = function() {
+        var updated = false;
+        updated |= this.output1.update();
+        updated |= this.element.update();
+
+        if (simulationArea.mouseDown == false)
+            this.wasClicked = false;
+
+        if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
+            if (this.element.b.clicked) {
+                this.wasClicked = true;
+            }
+        }
+        return updated;
+
+    }
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.beginPath();
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3;
+        var xx = this.element.x;
+        var yy = this.element.y;
+
+        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
+        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.fillStyle = "green";
+        ctx.textAlign = "center";
+        var bin = dec2bin(this.state, this.bitWidth);
+        for (var k = 0; k < this.bitWidth; k++)
+            fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
+        ctx.fill();
+
+        if (this.direction == "left") {
+            ctx.beginPath();
+            ctx.textAlign = "right";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
+            ctx.fill();
+        } else if (this.direction == "right") {
+            ctx.beginPath();
+            ctx.textAlign = "left";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
+            ctx.fill();
+        } else if (this.direction == "up") {
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
+            ctx.fill();
+        } else if (this.direction == "down") {
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
+            ctx.fill();
+        }
+
+    }
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        scope.inputs.clean(this);
+
+    }
+    this.newDirection = function(dir) {
+        if (dir == this.direction) return;
+        this.output1.refresh();
+        if (dir == "left" || dir == "right") {
+            this.output1.leftx = 10 * this.bitWidth;
+            this.output1.lefty = 0;
+        } else {
+            this.output1.leftx = 10; //10*this.bitWidth;
+            this.output1.lefty = 0;
+        }
+        this.direction = dir;
+        this.output1.refresh();
+
+    }
+    this.findPos = function() {
+        return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
+    }
+}
