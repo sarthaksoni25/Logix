@@ -1488,10 +1488,9 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     this.bitWidth = bitWidth;
     this.nodeList = [];
     this.direction = dir;
-    this.state = dec2bin(parseInt(prompt("Enter value"), 10));
+    this.state =  prompt("Enter value"), 10;
     this.bitWidth = this.state.toString().length;
     this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
-    this.state = bin2dec(this.state); // in integer format
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
@@ -1532,22 +1531,6 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
             this.output1.leftx = 10 * this.bitWidth;
         }
     }
-    this.update = function() {
-        var updated = false;
-        updated |= this.output1.update();
-        updated |= this.element.update();
-
-        if (simulationArea.mouseDown == false)
-            this.wasClicked = false;
-
-        if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
-            if (this.element.b.clicked) {
-                this.wasClicked = true;
-            }
-        }
-        return updated;
-
-    }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -1559,13 +1542,13 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         var yy = this.element.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
         ctx.fillStyle = "green";
         ctx.textAlign = "center";
-        var bin = dec2bin(this.state, this.bitWidth);
+        var bin = this.state;
         for (var k = 0; k < this.bitWidth; k++)
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
