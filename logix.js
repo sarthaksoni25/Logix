@@ -6,6 +6,7 @@ unit = 10;
 toBeUpdated = true;
 wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
+objectSelection=false;
 var backups=[]
 loading=false
 
@@ -450,25 +451,40 @@ function update() {
         simulationArea.selected = true;
         simulationArea.lastSelected = globalScope.root;
         simulationArea.hover = true;
+
+        if(simulationArea.shiftDown){
+            objectSelection=true;
+        }
     } else if (simulationArea.lastSelected == globalScope.root && simulationArea.mouseDown) {
         //pane canvas
-        simulationArea.ox = (simulationArea.mouseRawX - simulationArea.mouseDownRawX) + simulationArea.oldx;
-        simulationArea.oy = (simulationArea.mouseRawY - simulationArea.mouseDownRawY) + simulationArea.oldy;
-        simulationArea.ox = Math.round(simulationArea.ox);
-        simulationArea.oy = Math.round(simulationArea.oy);
+        if(!objectSelection){
+            simulationArea.ox = (simulationArea.mouseRawX - simulationArea.mouseDownRawX) + simulationArea.oldx;
+            simulationArea.oy = (simulationArea.mouseRawY - simulationArea.mouseDownRawY) + simulationArea.oldy;
+            simulationArea.ox = Math.round(simulationArea.ox);
+            simulationArea.oy = Math.round(simulationArea.oy);
+        }
 
     } else if (simulationArea.lastSelected == globalScope.root) {
         simulationArea.lastSelected = undefined;
         simulationArea.selected = false;
         simulationArea.hover = false;
+        objectSelection=false;
     }
 
     //Draw
     simulationArea.clear();
+
     dots(); // draw dots
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= drawObj(globalScope.objects[i][j]);;
+            updated |= drawObj(globalScope.objects[i][j]);
+    if(objectSelection){
+        ctx=simulationArea.context;
+        ctx.beginPath();
+        ctx.lineWidth=2;
+        rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
+        ctx.stroke();
+    }
 
 }
 
