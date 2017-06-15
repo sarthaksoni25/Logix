@@ -1366,6 +1366,97 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
     }
 }
 
+function loadBitSelector(data, scope) {
+
+    var v = new BitSelector(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["selectorBitWidth"]);
+    v.inp1 = replace(v.inp1, data["inp1"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    v.bitSelectorInp = replace(v.bitSelectorInp, data["bitSelectorInp"]);
+    // v.label = data["label"];
+}
+
+function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=undefined) {
+
+    this.scope = scope;
+    this.id = 'output' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.direction = dir;
+    this.prevDir = dir;
+    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    this.selectorBitWidth = selectorBitWidth || parseInt(prompt("Enter Selector bitWidth"), 10);
+
+    this.element = new Element(x, y, "output", 20, this);
+    this.nodeList = [];
+    this.inp1 = new Node(-20, 0, 0, this,this.bitWidth);
+    this.output1 = new Node(20, 0, 1, this,1);
+    this.bitSelectorInp = new Node(0, 20, 0, this,this.selectorBitWidth);
+    this.scope.bitSelectors.push(this);
+
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            inp1: scope.allNodes.indexOf(this.inp1),
+            output1: scope.allNodes.indexOf(this.output1),
+            bitSelectorInp: scope.allNodes.indexOf(this.bitSelectorInp),
+            // : scope.allNodes.indexOf(this.output1),
+            dir: this.direction,
+            bitWidth: this.bitWidth,
+            selectorBitWidth: this.selectorBitWidth,
+            // label: this.label,
+        }
+        return data;
+    }
+
+    this.newBitWidth = function(bitWidth) {
+        this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+            this.inp1.bitWidth = bitWidth;
+    }
+
+
+    this.resolve = function() {
+        this.output1.value=extractBits(this.inp1.value, this.bitSelectorInp.value+1, this.bitSelectorInp.value+1);//(this.inp1.value^(1<<this.bitSelectorInp.value))==(1<<this.bitSelectorInp.value);
+        this.scope.stack.push(this.output1);
+
+    }
+
+    this.isResolvable = function() {
+        return this.inp1.value != undefined&&this.bitSelectorInp.value!=undefined;
+    }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.beginPath();
+        ctx.strokeStyle = ["blue", "red"][(this.state === undefined) + 0];
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3;
+        var xx = this.element.x;
+        var yy = this.element.y;
+        rect(ctx, xx - 20, yy - 20, 40, 40);
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.font = "20px Georgia";
+        ctx.fillStyle = "green";
+        ctx.textAlign = "center";
+        if (this.bitSelectorInp.value === undefined)
+            var bit = 'x';
+        else
+            var bit = this.bitSelectorInp.value;
+
+        fillText(ctx, bit, xx, yy + 5);
+        ctx.stroke();
+
+    }
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        this.scope.bitSelectors.clean(this);
+    }
+}
+
+
 function newBitWidth(obj, bitWidth) {
     if (obj.newBitWidth !== undefined) {
         obj.newBitWidth(bitWidth);
