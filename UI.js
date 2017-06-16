@@ -65,8 +65,13 @@ function addSubCircuit() {
 function addSplitter() {
     var a = new Splitter(400, 400, globalScope, 'left');
 }
+
 function addBitSelector() {
     var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
+}
+
+function addConstantVal() {
+    var a = new ConstantVal(200, 150, globalScope, 'left');
 }
 
 
@@ -89,3 +94,4 @@ document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
+document.getElementById("constant_valButton").addEventListener("click", addConstantVal);
