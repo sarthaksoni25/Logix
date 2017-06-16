@@ -1489,7 +1489,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     this.bitWidth = bitWidth;
     this.nodeList = [];
     this.direction = dir;
-    this.state =  prompt("Enter value"), 10;
+    this.state =  prompt("Enter value");
     this.bitWidth = this.state.toString().length;
     this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
@@ -1514,10 +1514,13 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     this.isResolvable = function() {
         return true;
     }
-
     this.resolve = function() {
         this.output1.value = bin2dec(parseInt(this.state));
         this.scope.stack.push(this.output1);
+    }
+    this.dblclick = function() {
+        this.state =  prompt("Re enter the value");
+        this.bitWidth = this.state.toString().length;
     }
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
