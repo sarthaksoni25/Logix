@@ -104,7 +104,7 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         var xx = this.element.x;
         var yy = this.element.y;
@@ -114,7 +114,7 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
         lineTo(ctx, -20, 15, xx, yy, this.direction);
 
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -235,7 +235,7 @@ function TTY(x, y, scope, dir,rows,cols) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 255,1)";
+        ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         var xx = this.element.x;
         var yy = this.element.y;
@@ -245,8 +245,8 @@ function TTY(x, y, scope, dir,rows,cols) {
         lineTo(ctx, -this.elementWidth/2, this.elementHeight/2-5, xx, yy, this.direction);
 
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
+            ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.fill();
         ctx.stroke();
 
@@ -319,12 +319,12 @@ function Clock(x, y, scope, dir) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx, xx - 10, yy - 10, 20, 20);
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();

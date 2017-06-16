@@ -239,7 +239,7 @@ var simulationArea = {
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
         // this.interval = setInterval(update, 100);
-        this.ClockInterval = setInterval(clockTick, 200);
+        this.ClockInterval = setInterval(clockTick, 500);
         this.mouseDown = false;
         // this.shiftDown=false;
 

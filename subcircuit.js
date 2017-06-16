@@ -131,12 +131,13 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         ctx.beginPath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.5)";
+        ctx.fillStyle = "white";
         var xx = this.element.x;
         var yy = this.element.y;
         rect2(ctx, -this.width / 2, -this.height / 2, this.width, this.height, xx, yy, this.direction);
         ctx.closePath();
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+         ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
