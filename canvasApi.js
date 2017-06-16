@@ -196,3 +196,17 @@ function fillText2(ctx, str, x1, y1, xx, yy, dir) {
     // ctx.fillText(str, xx+x1+simulationArea.ox,yy+ y1+simulationArea.oy);
 
 }
+
+function fillText3(ctx, str, x1, y1, xx=0, yy=0, fontSize=14,font="Georgia",textAlign="center") {
+
+    x1 = x1 * simulationArea.scale;
+    y1 = y1 * simulationArea.scale;
+    xx = xx * simulationArea.scale;
+    yy = yy * simulationArea.scale;
+
+    ctx.font = fontSize * simulationArea.scale + "px "+font;
+    console.log(ctx.font);
+    ctx.textAlign=textAlign;
+    ctx.fillText(str,xx+ x1 + simulationArea.ox,yy+ y1 + simulationArea.oy);
+
+}
