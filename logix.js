@@ -92,6 +92,7 @@ function Scope(name = "localScope") {
     this.clocks = [];
     this.bitSelectors = [];
     this.flipflops = [];
+    this.TTYs = [];
     this.subCircuits = [];
     this.orGates = [];
     this.notGates = [];
@@ -102,7 +103,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 
 }
@@ -176,14 +177,6 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.flipflops.length; i++) {
         scope.stack.push(scope.flipflops[i]);
     }
-
-    for (var i = 0; i < scope.inputs.length; i++) {
-        scope.stack.push(scope.inputs[i]);
-    }
-    for (var i = 0; i < scope.constants.length; i++) {
-        scope.stack.push(scope.constants[i]);
-    }
-
     for (var i = 0; i < scope.clocks.length; i++) {
         scope.stack.push(scope.clocks[i]);
     }
@@ -193,10 +186,17 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.powers.length; i++) {
         scope.stack.push(scope.powers[i]);
     }
-
-    for (var i = 0; i < scope.outputs.length; i++) {
-        scope.stack.push(scope.outputs[i]);
+    for (var i = 0; i < scope.inputs.length; i++) {
+        scope.stack.push(scope.inputs[i]);
     }
+    for (var i = 0; i < scope.constants.length; i++) {
+        scope.stack.push(scope.constants[i]);
+    }
+
+
+    // for (var i = 0; i < scope.outputs.length; i++) {
+    //     scope.stack.push(scope.outputs[i]);
+    // }
     var stepCount=0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
@@ -239,7 +239,7 @@ var simulationArea = {
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
         // this.interval = setInterval(update, 100);
-        this.ClockInterval = setInterval(clockTick, 2000);
+        this.ClockInterval = setInterval(clockTick, 500);
         this.mouseDown = false;
         // this.shiftDown=false;
 
@@ -345,7 +345,7 @@ var simulationArea = {
             if(!simulationArea.shiftDown){
                 simulationArea.multipleObjectSelections=[];
             }
-            console.log(simulationArea.mouseDown, "mouseDOn");
+            // console.log(simulationArea.mouseDown, "mouseDOn");
         });
         window.addEventListener('mousedown', function(e) {
             // return;
@@ -372,10 +372,10 @@ var simulationArea = {
                     simulationArea.lock = "unlocked";
                 else
                     simulationArea.lock = "locked";
-                console.log("Double", simulationArea.lock);
+                // console.log("Double", simulationArea.lock);
             }
             // console.log(simulationArea.mouseDown);
-            console.log(simulationArea.mouseDown, "mouseDOn");
+            // console.log(simulationArea.mouseDown, "mouseDOn");
         });
 
         window.addEventListener('mouseup', function(e) {

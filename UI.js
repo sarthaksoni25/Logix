@@ -33,6 +33,9 @@ function addOutput() {
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
 }
+function addTTY() {
+    var a = new TTY(200, 150, globalScope, 'left');
+}
 
 function addMultiplexer() {
     var a = new Multiplexer(200, 150, globalScope, 'left');
@@ -89,6 +92,7 @@ document.getElementById("adderButton").addEventListener("click", addAdder);
 document.getElementById("ramButton").addEventListener("click", addRam);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
+document.getElementById("TTYButton").addEventListener("click", addTTY);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
 document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
