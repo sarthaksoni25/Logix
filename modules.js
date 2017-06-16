@@ -1471,10 +1471,149 @@ function newBitWidth(obj, bitWidth) {
 function saveasimg() {
     //window.open(simulationArea.canvas.toDataURL('image/png'));
     var gh = simulationArea.canvas.toDataURL('image/png');
-    var filename = filename || prompt("Enter imagename");
-    var anchor  = document.createElement('a');
-    anchor.href = gh;
-    anchor.download = filename+'.png';
-
+    var name = prompt("Enter imagename");
+    if(name!=null){
+        var filename = name;
+        var anchor  = document.createElement('a');
+        anchor.href = gh;
+        anchor.download = filename+'.png';
+    }
     anchor.click()
+}
+
+function loadConstantVal(data, scope) {
+
+    var v = new ConstantVal(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["state"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    // v.state = data["state"];
+    v.label = data["label"];
+
+}
+
+
+function ConstantVal(x, y, scope, dir, bitWidth = undefined,state=undefined) {
+    this.id = 'input' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.bitWidth = bitWidth;
+    this.nodeList = [];
+    this.direction = dir;
+    this.state = state||prompt("Enter value");
+    this.bitWidth = this.state.toString().length;
+    this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
+    this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
+    scope.constants.push(this);
+    this.wasClicked = false;
+    this.label = "";
+    this.setLabel = function() {
+        this.label = prompt("Enter Label:");
+    }
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            output1: findNode(this.output1),
+            dir: this.direction,
+            bitWidth: this.bitWidth,
+            label: this.label,
+            state: this.state,
+        }
+        return data;
+    }
+    this.isResolvable = function() {
+        return true;
+    }
+    this.resolve = function() {
+        this.output1.value = bin2dec(this.state);
+        this.scope.stack.push(this.output1);
+    }
+    this.dblclick = function() {
+        this.state =  prompt("Re enter the value");
+        console.log(this.state);
+        this.newBitWidth(this.state.toString().length);
+        console.log(this.state,this.bitWidth);
+    }
+    this.newBitWidth = function(bitWidth) {
+        this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
+        this.output1.bitWidth = bitWidth;
+        this.element.b.width = 10 * this.bitWidth;
+        if (this.direction == "left") {
+            this.output1.x = 10 * this.bitWidth;
+            this.output1.leftx = 10 * this.bitWidth;
+        } else if (this.direction == "right") {
+            this.output1.x = -10 * this.bitWidth;
+            this.output1.leftx = 10 * this.bitWidth;
+        }
+    }
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.beginPath();
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.fillStyle = "rgb(255,255,150)";
+        ctx.lineWidth = 0.5;
+        var xx = this.element.x;
+        var yy = this.element.y;
+
+        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.fillStyle = "green";
+        ctx.textAlign = "center";
+        var bin = this.state;//dec2bin(this.state,this.bitWidth);
+        for (var k = 0; k < this.bitWidth; k++)
+            fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
+        ctx.fill();
+
+        if (this.direction == "left") {
+            ctx.beginPath();
+            ctx.textAlign = "right";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
+            ctx.fill();
+        } else if (this.direction == "right") {
+            ctx.beginPath();
+            ctx.textAlign = "left";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
+            ctx.fill();
+        } else if (this.direction == "up") {
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
+            ctx.fill();
+        } else if (this.direction == "down") {
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.fillStyle = "black";
+            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
+            ctx.fill();
+        }
+
+    }
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        scope.constants.clean(this);
+
+    }
+    this.newDirection = function(dir) {
+        if (dir == this.direction) return;
+        this.output1.refresh();
+        if (dir == "left" || dir == "right") {
+            this.output1.leftx = 10 * this.bitWidth;
+            this.output1.lefty = 0;
+        } else {
+            this.output1.leftx = 10; //10*this.bitWidth;
+            this.output1.lefty = 0;
+        }
+        this.direction = dir;
+        this.output1.refresh();
+
+    }
+    // this.findPos = function() {
+    //     return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
+    // }
 }
