@@ -286,7 +286,7 @@ var simulationArea = {
                 }
             }
             //change direction fns
-            if (e.keyCode == 37 && simulationArea.lastSelecúed != undefined) {
+            if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'right');
             }
             if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
