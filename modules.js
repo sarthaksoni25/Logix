@@ -1471,17 +1471,18 @@ function newBitWidth(obj, bitWidth) {
 function saveasimg() {
     //window.open(simulationArea.canvas.toDataURL('image/png'));
     var gh = simulationArea.canvas.toDataURL('image/png');
-    var filename = filename || prompt("Enter imagename");
-    var anchor  = document.createElement('a');
-    anchor.href = gh;
-    anchor.download = filename+'.png';
-
+    var name = prompt("Enter imagename");
+    if(name!=null){
+        var filename = name;
+        var anchor  = document.createElement('a');
+        anchor.href = gh;
+        anchor.download = filename+'.png';
+    }
     anchor.click()
 }
 
 
 function Constant_val(x, y, scope, dir, bitWidth = undefined) {
-
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
@@ -1515,7 +1516,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     }
 
     this.resolve = function() {
-        this.output1.value = this.state;
+        this.output1.value = bin2dec(parseInt(this.state));
         this.scope.stack.push(this.output1);
     }
     this.newBitWidth = function(bitWidth) {
@@ -1536,8 +1537,8 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.lineWidth = 3;
+        ctx.fillStyle = "rgb(121, 198, 25)";
+        ctx.lineWidth = 0.5;
         var xx = this.element.x;
         var yy = this.element.y;
 
