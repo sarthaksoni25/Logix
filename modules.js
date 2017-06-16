@@ -1520,11 +1520,12 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     }
     this.dblclick = function() {
         this.state =  prompt("Re enter the value");
-        this.bitWidth = this.state.toString().length;
+        console.log(this.state);
+        this.newBitWidth(this.state.toString().length);
+        console.log(this.state,this.bitWidth);
     }
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
-        this.state = 0;
         this.output1.bitWidth = bitWidth;
         this.element.b.width = 10 * this.bitWidth;
         if (this.direction == "left") {
@@ -1540,7 +1541,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgb(121, 198, 25)";
+        ctx.fillStyle = "rgb(255,255,150)";
         ctx.lineWidth = 0.5;
         var xx = this.element.x;
         var yy = this.element.y;
