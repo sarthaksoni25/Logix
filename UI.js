@@ -70,8 +70,8 @@ function addBitSelector() {
     var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
 }
 
-function addConstant_val() {
-    var a = new Constant_val(200, 150, globalScope, 'left');
+function addConstantVal() {
+    var a = new ConstantVal(200, 150, globalScope, 'left');
 }
 
 
@@ -94,5 +94,4 @@ document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
-document.getElementById("constant_valButton").addEventListener("click", addConstant_val);
-
+document.getElementById("constant_valButton").addEventListener("click", addConstantVal);

@@ -1481,19 +1481,28 @@ function saveasimg() {
     anchor.click()
 }
 
+function loadConstantVal(data, scope) {
 
-function Constant_val(x, y, scope, dir, bitWidth = undefined) {
+    var v = new ConstantVal(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["state"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    // v.state = data["state"];
+    v.label = data["label"];
+
+}
+
+
+function ConstantVal(x, y, scope, dir, bitWidth = undefined,state=undefined) {
     this.id = 'input' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.bitWidth = bitWidth;
     this.nodeList = [];
     this.direction = dir;
-    this.state =  prompt("Enter value");
+    this.state = state||prompt("Enter value");
     this.bitWidth = this.state.toString().length;
     this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
-    scope.inputs.push(this);
+    scope.constants.push(this);
     this.wasClicked = false;
     this.label = "";
     this.setLabel = function() {
@@ -1515,7 +1524,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         return true;
     }
     this.resolve = function() {
-        this.output1.value = bin2dec(parseInt(this.state));
+        this.output1.value = bin2dec(this.state);
         this.scope.stack.push(this.output1);
     }
     this.dblclick = function() {
@@ -1553,7 +1562,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         ctx.beginPath();
         ctx.fillStyle = "green";
         ctx.textAlign = "center";
-        var bin = this.state;
+        var bin = this.state;//dec2bin(this.state,this.bitWidth);
         for (var k = 0; k < this.bitWidth; k++)
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
@@ -1587,7 +1596,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
     }
     this.delete = function() {
         simulationArea.lastSelected = undefined;
-        scope.inputs.clean(this);
+        scope.constants.clean(this);
 
     }
     this.newDirection = function(dir) {
@@ -1604,7 +1613,7 @@ function Constant_val(x, y, scope, dir, bitWidth = undefined) {
         this.output1.refresh();
 
     }
-    this.findPos = function() {
-        return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
-    }
+    // this.findPos = function() {
+    //     return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
+    // }
 }

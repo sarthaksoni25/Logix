@@ -83,6 +83,7 @@ function Scope(name = "localScope") {
     this.hexdis = [];
     this.adders = [];
     this.inputs = [];
+    this.constants = [];
     this.splitters = [];
     this.grounds = [];
     this.andGates = [];
@@ -101,7 +102,7 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs, this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 
 }
@@ -178,6 +179,9 @@ function play(scope = globalScope) {
 
     for (var i = 0; i < scope.inputs.length; i++) {
         scope.stack.push(scope.inputs[i]);
+    }
+    for (var i = 0; i < scope.constants.length; i++) {
+        scope.stack.push(scope.constants[i]);
     }
 
     for (var i = 0; i < scope.clocks.length; i++) {
