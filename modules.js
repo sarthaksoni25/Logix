@@ -96,7 +96,7 @@ function AndGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
         lineTo(ctx, -10, -20, xx, yy, this.direction);
         ctx.closePath();
 
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         //for debugging
@@ -189,7 +189,7 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
         rect2(ctx, -20, -5 * this.inputSize - 10, 40, 10 * this.inputSize + 10, xx, yy, this.direction);
         ctx.closePath();
 
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this) || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         //for debugging
@@ -282,7 +282,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         rect(ctx, xx - 30, yy - 50, 60, 100)
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
 
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         this.drawSegment(18, -3, 18, -38, ["grey", "red"][this.b.value]);
@@ -362,7 +362,7 @@ function HexDisplay(x, y, scope = globalScope) {
         rect(ctx, xx - 30, yy - 50, 60, 100)
         ctx.fillStyle = "rgba(100, 100, 100,0.5)";
 
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
         var a = b = c = d = e = f = g = 0;
         switch (this.inp.value) {
@@ -518,7 +518,7 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = 
         bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20, -10, +20, xx, yy, this.direction);
         bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
         ctx.closePath();
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         if (this.element.b.isHover())
@@ -586,7 +586,7 @@ function NotGate(x, y, scope, dir, bitWidth = undefined) {
         lineTo(ctx, 10, 0, xx, yy, this.direction);
         lineTo(ctx, -10, 10, xx, yy, this.direction);
         ctx.closePath();
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
         ctx.beginPath();
         arc(ctx, 15, 0, 5, 2 * (Math.PI), 0, xx, yy, this.direction);
@@ -669,7 +669,7 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
         lineTo(ctx, 10, 0, xx, yy, this.direction);
         lineTo(ctx, -10, 10, xx, yy, this.direction);
         ctx.closePath();
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
         if (this.element.b.isHover())
             console.log(this, this.id);
@@ -748,7 +748,7 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
         var yy = this.element.y;
         ctx.beginPath();
         rect(ctx, xx - 20, yy - 20, 40, 40);
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         if (this.element.b.isHover())
@@ -822,7 +822,7 @@ function Ram(x, y, scope, dir, data = undefined) {
         var yy = this.element.y;
         ctx.beginPath();
         rect(ctx, xx - 30, yy - 30, 60, 60);
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         if (this.element.b.isHover())
@@ -918,7 +918,7 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     this.draw = function() {
 
         ctx = simulationArea.context;
-        ctx.strokeStyle = ["black", "brown"][(this.element.b.hover || simulationArea.lastSelected == this) + 0];
+        ctx.strokeStyle = ["black", "brown"][((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
         ctx.lineWidth = 3;
 
         var xx = this.element.x;
@@ -1009,29 +1009,29 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
             this.output1.leftx = 10 * this.bitWidth;
         }
     }
-    this.toggleState = function() {
+    this.click = function() { // toggle
         var pos = this.findPos();
         if (pos == 0) pos = 1; // minor correction
         if (pos < 1 || pos > this.bitWidth) return;
         this.state ^= (1 << (this.bitWidth - pos));
     }
-    this.update = function() {
-        var updated = false;
-        updated |= this.output1.update();
-        updated |= this.element.update();
-
-        if (simulationArea.mouseDown == false)
-            this.wasClicked = false;
-
-        if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
-            if (this.element.b.clicked) {
-                this.wasClicked = true;
-                this.toggleState();
-            }
-        }
-        return updated;
-
-    }
+    // this.update = function() {
+    //     var updated = false;
+    //     updated |= this.output1.update();
+    //     updated |= this.element.update();
+    //
+    //     if (simulationArea.mouseDown == false)
+    //         this.wasClicked = false;
+    //
+    //     if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
+    //         if (this.element.b.clicked) {
+    //             this.wasClicked = true;
+    //             this.toggleState();
+    //         }
+    //     }
+    //     return updated;
+    //
+    // }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -1043,7 +1043,7 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
         var yy = this.element.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -1144,7 +1144,7 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
         ctx = simulationArea.context;
 
         ctx.beginPath();
-        ctx.strokeStyle = ["black", "brown"][(this.element.b.hover || simulationArea.lastSelected == this) + 0];
+        ctx.strokeStyle = ["black", "brown"][((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
         ctx.lineWidth = 3;
 
         var xx = this.element.x;
@@ -1216,7 +1216,7 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
         lineTo(ctx, -10, 10, xx, yy, this.direction);
         lineTo(ctx, 10, 10, xx, yy, this.direction);
         lineTo(ctx, 0, 0, xx, yy, this.direction);
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         moveTo(ctx, 0, 10, xx, yy, this.direction);
         lineTo(ctx, 0, 20, xx, yy, this.direction);
         ctx.stroke();
@@ -1303,7 +1303,7 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
         var yy = this.element.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -1365,6 +1365,97 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
 
     }
 }
+
+function loadBitSelector(data, scope) {
+
+    var v = new BitSelector(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["selectorBitWidth"]);
+    v.inp1 = replace(v.inp1, data["inp1"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    v.bitSelectorInp = replace(v.bitSelectorInp, data["bitSelectorInp"]);
+    // v.label = data["label"];
+}
+
+function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=undefined) {
+
+    this.scope = scope;
+    this.id = 'output' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.direction = dir;
+    this.prevDir = dir;
+    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    this.selectorBitWidth = selectorBitWidth || parseInt(prompt("Enter Selector bitWidth"), 10);
+
+    this.element = new Element(x, y, "output", 20, this);
+    this.nodeList = [];
+    this.inp1 = new Node(-20, 0, 0, this,this.bitWidth);
+    this.output1 = new Node(20, 0, 1, this,1);
+    this.bitSelectorInp = new Node(0, 20, 0, this,this.selectorBitWidth);
+    this.scope.bitSelectors.push(this);
+
+    this.saveObject = function() {
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            inp1: scope.allNodes.indexOf(this.inp1),
+            output1: scope.allNodes.indexOf(this.output1),
+            bitSelectorInp: scope.allNodes.indexOf(this.bitSelectorInp),
+            // : scope.allNodes.indexOf(this.output1),
+            dir: this.direction,
+            bitWidth: this.bitWidth,
+            selectorBitWidth: this.selectorBitWidth,
+            // label: this.label,
+        }
+        return data;
+    }
+
+    this.newBitWidth = function(bitWidth) {
+        this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+            this.inp1.bitWidth = bitWidth;
+    }
+
+
+    this.resolve = function() {
+        this.output1.value=extractBits(this.inp1.value, this.bitSelectorInp.value+1, this.bitSelectorInp.value+1);//(this.inp1.value^(1<<this.bitSelectorInp.value))==(1<<this.bitSelectorInp.value);
+        this.scope.stack.push(this.output1);
+
+    }
+
+    this.isResolvable = function() {
+        return this.inp1.value != undefined&&this.bitSelectorInp.value!=undefined;
+    }
+
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.beginPath();
+        ctx.strokeStyle = ["blue", "red"][(this.state === undefined) + 0];
+        ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.lineWidth = 3;
+        var xx = this.element.x;
+        var yy = this.element.y;
+        rect(ctx, xx - 20, yy - 20, 40, 40);
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.font = "20px Georgia";
+        ctx.fillStyle = "green";
+        ctx.textAlign = "center";
+        if (this.bitSelectorInp.value === undefined)
+            var bit = 'x';
+        else
+            var bit = this.bitSelectorInp.value;
+
+        fillText(ctx, bit, xx, yy + 5);
+        ctx.stroke();
+
+    }
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        this.scope.bitSelectors.clean(this);
+    }
+}
+
 
 function newBitWidth(obj, bitWidth) {
     if (obj.newBitWidth !== undefined) {

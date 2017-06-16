@@ -1,7 +1,9 @@
 function clockTick() {
     globalScope.clockTick();
+    play()
+    updateCanvas=true;
     toBeUpdated = true;
-    update();
+    scheduleUpdate();
 }
 
 function loadFlipFlop(data, scope) {
@@ -110,7 +112,7 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
         lineTo(ctx, -20, 15, xx, yy, this.direction);
 
 
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -163,28 +165,12 @@ function Clock(x, y, scope, dir) {
         this.scope.stack.push(this.output1);
     }
 
-    this.toggleState = function() {
+    this.toggleState = function() { //toggleState
         this.state = (this.state + 1) % 2;
         this.output1.value = this.state;
     }
-    this.update = function() {
-        var updated = false;
-        updated |= this.output1.update();
-        updated |= this.element.update();
+    this.click=this.toggleState;
 
-        if (simulationArea.mouseDown == false)
-            this.wasClicked = false;
-
-        if (simulationArea.mouseDown && !this.wasClicked && this.element.b.clicked) {
-            this.toggleState();
-            this.wasClicked = true;
-        }
-
-        if (this.element.b.hover)
-            console.log(this, this.id);
-        return updated;
-
-    }
     this.draw = function() {
 
         ctx = simulationArea.context;
@@ -195,7 +181,7 @@ function Clock(x, y, scope, dir) {
         var xx = this.element.x;
         var yy = this.element.y;
         rect(ctx, xx - 10, yy - 10, 20, 20);
-        if (this.element.b.hover || simulationArea.lastSelected == this) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();

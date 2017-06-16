@@ -7,6 +7,7 @@ function extract(obj) {
 function backUp(){
         var data={};
         data["inputs"] = globalScope.inputs.map(extract);
+        data["bitSelectors"] = globalScope.bitSelectors.map(extract);
         data["outputs"] = globalScope.outputs.map(extract);
         data["allNodes"] = globalScope.allNodes.map(extract);
         data["andGates"] = globalScope.andGates.map(extract);
@@ -60,6 +61,9 @@ function load(scope, data) {
         constructNodeConnections(scope.allNodes[i], data["allNodes"][i]);
     if (data["inputs"]) data["inputs"].map(function(x) {
         return loadInput(x, scope);
+    });
+    if (data["bitSelectors"]) data["bitSelectors"].map(function(x) {
+        return loadBitSelector(x, scope);
     });
     if (data["outputs"]) data["outputs"].map(function(x) {
         return loadOutput(x, scope);

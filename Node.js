@@ -51,6 +51,7 @@ function extractNode(x, scope, parent) {
 //input node=0
 //intermediate node =2
 function Node(x, y, type, parent, bitWidth = undefined) {
+    this.objectType="Node";
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
@@ -208,7 +209,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             drawCircle(ctx, this.absX(), this.absY(), 3, color);
         // }
 
-        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
+        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected&&!simulationArea.shiftDown)||simulationArea.multipleObjectSelections.contains(this)) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;
@@ -279,16 +280,35 @@ function Node(x, y, type, parent, bitWidth = undefined) {
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             simulationArea.selected = this.clicked = this.hover;
             updated |= this.clicked;
-            this.wasClicked |= this.clicked;
+            // this.wasClicked |= this.clicked;
             this.prev = 'a';
         } else if (!simulationArea.mouseDown) {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
             this.count = 0;
         }
+
+        if(this.clicked&&!this.wasClicked){
+            this.wasClicked=true;
+            if(this.type==2){
+                if(simulationArea.shiftDown){
+                    simulationArea.lastSelected=undefined;
+                    if(simulationArea.multipleObjectSelections.contains(this)){
+                        simulationArea.multipleObjectSelections.clean(this);
+                    }
+                    else {
+                        simulationArea.multipleObjectSelections.push(this);
+                    }
+                }
+                else{
+                    simulationArea.lastSelected = this;
+                }
+            }
+        }
+
         if (this.wasClicked && !this.clicked) {
             this.wasClicked = false;
-            if (simulationArea.mouseDownX == this.absX() && simulationArea.mouseDownY == this.absY()) {
+            if (simulationArea.mouseX == this.absX() && simulationArea.mouseY == this.absY()) {
                 this.nodeConnect();
                 return updated;
             }
@@ -359,6 +379,9 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             if (simulationArea.lastSelected == this) simulationArea.lastSelected = undefined;
         }
 
+
+
+
         if (this.type == 2) {
             if (this.connections.length == 2 && simulationArea.mouseDown == false) {
                 if ((this.connections[0].absX() == this.connections[1].absX()) || (this.connections[0].absY() == this.connections[1].absY())) {
@@ -374,7 +397,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
+        // if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
         return updated;
 
 
