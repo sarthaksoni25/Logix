@@ -4,6 +4,7 @@ var height;
 uniqueIdCounter = 0;
 unit = 10;
 toBeUpdated = true;
+updateCanvas = true;
 wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
 objectSelection=false;
@@ -18,14 +19,18 @@ function openInNewTab(url) {
     win.focus();
 }
 
-function scheduleUpdate() {
-    return;
+function scheduleUpdate(count=0) {
+    // return;
+    if(count){
+        for(var i=0;i<count;i++)
+            setTimeout(update, 10+50*i);
+    }
     if (willBeUpdated) return;
 
-    if (simulationArea.mouseDown)
+    // if (simulationArea.mouseDown)
         setTimeout(update, 100);
-    else
-        setTimeout(update, 200);
+    // else
+    //     setTimeout(update, 100);
     willBeUpdated = true;
 
 }
@@ -78,13 +83,17 @@ function Scope(name = "localScope") {
     this.hexdis = [];
     this.adders = [];
     this.inputs = [];
+    this.constants = [];
     this.splitters = [];
     this.grounds = [];
     this.andGates = [];
     this.multiplexers = [];
     this.sevenseg = [];
     this.clocks = [];
+    this.bitSelectors = [];
     this.flipflops = [];
+    this.TTYs = [];
+    this.keyboards = [];
     this.subCircuits = [];
     this.orGates = [];
     this.notGates = [];
@@ -95,7 +104,8 @@ function Scope(name = "localScope") {
     this.allNodes = [];
     this.wires = [];
     this.powers = [];
-    this.objects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
+    this.nandGates=[];
+    this.objects = [this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 
 }
@@ -122,6 +132,7 @@ function setup() {
                 data = JSON.parse(http.responseText);
                 console.log(data);
                 load(globalScope, data);
+                simulationArea.changeClockTime(data["timePeriod"]||500);
                 backups.push(backUp())
             }
         }
@@ -169,11 +180,6 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.flipflops.length; i++) {
         scope.stack.push(scope.flipflops[i]);
     }
-
-    for (var i = 0; i < scope.inputs.length; i++) {
-        scope.stack.push(scope.inputs[i]);
-    }
-
     for (var i = 0; i < scope.clocks.length; i++) {
         scope.stack.push(scope.clocks[i]);
     }
@@ -183,10 +189,17 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.powers.length; i++) {
         scope.stack.push(scope.powers[i]);
     }
-
-    for (var i = 0; i < scope.outputs.length; i++) {
-        scope.stack.push(scope.outputs[i]);
+    for (var i = 0; i < scope.inputs.length; i++) {
+        scope.stack.push(scope.inputs[i]);
     }
+    for (var i = 0; i < scope.constants.length; i++) {
+        scope.stack.push(scope.constants[i]);
+    }
+
+
+    // for (var i = 0; i < scope.outputs.length; i++) {
+    //     scope.stack.push(scope.outputs[i]);
+    // }
     var stepCount=0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
@@ -216,7 +229,7 @@ var simulationArea = {
     scale: 1,
     multipleObjectSelections:[],
     shiftDown:false,
-
+    timePeriod:500,
     clickCount: 0, //double click
     lock: "unlocked",
     timer: function() {
@@ -228,14 +241,16 @@ var simulationArea = {
         this.canvas.width = width;
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 100);
-        this.ClockInterval = setInterval(clockTick, 2000);
+        // this.interval = setInterval(update, 100);
+        this.ClockInterval = setInterval(clockTick, 500);
         this.mouseDown = false;
         // this.shiftDown=false;
 
         window.addEventListener('mousemove', function(e) {
             // return;
             scheduleUpdate();
+            // toBeUpdated=true;
+            updateCanvas=true;
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseRawX = (e.clientX - rect.left);
             simulationArea.mouseRawY = (e.clientY - rect.top);
@@ -244,16 +259,26 @@ var simulationArea = {
 
         });
         window.addEventListener('keyup', function(e) {
+            // update();
+            scheduleUpdate(1);
             if (e.keyCode == 16) {
                 // simulationArea.lastSelected.delete(); // delete key
                 simulationArea.shiftDown=false;
             }
         });
         window.addEventListener('keydown', function(e) {
-            scheduleUpdate();
+            scheduleUpdate(1);
+            updateCanvas=true;
             wireToBeChecked = 1;
             // e.preventDefault();
-           console.log("KEY:"+e.keyCode);
+        //    console.log("KEY:"+e.key);
+           if(simulationArea.lastSelected&&simulationArea.lastSelected.keyDown){
+               if(e.key.toString().length==1){
+               simulationArea.lastSelected.keyDown(e.key);
+               return;
+            }
+            if(e.key=="Shift")return;
+           }
             if (e.keyCode == 8 ) {
                 // simulationArea.lastSelected.delete(); // delete key
                 if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
@@ -271,7 +296,7 @@ var simulationArea = {
                 }
             }
             //change direction fns
-            if (e.keyCode == 37 && simulationArea.lastSelecúed != undefined) {
+            if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'right');
             }
             if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
@@ -323,19 +348,20 @@ var simulationArea = {
             // update();
         })
         window.addEventListener('dblclick', function(e) {
+            scheduleUpdate(1);
             if (simulationArea.lastSelected.dblclick !== undefined) {
                 simulationArea.lastSelected.dblclick();
             }
             if(!simulationArea.shiftDown){
                 simulationArea.multipleObjectSelections=[];
             }
-            console.log(simulationArea.mouseDown, "mouseDOn");
+            // console.log(simulationArea.mouseDown, "mouseDOn");
         });
         window.addEventListener('mousedown', function(e) {
             // return;
             scheduleBackup();
             update();
-            scheduleUpdate();
+            scheduleUpdate(1);
 
             simulationArea.lastSelected = undefined;
             simulationArea.selected = false;
@@ -356,17 +382,17 @@ var simulationArea = {
                     simulationArea.lock = "unlocked";
                 else
                     simulationArea.lock = "locked";
-                console.log("Double", simulationArea.lock);
+                // console.log("Double", simulationArea.lock);
             }
             // console.log(simulationArea.mouseDown);
-            console.log(simulationArea.mouseDown, "mouseDOn");
+            // console.log(simulationArea.mouseDown, "mouseDOn");
         });
 
         window.addEventListener('mouseup', function(e) {
 
             // return;
-            update();
-            scheduleUpdate();
+            // update();
+            scheduleUpdate(1);
             var rect = simulationArea.canvas.getBoundingClientRect();
             // simulationArea.mouseDownX = (e.clientX - rect.left) / simulationArea.scale;
             // simulationArea.mouseDownY = (e.clientY - rect.top) / simulationArea.scale;
@@ -425,6 +451,8 @@ var simulationArea = {
     },
     changeClockTime(t) {
         clearInterval(this.ClockInterval);
+        t=t||prompt("Enter Time Period:");
+        this.timePeriod=t;
         this.ClockInterval = setInterval(clockTick, t);
     },
     clear: function() {
@@ -456,7 +484,7 @@ function update() {
     toBeUpdated |= updated;
 
     if (toBeUpdated ) {
-        toBeUpdated = false;
+        // toBeUpdated = false;
         play();
     }
 
@@ -529,21 +557,23 @@ function update() {
     }
 
     //Draw
-    simulationArea.clear();
-
-    dots(); // draw dots
-    for (var i = 0; i < globalScope.objects.length; i++)
-        for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= drawObj(globalScope.objects[i][j]);
-    if(objectSelection){
-        ctx=simulationArea.context;
-        ctx.beginPath();
-        ctx.lineWidth=2;
-        ctx.strokeStyle="black"
-        rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
-        ctx.stroke();
+    if(toBeUpdated||updateCanvas){
+        simulationArea.clear();
+        dots(); // draw dots
+        for (var i = 0; i < globalScope.objects.length; i++)
+            for (var j = 0; j < globalScope.objects[i].length; j++)
+                updated |= drawObj(globalScope.objects[i][j]);
+        if(objectSelection){
+            ctx=simulationArea.context;
+            ctx.beginPath();
+            ctx.lineWidth=2;
+            ctx.strokeStyle="black"
+            rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
+            ctx.stroke();
+        }
     }
-
+    if(toBeUpdated)scheduleUpdate();
+    toBeUpdated=updateCanvas=false;
 }
 
 function sort2(a1,a2){
