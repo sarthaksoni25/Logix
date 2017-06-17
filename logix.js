@@ -1,5 +1,4 @@
 var width;
-
 var height;
 uniqueIdCounter = 0;
 unit = 10;
@@ -71,13 +70,13 @@ function Scope(name = "localScope") {
         element: new Element(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
         direction: 'left'
-    }
+    };
     this.clockTick = function() {
         for (var i = 0; i < this.clocks.length; i++)
             this.clocks[i].toggleState(); //tick clock!
         for (var i = 0; i < this.subCircuits.length; i++)
             this.subCircuits[i].localScope.clockTick(); //tick clock!
-    }
+    };
     this.name = name;
     this.stack = [];
     this.hexdis = [];
@@ -163,10 +162,8 @@ window.onresize = resetup;
 
 //for mobiles
 window.addEventListener('orientationchange', resetup);
-
 //Main fn that resolves circuit
 function play(scope = globalScope) {
-
     // console.log("simulation");
     if(loading==true)return;
 
@@ -232,11 +229,15 @@ var simulationArea = {
     timePeriod:500,
     clickCount: 0, //double click
     lock: "unlocked",
+    timePlot: 0,
     timer: function() {
         ckickTimer = setTimeout(function() {
             simulationArea.clickCount = 0;
         }, 600);
     },
+    Plot: setInterval(function(){
+      simulationArea.timePlot = simulationArea.timePlot+1;
+    },1),
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -299,20 +300,20 @@ var simulationArea = {
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'right');
             }
-            if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
-                if(backups.length==0)return;
-                var backupOx=simulationArea.ox;
-                var backupOy=simulationArea.oy;
-                simulationArea.ox=0;
-                simulationArea.oy=0;
-                globalScope=new Scope("globalScope");
-                loading=true;
-                load(globalScope,backups.pop());
-                console.log("UNDO");
-                loading=false;
-                simulationArea.ox=backupOx;
-                simulationArea.oy=backupOy;
-            }
+            // if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
+            //     if(backups.length==0)return;
+            //     var backupOx=simulationArea.ox;
+            //     var backupOy=simulationArea.oy;
+            //     simulationArea.ox=0;
+            //     simulationArea.oy=0;
+            //     globalScope=new Scope("globalScope");
+            //     loading=true;
+            //     load(globalScope,backups.pop());
+            //     console.log("UNDO");
+            //     loading=false;
+            //     simulationArea.ox=backupOx;
+            //     simulationArea.oy=backupOy;
+            // }
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'down');
@@ -346,6 +347,13 @@ var simulationArea = {
             }
             // console.log()
             // update();
+            if (e.keyCode == 80){
+              for(var i=0;i<globalScope.outputs.length;i++){
+                  globalScope.outputs[i].plotValue=[[0,globalScope.outputs[i].state]];
+                }
+              simulationArea.timePlot=0;
+            }
+
         })
         window.addEventListener('dblclick', function(e) {
             scheduleUpdate(1);

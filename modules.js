@@ -1368,7 +1368,7 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
     this.scope.outputs.push(this);
-
+    this.plotValue = [];
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -1399,7 +1399,11 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
         this.label = prompt("Enter Label:");
     }
     this.resolve = function() {
+      if(this.state!==this.inp1.value){
         this.state = this.inp1.value;
+        this.plotValue.push([simulationArea.timePlot,this.state]);
+      }
+
     }
 
     this.isResolvable = function() {
