@@ -128,28 +128,28 @@ function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
 
     //variable inputLength , node creation
     if (inputLength % 2 == 1) {
-        for (var i = 0; i < inputLength / 2 - 1; i++) {
-            var a = new Node(-10, -10 * (i + 1), 0, this);
-            this.inp.push(a);
-        }
-        var a = new Node(-10, 0, 0, this);
-        this.inp.push(a);
-        for (var i = inputLength / 2 + 1; i < inputLength; i++) {
-            var a = new Node(-10, 10 * (i + 1 - inputLength / 2 - 1), 0, this);
-            this.inp.push(a);
-        }
-    } else {
-        for (var i = 0; i < inputLength / 2; i++) {
-            var a = new Node(-10, -10 * (i + 1), 0, this);
-            this.inp.push(a);
-        }
-        for (var i = inputLength / 2; i < inputLength; i++) {
-            var a = new Node(-10, 10 * (i + 1 - inputLength / 2), 0, this);
-            this.inp.push(a);
-        }
-    }
+          for (var i = 0; i < inputLength / 2 - 1; i++) {
+              var a = new Node(-10, -10 * (i + 1), 0, this);
+              this.inp.push(a);
+          }
+          var a = new Node(-10, 0, 0, this);
+          this.inp.push(a);
+          for (var i = inputLength / 2 + 1; i < inputLength; i++) {
+              var a = new Node(-10, 10 * (i + 1 - inputLength / 2 - 1), 0, this);
+              this.inp.push(a);
+          }
+      } else {
+          for (var i = 0; i < inputLength / 2; i++) {
+              var a = new Node(-10, -10 * (i + 1), 0, this);
+              this.inp.push(a);
+          }
+          for (var i = inputLength / 2; i < inputLength; i++) {
+              var a = new Node(-10, 10 * (i + 1 - inputLength / 2), 0, this);
+              this.inp.push(a);
+          }
+      }
 
-    this.output1 = new Node(20, 0, 1, this);
+    this.output1 = new Node(30, 0, 1, this);
     scope.nandGates.push(this);
 
     //fn to create save Json Data of object
@@ -182,12 +182,7 @@ function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
         }
         for (var i = 1; i < inputLength; i++)
             result = result & (this.inp[i].value);
-        if(result==1){
-          result=0;
-        }
-        else{
-          result=1;
-        }
+        result = ((~result >>> 0) << (32 - this.bitWidth)) >>> (32 - this.bitWidth);
         // console.log("NAND %d\n",result);
         this.output1.value = result;
         this.scope.stack.push(this.output1);
