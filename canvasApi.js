@@ -205,7 +205,7 @@ function fillText3(ctx, str, x1, y1, xx=0, yy=0, fontSize=14,font="Georgia",text
     yy = yy * simulationArea.scale;
 
     ctx.font = fontSize * simulationArea.scale + "px "+font;
-    console.log(ctx.font);
+    // console.log(ctx.font);
     ctx.textAlign=textAlign;
     ctx.fillText(str,xx+ x1 + simulationArea.ox,yy+ y1 + simulationArea.oy);
 

@@ -268,7 +268,11 @@ var simulationArea = {
             updateCanvas=true;
             wireToBeChecked = 1;
             // e.preventDefault();
-           console.log("KEY:"+e.keyCode);
+           console.log("KEY:"+e.key);
+           if(simulationArea.lastSelected&&simulationArea.lastSelected.keyDown&&(e.key.toString()).length==1){
+               simulationArea.lastSelected.keyDown(e.key);
+               return;
+           }
             if (e.keyCode == 8 ) {
                 // simulationArea.lastSelected.delete(); // delete key
                 if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
