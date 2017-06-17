@@ -27,7 +27,7 @@ function backUp(){
         data["clocks"] = globalScope.clocks.map(extract);
         data["flipflops"] = globalScope.flipflops.map(extract);
         data["subCircuits"] = globalScope.subCircuits.map(extract);
-        data["NandGate"] = globalScope.nandGates.map(extract);
+        data["NandGates"] = globalScope.nandGates.map(extract);
         data["nodes"] = []
         for (var i = 0; i < globalScope.nodes.length; i++)
             data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
@@ -77,7 +77,7 @@ function load(scope, data) {
     if (data["outputs"]) data["outputs"].map(function(x) {
         return loadOutput(x, scope);
     });
-    if (data["NandGate"]) data["NandGate"].map(function(x) {
+    if (data["NandGates"]) data["NandGates"].map(function(x) {
         return loadNand(x, scope);
     });
     if (data["andGates"]) data["andGates"].map(function(x) {
