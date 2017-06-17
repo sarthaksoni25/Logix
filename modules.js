@@ -1624,6 +1624,9 @@ function loadNand(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
+=======
+
+>>>>>>> 97d73239ca9ecab364c1e07d426b5830fe638600
 function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
     this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
     this.scope = scope;
