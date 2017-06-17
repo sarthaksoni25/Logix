@@ -33,6 +33,9 @@ function addOutput() {
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
 }
+function addTTY() {
+    var a = new TTY(200, 150, globalScope, 'left');
+}
 
 function addMultiplexer() {
     var a = new Multiplexer(200, 150, globalScope, 'left');
@@ -65,8 +68,13 @@ function addSubCircuit() {
 function addSplitter() {
     var a = new Splitter(400, 400, globalScope, 'left');
 }
+
 function addBitSelector() {
     var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
+}
+
+function addConstantVal() {
+    var a = new ConstantVal(200, 150, globalScope, 'left');
 }
 
 
@@ -84,8 +92,10 @@ document.getElementById("adderButton").addEventListener("click", addAdder);
 document.getElementById("ramButton").addEventListener("click", addRam);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
+document.getElementById("TTYButton").addEventListener("click", addTTY);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
 document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
+document.getElementById("constant_valButton").addEventListener("click", addConstantVal);
