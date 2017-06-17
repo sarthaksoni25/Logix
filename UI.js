@@ -76,11 +76,9 @@ function addBitSelector() {
 function addConstantVal() {
     var a = new ConstantVal(200, 150, globalScope, 'left');
 }
-
 function addNand(){
     var a = new NandGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
 }
-
 
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);

@@ -77,6 +77,9 @@ function load(scope, data) {
     if (data["outputs"]) data["outputs"].map(function(x) {
         return loadOutput(x, scope);
     });
+    if (data["nandGates"]) data["nandGates"].map(function(x) {
+        return loadNand(x, scope);
+    });
     if (data["andGates"]) data["andGates"].map(function(x) {
         return loadAnd(x, scope);
     });
@@ -91,9 +94,6 @@ function load(scope, data) {
     });
     if (data["adders"]) data["adders"].map(function(x) {
         return loadAdder(x, scope);
-    });
-    if (data["nandGates"]) data["nandGates"].map(function(x) {
-        return loadNand(x, scope);
     });
     if (data["clocks"]) data["clocks"].map(function(x) {
         return loadClock(x, scope);
