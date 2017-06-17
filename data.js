@@ -9,6 +9,7 @@ function backUp(){
         data["inputs"] = globalScope.inputs.map(extract);
         data["constants"] = globalScope.constants.map(extract);
         data["TTYs"] = globalScope.TTYs.map(extract);
+        data["keyboards"] = globalScope.keyboards.map(extract);
         data["bitSelectors"] = globalScope.bitSelectors.map(extract);
         data["outputs"] = globalScope.outputs.map(extract);
         data["allNodes"] = globalScope.allNodes.map(extract);
@@ -38,6 +39,7 @@ function backUp(){
 function Save() {
     var data=backUp();
     data["title"]=prompt("EnterName:");
+    data["timePeriod"]=simulationArea.timePeriod;
 
     //covnvert to text
     data = JSON.stringify(data)
@@ -70,6 +72,9 @@ function load(scope, data) {
     });
     if (data["TTYs"]) data["TTYs"].map(function(x) {
         return loadTTY(x, scope);
+    });
+    if (data["keyboards"]) data["keyboards"].map(function(x) {
+        return loadKeyboard(x, scope);
     });
     if (data["bitSelectors"]) data["bitSelectors"].map(function(x) {
         return loadBitSelector(x, scope);

@@ -262,45 +262,46 @@ function TTY(x, y, scope, dir,rows,cols) {
     }
 }
 
+function loadKeyboard(data, scope) {
+    var v = new Keyboard(data["x"], data["y"], scope, data["dir"], data["bufferSize"]);
+    v.clockInp = replace(v.clockInp, data["clockInp"]);
+    v.asciiOutput = replace(v.asciiOutput, data["asciiOutput"]);
+    v.reset = replace(v.reset, data["reset"]);
+    v.en = replace(v.en, data["en"]);
+    v.available = replace(v.available, data["available"]);
+}
 
 function Keyboard(x, y, scope, dir,bufferSize) {
-    // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
     this.direction = dir;
     this.id = 'TTY' + uniqueIdCounter;
     uniqueIdCounter++;
     this.scope = scope;
     this.nodeList = [];
     this.bufferSize=bufferSize||parseInt(prompt("Enter buffer size:"));
-    // this.rows=rows||parseInt(prompt("Enter rows:"));
-
     this.elementWidth=Math.max(80,Math.ceil(this.bufferSize/2)*20);
     this.elementHeight=40;//Math.max(40,Math.ceil(this.rows*15/20)*20);
-    this.element = new Element(x, y, "TTY",this.elementWidth/2, this,this.elementHeight/2);
+    this.element = new Element(x, y, "Keyboard",this.elementWidth/2, this,this.elementHeight/2);
 
     this.clockInp = new Node(-this.elementWidth/2, this.elementHeight/2-10, 0, this, 1);
     this.asciiOutput = new Node(30, this.elementHeight/2, 1, this,7);
     this.available = new Node(10, this.elementHeight/2, 1, this,1);
-    // this.qOutput = new Node(20, -10, 1, this);
     this.reset = new Node(-10, this.elementHeight/2, 0, this, 1);
     this.en = new Node(-30, this.elementHeight/2, 0, this, 1);
-    // this.masterState = 0;
-    // this.slaveState = 0;
     this.prevClockState = 0;
-    scope.TTYs.push(this);
-    // this.data="";
+    scope.keyboards.push(this);
     this.buffer="";
     this.bufferOutValue=undefined;
-    this.newBitWidth = function(bitWidth) {
-
-    }
-    this.dblclick=function(){
-
-    }
+    // this.newBitWidth = function(bitWidth) {
+    //
+    // }
+    // this.dblclick=function(){
+    //
+    // }
     this.keyDown=function(key){
         this.buffer+=key;
         if(this.buffer.length>this.bufferSize)
             this.buffer=this.buffer.slice(1);
-        // console.log(this.buffer.length,this.bufferSize)
+        console.log(key)
 
     }
     this.isResolvable = function() {
@@ -315,28 +316,7 @@ function Keyboard(x, y, scope, dir,bufferSize) {
             return;
         }
         if (this.en.value == 0) {
-            // this.buffer="";
             return;
-        }
-
-        if (this.clockInp.value == this.prevClockState) {
-            if (this.clockInp.value == 0 ) {
-                // this.buffer = String.fromCharCode(this.asciiInp.value);
-            }
-        } else if (this.clockInp.value != undefined) {
-            if (this.clockInp.value == 1&&this.buffer.length) {
-                this.buffer=this.buffer.slice(1);
-            }
-            // else if (this.clockInp.value == 0 ) {
-            //     this.buffer = String.fromCharCode(this.asciiInp.value);
-            // }
-            this.prevClockState = this.clockInp.value;
-        }
-        if (this.buffer.length) {
-            this.bufferOutValue=this.buffer[0].charCodeAt(0);
-        }
-        else{
-            this.bufferOutValue=undefined;
         }
 
         if(this.bufferOutValue!==undefined&&this.available.value!=1){
@@ -347,6 +327,34 @@ function Keyboard(x, y, scope, dir,bufferSize) {
             this.available.value=0;//this.bufferOutValue;
             this.scope.stack.push(this.available);
         }
+
+        if (this.clockInp.value == this.prevClockState) {
+            if (this.clockInp.value == 0 ) {
+                if (this.buffer.length) {
+                    this.bufferOutValue=this.buffer[0].charCodeAt(0);
+                }
+                else{
+                    this.bufferOutValue=undefined;
+                }
+            }
+        } else if (this.clockInp.value != undefined) {
+
+            if (this.clockInp.value == 1&&this.buffer.length) {
+                if(this.bufferOutValue==this.buffer[0].charCodeAt(0)){// WHY IS THIS REQUIRED ??
+                    this.buffer=this.buffer.slice(1);
+                }
+            }
+            else{
+                if (this.buffer.length) {
+                    this.bufferOutValue=this.buffer[0].charCodeAt(0);
+                }
+                else{
+                    this.bufferOutValue=undefined;
+                }
+            }
+            this.prevClockState = this.clockInp.value;
+        }
+
         if(this.asciiOutput.value!=this.bufferOutValue){
             this.asciiOutput.value=this.bufferOutValue;
             this.scope.stack.push(this.asciiOutput);
@@ -364,8 +372,7 @@ function Keyboard(x, y, scope, dir,bufferSize) {
             en: findNode(this.en),
             dir: this.direction,
             bitWidth: this.bitWidth,
-            rows:this.rows,
-            cols:this.cols,
+            bufferSize:this.bufferSize,
         }
         return data;
     }
@@ -383,7 +390,6 @@ function Keyboard(x, y, scope, dir,bufferSize) {
         lineTo(ctx, 5-this.elementWidth/2, this.elementHeight/2-10, xx, yy, this.direction);
         lineTo(ctx, -this.elementWidth/2, this.elementHeight/2-5, xx, yy, this.direction);
 
-
         if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
             ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.fill();
@@ -392,19 +398,13 @@ function Keyboard(x, y, scope, dir,bufferSize) {
         ctx.beginPath();
         ctx.fillStyle = "green";
         ctx.textAlign = "center";
-        // var startY=-7.5*this.rows+3;
-        // for(var i=0;i<this.data.length;i+=this.cols){
-        //
-        //     var lineData=this.data.slice(i,i+this.cols);
-            var lineData=this.buffer+' '.repeat(this.bufferSize-this.buffer.length);
-            fillText3(ctx, lineData, 0,+5,xx,yy,fontSize=15,font="Courier New",textAlign="center");
-        // }
+        var lineData=this.buffer+' '.repeat(this.bufferSize-this.buffer.length);
+        fillText3(ctx, lineData, 0,+5,xx,yy,fontSize=15,font="Courier New",textAlign="center");
         ctx.stroke();
-
     }
     this.delete = function() {
         simulationArea.lastSelected = undefined;
-        scope.TTYs.clean(this);
+        scope.keyboards.clean(this);
 
     }
     this.newDirection=function(){

@@ -36,6 +36,9 @@ function addFlipflop() {
 function addTTY() {
     var a = new TTY(200, 150, globalScope, 'left');
 }
+function addKeyboard() {
+    var a = new Keyboard(200, 150, globalScope, 'left');
+}
 
 function addMultiplexer() {
     var a = new Multiplexer(200, 150, globalScope, 'left');
@@ -102,3 +105,4 @@ document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
 document.getElementById("constant_valButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
+document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
