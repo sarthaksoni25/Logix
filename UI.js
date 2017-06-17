@@ -103,6 +103,6 @@ document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
-document.getElementById("constant_valButton").addEventListener("click", addConstantVal);
+document.getElementById("constantValButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
