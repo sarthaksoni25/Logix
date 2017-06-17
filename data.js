@@ -27,6 +27,7 @@ function backUp(){
         data["clocks"] = globalScope.clocks.map(extract);
         data["flipflops"] = globalScope.flipflops.map(extract);
         data["subCircuits"] = globalScope.subCircuits.map(extract);
+        data["NandGate"] = globalScope.nandGates.map(extract);
         data["nodes"] = []
         for (var i = 0; i < globalScope.nodes.length; i++)
             data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
@@ -90,6 +91,9 @@ function load(scope, data) {
     });
     if (data["adders"]) data["adders"].map(function(x) {
         return loadAdder(x, scope);
+    });
+    if (data["nandGates"]) data["nandGates"].map(function(x) {
+        return loadNand(x, scope);
     });
     if (data["clocks"]) data["clocks"].map(function(x) {
         return loadClock(x, scope);
