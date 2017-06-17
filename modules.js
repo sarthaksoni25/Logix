@@ -196,7 +196,7 @@ function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
         ctx.beginPath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
-        ctx.fillStyle = "rgba(255, 255, 32,0.5)";
+        ctx.fillStyle = "white";
         var xx = this.element.x;
         var yy = this.element.y;
 
@@ -207,7 +207,8 @@ function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
         lineTo(ctx, -10, -20, xx, yy, this.direction);
         ctx.closePath();
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fill();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.5)" ;
+        ctx.fill();
         ctx.stroke();
         ctx.beginPath();
         arc(ctx, 25, 0, 5, 0,  2 * (Math.PI), xx, yy, this.direction);

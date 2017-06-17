@@ -93,6 +93,7 @@ function Scope(name = "localScope") {
     this.bitSelectors = [];
     this.flipflops = [];
     this.TTYs = [];
+    this.keyboards = [];
     this.subCircuits = [];
     this.orGates = [];
     this.notGates = [];
@@ -104,7 +105,7 @@ function Scope(name = "localScope") {
     this.wires = [];
     this.powers = [];
     this.nandGates=[];
-    this.objects = [this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
+    this.objects = [this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 
 }
@@ -131,6 +132,7 @@ function setup() {
                 data = JSON.parse(http.responseText);
                 console.log(data);
                 load(globalScope, data);
+                simulationArea.changeClockTime(data["timePeriod"]);
                 backups.push(backUp())
             }
         }
@@ -227,7 +229,7 @@ var simulationArea = {
     scale: 1,
     multipleObjectSelections:[],
     shiftDown:false,
-
+    timePeriod:500,
     clickCount: 0, //double click
     lock: "unlocked",
     timer: function() {
@@ -269,7 +271,14 @@ var simulationArea = {
             updateCanvas=true;
             wireToBeChecked = 1;
             // e.preventDefault();
-           console.log("KEY:"+e.keyCode);
+        //    console.log("KEY:"+e.key);
+           if(simulationArea.lastSelected&&simulationArea.lastSelected.keyDown){
+               if(e.key.toString().length==1){
+               simulationArea.lastSelected.keyDown(e.key);
+               return;
+            }
+            if(e.key=="Shift")return;
+           }
             if (e.keyCode == 8 ) {
                 // simulationArea.lastSelected.delete(); // delete key
                 if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
@@ -442,6 +451,8 @@ var simulationArea = {
     },
     changeClockTime(t) {
         clearInterval(this.ClockInterval);
+        t=t||prompt("Enter Time Period:");
+        this.timePeriod=t;
         this.ClockInterval = setInterval(clockTick, t);
     },
     clear: function() {
