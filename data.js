@@ -77,7 +77,7 @@ function load(scope, data) {
     if (data["outputs"]) data["outputs"].map(function(x) {
         return loadOutput(x, scope);
     });
-    if (data["nandGates"]) data["nandGates"].map(function(x) {
+    if (data["NandGate"]) data["NandGate"].map(function(x) {
         return loadNand(x, scope);
     });
     if (data["andGates"]) data["andGates"].map(function(x) {
