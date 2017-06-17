@@ -132,7 +132,7 @@ function setup() {
                 data = JSON.parse(http.responseText);
                 console.log(data);
                 load(globalScope, data);
-                simulationArea.changeClockTime(data["timePeriod"]);
+                simulationArea.changeClockTime(data["timePeriod"]||500);
                 backups.push(backUp())
             }
         }
