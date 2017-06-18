@@ -276,21 +276,9 @@ var simulationArea = {
            if(simulationArea.lastSelected&&simulationArea.lastSelected.keyDown){
                if(e.key.toString().length==1){
                simulationArea.lastSelected.keyDown(e.key);
-               returnreturn;
-           }
-            if (e.keyCode == 8 ) {
-                // simulationArea.lastSelected.delete(); // delete key
-                if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
-                for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
-                    deleteObj(simulationArea.multipleObjectSelections[i]);
-                    console.log("SD",simulationArea.multipleObjectSelections[i]);
-                }
+               return;
             }
-            if (e.keyCode == 16) {
-                // simulationArea.lastSelected.delete(); // delete key
-                simulationArea.shiftDown=true;
-                if(simulationArea.lastSelected){
-return;
+            if(e.key=="Shift")return;
            }
             if (e.keyCode == 8 ) {
                 // simulationArea.lastSelected.delete(); // delete key
@@ -325,33 +313,61 @@ return;
                 loading=false;
                 simulationArea.ox=backupOx;
                 simulationArea.oy=backupOy;
-            }            OrGa.mouseDownRawX = (e.clientX - rect.left);
             }
-            //change direction fns
-            if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'right');
-            }
-            if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
-                if(backups.length==0)return;
-                var backupOx=simulationArea.ox;
-                var backupOy=simulationArea.oy;
-                simulationArea.ox=0;
-                simulationArea.oy=0;
-                globalScope=new Scope("globalScope");
-                loading=true;
-                load(globalScope,backups.pop());
-                console.log("UNDO");
-                loading=false;
-                simulationArea.ox=backupOx;
-                simulationArea.oy=backupOy;
-            }            OrGa.mouseDownRawX = (e.clientX - rect.left);
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'down');
             }
             if (e.keyCode == 39 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'left');
-            OrGa.mouseDownRawX = (e.clientX - rect.left);
+            }
+            if (e.keyCode == 40 && simulationArea.lastSelected != undefined) {
+                newDirection(simulationArea.lastSelected, 'up');
+            }
+            if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
+                if (simulationArea.lastSelected.bitWidth !== undefined)
+                    newBitWidth(simulationArea.lastSelected, parseInt(prompt("Enter new bitWidth"), 10));
+            }
+            if ((e.keyCode == 67 || e.keyCode == 99)) {
+                simulationArea.changeClockTime(prompt("Enter Time:"));
+            }
+            if ((e.keyCode == 108 || e.keyCode == 76) && simulationArea.lastSelected != undefined) {
+                if (simulationArea.lastSelected.setLabel !== undefined)
+                    simulationArea.lastSelected.setLabel();
+            }
+
+            // zoom in (+)
+            if (e.keyCode == 187 && simulationArea.scale < 4) {
+                changeScale(.1);
+            }
+            // zoom out (-)
+            if (e.keyCode == 189 && simulationArea.scale > 0.5) {
+
+                changeScale(-.1);
+            }
+            // console.log()
+            // update();
+        })
+        window.addEventListener('dblclick', function(e) {
+            scheduleUpdate(1);
+            if (simulationArea.lastSelected.dblclick !== undefined) {
+                simulationArea.lastSelected.dblclick();
+            }
+            if(!simulationArea.shiftDown){
+                simulationArea.multipleObjectSelections=[];
+            }
+            // console.log(simulationArea.mouseDown, "mouseDOn");
+        });
+        window.addEventListener('mousedown', function(e) {
+            // return;
+            scheduleBackup();
+            update();
+            scheduleUpdate(1);
+
+            simulationArea.lastSelected = undefined;
+            simulationArea.selected = false;
+            var rect = simulationArea.canvas.getBoundingClientRect();
+            simulationArea.mouseDownRawX = (e.clientX - rect.left);
             simulationArea.mouseDownRawY = (e.clientY - rect.top);
             simulationArea.mouseDownX = Math.round(((simulationArea.mouseDownRawX - simulationArea.ox) / simulationArea.scale) / unit) * unit;
             simulationArea.mouseDownY = Math.round(((simulationArea.mouseDownRawY - simulationArea.oy) / simulationArea.scale) / unit) * unit;
