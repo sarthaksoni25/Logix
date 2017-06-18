@@ -18,6 +18,10 @@ function addNot() {
     var a = new NotGate(200, 150, globalScope, 'left');
 }
 
+function addNor() {
+    var a = new NorGate(200, 150, globalScope, prompt("No of inputs:"));
+}
+
 function addTriState() {
     var a = new TriState(200, 150, globalScope, 'left');
 }
@@ -106,3 +110,4 @@ document.getElementById("splitterButton").addEventListener("click", addSplitter)
 document.getElementById("constantValButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
+document.getElementById("norButton").addEventListener("click", addNor);

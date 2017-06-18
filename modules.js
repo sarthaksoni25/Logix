@@ -224,6 +224,8 @@ function NandGate(x, y, scope, inputLength, dir, bitWidth = undefined) {
         this.scope.nandGates.clean(this);
     }
 }
+
+
 function loadMultiplexer(data, scope) {
     var v = new Multiplexer(data["x"], data["y"], scope, data["dir"], data["bitWidth"], data["controlSignalSize"]);
     v.output1 = replace(v.output1, data["output1"]);
@@ -1731,4 +1733,107 @@ function ConstantVal(x, y, scope, dir, bitWidth = undefined,state=undefined) {
     // this.findPos = function() {
     //     return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
     // }
+}
+
+function loadNor(data, scope) {
+    var v = new NorGate(data["x"], data["y"], scope, data["inputs"], data["dir"], data["bitWidth"]);
+    v.output1 = replace(v.output1, data["output1"]);
+    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
+}
+
+function NorGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = undefined) {
+    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+
+    this.id = 'nor' + uniqueIdCounter;
+    uniqueIdCounter++;
+    this.scope = scope;
+    this.direction = dir;
+    this.element = new Element(x, y, "nor", 25, this);
+    this.nodeList = [];
+    this.inp = [];
+    this.inputs = inputs;
+    if (inputs % 2 == 1) {
+        for (var i = 0; i < inputs / 2 - 1; i++) {
+            var a = new Node(-10, -10 * (i + 1), 0, this);
+            this.inp.push(a);
+        }
+        var a = new Node(-10, 0, 0, this);
+        this.inp.push(a);
+        for (var i = inputs / 2 + 1; i < inputs; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputs / 2 - 1), 0, this);
+            this.inp.push(a);
+        }
+    } else {
+        for (var i = 0; i < inputs / 2; i++) {
+            var a = new Node(-10, -10 * (i + 1), 0, this);
+            this.inp.push(a);
+        }
+        for (var i = inputs / 2; i < inputs; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputs / 2), 0, this);
+            this.inp.push(a);
+        }
+    }
+    this.output1 = new Node(30, 0, 1, this);
+    scope.norGates.push(this);
+
+    this.saveObject = function() {
+        // console.log(this.scope.allNodes);
+        var data = {
+            x: this.element.x,
+            y: this.element.y,
+            inputs: this.inputs,
+            inp: this.inp.map(findNode),
+            output1: findNode(this.output1),
+            dir: this.direction,
+            bitWidth: this.bitWidth,
+        }
+        return data;
+    }
+    this.isResolvable = function() {
+
+        for (var i = 0; i < this.inputs; i++)
+            if (this.inp[i].value == undefined) return false;
+        return true;
+    }
+    this.resolve = function() {
+        var result = this.inp[0].value;
+        if (this.isResolvable() == false) {
+            return;
+        }
+        for (var i = 1; i < this.inputs; i++)
+            result = result | (this.inp[i].value);
+        result = ((~result >>> 0) << (32 - this.bitWidth)) >>> (32 - this.bitWidth);
+        this.output1.value=result
+        this.scope.stack.push(this.output1);
+    }
+    this.draw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.lineWidth = 3;
+
+        var xx = this.element.x;
+        var yy = this.element.y;
+        ctx.beginPath();
+        ctx.fillStyle = "white";
+
+        moveTo(ctx, -10, -20, xx, yy, this.direction);
+        bezierCurveTo(0, -20, +15, -10, 20, 0, xx, yy, this.direction);
+        bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20, -10, +20, xx, yy, this.direction);
+        bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
+        ctx.closePath();
+        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.5)" ;
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        arc(ctx, 25, 0, 5, 0,  2 * (Math.PI), xx, yy, this.direction);
+        ctx.stroke();
+        //for debugging
+        if (this.element.b.hover)
+            console.log(this, this.id);
+    }
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        scope.norGates.clean(this);
+    }
 }
