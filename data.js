@@ -132,6 +132,9 @@ function load(scope, data) {
     if (data["subCircuits"]) data["subCircuits"].map(function(x) {
         return loadSubCircuit(x, scope);
     });
+    if (data["norGates"]) data["norGates"].map(function(x) {
+        return loadNand(x, scope);
+    });
     scope.wires.map(function(x) {
         x.updateData()
     });
