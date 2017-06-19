@@ -300,20 +300,20 @@ var simulationArea = {
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'right');
             }
-            // if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
-            //     if(backups.length==0)return;
-            //     var backupOx=simulationArea.ox;
-            //     var backupOy=simulationArea.oy;
-            //     simulationArea.ox=0;
-            //     simulationArea.oy=0;
-            //     globalScope=new Scope("globalScope");
-            //     loading=true;
-            //     load(globalScope,backups.pop());
-            //     console.log("UNDO");
-            //     loading=false;
-            //     simulationArea.ox=backupOx;
-            //     simulationArea.oy=backupOy;
-            // }
+            if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
+                if(backups.length==0)return;
+                var backupOx=simulationArea.ox;
+                var backupOy=simulationArea.oy;
+                simulationArea.ox=0;
+                simulationArea.oy=0;
+                globalScope=new Scope("globalScope");
+                loading=true;
+                load(globalScope,backups.pop());
+                console.log("UNDO");
+                loading=false;
+                simulationArea.ox=backupOx;
+                simulationArea.oy=backupOy;
+            }
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
                 newDirection(simulationArea.lastSelected, 'down');
