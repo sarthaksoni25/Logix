@@ -82,7 +82,12 @@ function addConstantVal() {
 function addNand(){
     var a = new NandGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
 }
-
+function addXor() {
+    var or = new XorGate(200, 150, globalScope, prompt("No of inputs:"));
+}
+function addXnor() {
+    var or = new XnorGate(200, 150, globalScope, prompt("No of inputs:"));
+}
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);
 document.getElementById("groundButton").addEventListener("click", addGround);
@@ -105,4 +110,7 @@ document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
 document.getElementById("constantValButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
+
+document.getElementById("xorButton").addEventListener("click",addXor);
+document.getElementById("xnorButton").addEventListener("click",addXnor);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
