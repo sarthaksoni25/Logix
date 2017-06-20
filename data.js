@@ -142,7 +142,7 @@ function load(scope, data) {
 
     if (data["norGates"]) data["norGates"].map(function(x) {
         return loadNor(x, scope);
-
+    });
     if (data["XorGates"]) data["XorGates"].map(function(x) {
         return loadXor(x, scope);
     });
