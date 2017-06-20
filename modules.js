@@ -335,22 +335,22 @@ function XorGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth =
     this.inputs = inputs;
     if (inputs % 2 == 1) {
         for (var i = 0; i < inputs / 2 - 1; i++) {
-            var a = new Node(-18, -10 * (i + 1), 0, this);
+            var a = new Node(-20, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
-        var a = new Node(-18, 0, 0, this);
+        var a = new Node(-20, 0, 0, this);
         this.inp.push(a);
         for (var i = inputs / 2 + 1; i < inputs; i++) {
-            var a = new Node(-18, 10 * (i + 1 - inputs / 2 - 1), 0, this);
+            var a = new Node(-20, 10 * (i + 1 - inputs / 2 - 1), 0, this);
             this.inp.push(a);
         }
     } else {
         for (var i = 0; i < inputs / 2; i++) {
-            var a = new Node(-18, -10 * (i + 1), 0, this);
+            var a = new Node(-20, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
         for (var i = inputs / 2; i < inputs; i++) {
-            var a = new Node(-18, 10 * (i + 1 - inputs / 2), 0, this);
+            var a = new Node(-20, 10 * (i + 1 - inputs / 2), 0, this);
             this.inp.push(a);
         }
     }
@@ -434,22 +434,22 @@ function XnorGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth 
     this.inputs = inputs;
     if (inputs % 2 == 1) {
         for (var i = 0; i < inputs / 2 - 1; i++) {
-            var a = new Node(-18, -10 * (i + 1), 0, this);
+            var a = new Node(-20, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
-        var a = new Node(-18, 0, 0, this);
+        var a = new Node(-20, 0, 0, this);
         this.inp.push(a);
         for (var i = inputs / 2 + 1; i < inputs; i++) {
-            var a = new Node(-18, 10 * (i + 1 - inputs / 2 - 1), 0, this);
+            var a = new Node(-20, 10 * (i + 1 - inputs / 2 - 1), 0, this);
             this.inp.push(a);
         }
     } else {
         for (var i = 0; i < inputs / 2; i++) {
-            var a = new Node(-18, -10 * (i + 1), 0, this);
+            var a = new Node(-20, -10 * (i + 1), 0, this);
             this.inp.push(a);
         }
         for (var i = inputs / 2; i < inputs; i++) {
-            var a = new Node(-18, 10 * (i + 1 - inputs / 2), 0, this);
+            var a = new Node(-20, 10 * (i + 1 - inputs / 2), 0, this);
             this.inp.push(a);
         }
     }
