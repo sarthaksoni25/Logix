@@ -29,8 +29,10 @@ function backUp(){
         data["flipflops"] = globalScope.flipflops.map(extract);
         data["subCircuits"] = globalScope.subCircuits.map(extract);
         data["NandGates"] = globalScope.nandGates.map(extract);
+
         data["XorGates"]=globalScope.xorGates.map(extract);
         data["XnorGates"]=globalScope.xnorGates.map(extract);
+
         data["nodes"] = []
         for (var i = 0; i < globalScope.nodes.length; i++)
             data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));

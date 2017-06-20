@@ -110,6 +110,7 @@ document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
 document.getElementById("constantValButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
+
 document.getElementById("xorButton").addEventListener("click",addXor);
 document.getElementById("xnorButton").addEventListener("click",addXnor);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
