@@ -30,8 +30,12 @@ function backUp(){
         data["subCircuits"] = globalScope.subCircuits.map(extract);
         data["NandGates"] = globalScope.nandGates.map(extract);
 
+        data["norGates"] = globalScope.norGates.map(extract);
+
+
         data["XorGates"]=globalScope.xorGates.map(extract);
         data["XnorGates"]=globalScope.xnorGates.map(extract);
+
 
         data["nodes"] = []
         for (var i = 0; i < globalScope.nodes.length; i++)
@@ -135,11 +139,16 @@ function load(scope, data) {
     if (data["subCircuits"]) data["subCircuits"].map(function(x) {
         return loadSubCircuit(x, scope);
     });
+
+    if (data["norGates"]) data["norGates"].map(function(x) {
+        return loadNor(x, scope);
+
     if (data["XorGates"]) data["XorGates"].map(function(x) {
         return loadXor(x, scope);
     });
     if (data["XnorGates"]) data["XnorGates"].map(function(x) {
         return loadXnor(x, scope);
+
     });
     scope.wires.map(function(x) {
         x.updateData()
