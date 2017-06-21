@@ -613,12 +613,12 @@ function dots() {
 
 // The Circuit element class serves as the abstract class for all circuit elements.
 // Data Members: /* Insert Description */
-// Prototype Methods: 
+// Prototype Methods:
 //          - update: Used to update the state of object on mouse applicationCache
 //          - isHover: Used to check if mouse is hovering over object
-function CircuitElement(x, y, type, width, parent, height) {
+function CircuitElement(x, y, parent) {
     // Data member initializations
-    this.type = type;
+    this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
     this.x = x;
     this.y = y;
     this.parent = parent;
@@ -628,11 +628,15 @@ function CircuitElement(x, y, type, width, parent, height) {
     this.hover = false;
     this.oldx = x;
     this.oldy = y;
+    this.leftDimensionX=10;
+    this.rightDimensionX=10;
+    this.upDimensionY=10;
+    this.downDimensionY=10;
 
-    if (height === undefined)
-        this.height = width;
-    else
-        this.height = height;
+    this.setDimensions(width,height){
+        this.leftDimensionX=this.rightDimensionX=width;
+        this.downDimensionY=this.upDimensionY=height;
+    }
 
     // Method definitions
 
@@ -677,7 +681,9 @@ function CircuitElement(x, y, type, width, parent, height) {
         [width, height] = rotate(this.width, this.height, "left");
         width = Math.abs(width);
         height = Math.abs(height);
-        if (Math.abs(this.x - simulationArea.mouseX) <= width && Math.abs(this.y - simulationArea.mouseY) <= height) return true;
+        var mouseX=simulationArea.mouseX;
+        var mouseY=simulationArea.mouseY;
+        if (mouseX-this.x<=this.rightDimensionX&&this.x-mouseX<=this.leftDimensionX&&mouseY-this.y<=this.downDimensionY&&this.y-mouseY<=this.upDimensionY) return true;
 
         return false;
     };
