@@ -616,6 +616,8 @@ function dots() {
 // Prototype Methods:
 //          - update: Used to update the state of object on mouse applicationCache
 //          - isHover: Used to check if mouse is hovering over object
+
+
 function CircuitElement(x, y, parent,scope) {
     // Data member initializations
     this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
@@ -641,6 +643,11 @@ function CircuitElement(x, y, parent,scope) {
     this.orientationFixed=true;// should it be false?
 
 
+    /* Methods to be Implemented for derivedClass
+        customDraw(); //This is to draw the custom design of the circuit
+        saveObject(); //To generate JSON-safe data that can be loaded
+        resolve(); // To execute digital logic
+    */
 
     // Method definitions
 
@@ -656,7 +663,7 @@ function CircuitElement(x, y, parent,scope) {
 
     // The update method is used to change the parameters of the object on mouse click and hover.
     // Return Value: true if state has changed else false
-    //OVERRIDE WITH CAUTION
+    // NOT OVERIDABLE
     this.update = function() {
 
         var update=false;
@@ -732,7 +739,7 @@ function CircuitElement(x, y, parent,scope) {
     };
 
     //Method that draws the outline of the module and calls draw function on module Nodes.
-    //OVERRIDE WITH CAUTION
+    //NOT OVERIDABLE
     this.draw=function(){
 
         // Draws rectangle and highlighs
@@ -786,7 +793,24 @@ function CircuitElement(x, y, parent,scope) {
 
     }
 
+    //Method to check if object can be resolved
+    //OVERRIDE if necessary
+    this.isResolvable = function() {
+        for(var i=0;i<this.nodeList.length;i++)
+            if(this.nodeList.value==undefined)return false;
+        return true;
+    }
 
+    //Method to change object Bitwidth
+    //OVERRIDE if necessary
+    this.newBitWidth = function(bitWidth) {
+            if(this.bitWidth==undefined)return;
+            this.bitWidth = bitWidth;
+            for (var i = 0; i < this.nodeList.length; i++)
+                this.nodeList[i].bitWidth = bitWidth;
+
+        }
+    }
 }
 
 function distance(x1, y1, x2, y2) {
