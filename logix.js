@@ -648,6 +648,7 @@ function CircuitElement(x, y, parent,scope) {
     // and the reference point is at the center of the object.
     //width and height define the X and Y distance from the center.
     //Effectively HALF the actual width and height.
+    // NOT OVERIDABLE
     this.setDimensions(width,height){
         this.leftDimensionX=this.rightDimensionX=width;
         this.downDimensionY=this.upDimensionY=height;
@@ -655,6 +656,7 @@ function CircuitElement(x, y, parent,scope) {
 
     // The update method is used to change the parameters of the object on mouse click and hover.
     // Return Value: true if state has changed else false
+    //OVERRIDE WITH CAUTION
     this.update = function() {
 
         var update=false;
@@ -714,6 +716,7 @@ function CircuitElement(x, y, parent,scope) {
 
     // The isHover method is used to check if the mouse is hovering over the object.
     // Return Value: true if mouse is hovering over object else false
+    // NOT OVERIDABLE
     this.isHover = function() {
         // var width, height;
         //
@@ -729,6 +732,7 @@ function CircuitElement(x, y, parent,scope) {
     };
 
     //Method that draws the outline of the module and calls draw function on module Nodes.
+    //OVERRIDE WITH CAUTION
     this.draw=function(){
 
         // Draws rectangle and highlighs
@@ -746,12 +750,16 @@ function CircuitElement(x, y, parent,scope) {
                 console.log(this);
         }
 
+        // calls the custom circuit design
+        if(this.customDraw)this.customDraw();
 
         //draws nodes
         for (var i = 0; i < this.nodeList.length; i++)
             this.nodeList[i].draw();
     }
 
+    //method to delete object
+    //OVERRIDE WITH CAUTION
     this.delete = function() {
         simulationArea.lastSelected = undefined;
         this.scope[this.objectType].clean(this); // CHECK IF THIS IS VALID
@@ -760,6 +768,8 @@ function CircuitElement(x, y, parent,scope) {
         }
     }
 
+    //method to change direction
+    //OVERRIDE WITH CAUTION
     this.newDirection=function(dir) {
         // Leave this for now
         if(this.directionFixed&&this.orientationFixed)return;
