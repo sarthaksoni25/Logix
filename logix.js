@@ -68,7 +68,7 @@ Array.prototype.contains = function(value) {
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
     this.root = {
-        element: new Element(simulationArea.ox, simulationArea.oy, "root"),
+        element: new CircuitElement(simulationArea.ox, simulationArea.oy, "root"),
         scope: this,
         direction: 'left'
     }
@@ -110,7 +110,6 @@ function Scope(name = "localScope") {
     this.xnorGates=[];
     this.objects = [this.norGates,this.xnorGates,this.xorGates,this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-
 }
 
 //fn to setup environment
@@ -612,53 +611,36 @@ function dots() {
 
 }
 
-function Element(x, y, type, width, parent, height = undefined) {
+// The Circuit element class serves as the abstract class for all circuit elements.
+// Data Members: /* Insert Description */
+// Prototype Methods: 
+//          - update: Used to update the state of object on mouse applicationCache
+//          - isHover: Used to check if mouse is hovering over object
+function CircuitElement(x, y, type, width, parent, height) {
+    // Data member initializations
     this.type = type;
     this.x = x;
     this.y = y;
-    if (height == undefined)
-        this.height = width;
-    else
-        this.height = height;
-    this.width = width;
-    this.b = new Button(x, y, this.width, this.height, parent);
-    this.isResolved = false;
-    this.update = function() {
-        var updated = false;
-        updated |= this.b.update();
-
-        if (this.b.clicked){
-            // if(simulationArea.shiftDown)simulationArea.multipleObjectSelections.push(parent);
-            // else
-            // simulationArea.lastSelected = parent;
-        }
-        this.x = this.b.x;
-        this.y = this.b.y;
-        return updated;
-    }
-
-    // this.draw = function() {
-    //     return this.b.draw();
-    // }
-}
-
-function Button(x, y, width, height, parent) {
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;
     this.parent = parent;
-    // this.radius = radius;
+    this.width = width;
+    this.isResolved = false;
     this.clicked = false;
     this.hover = false;
     this.oldx = x;
     this.oldy = y;
-    // this.draw = function() {
-    //
-    // }
-    this.update = function() {
 
+    if (height === undefined)
+        this.height = width;
+    else
+        this.height = height;
+
+    // Method definitions
+
+    // The update method is used to change the parameters of the object on mouse click and hover.
+    // Return Value: true if state has changed else false
+    CircuitElement.prototype.update = function() {
         if (!simulationArea.mouseDown) this.hover = false;
+
         if ((this.clicked || !simulationArea.hover) && this.isHover()) {
             this.hover = true;
             simulationArea.hover = true;
@@ -671,33 +653,36 @@ function Button(x, y, width, height, parent) {
             if (this.x == simulationArea.mouseX && this.y == simulationArea.mouseY) return false;
             this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
             this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
+
             return true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             this.oldx = this.x;
             this.oldy = this.y;
             simulationArea.selected = this.clicked = this.hover = this.hover;
+
             return this.clicked;
         } else {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
         }
 
-
-
         return false;
     }
-    this.isHover = function() {
-        // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
+
+    // The isHover method is used to check if the mouse is hovering over the object.
+    // Return Value: ture if mouse is hovering over object else false
+    CircuitElement.prototype.isHover = function() {
         var width, height;
-        // [width,height]=rotate(this.width,this.height,this.parent.direction);
+
         [width, height] = rotate(this.width, this.height, "left");
         width = Math.abs(width);
         height = Math.abs(height);
         if (Math.abs(this.x - simulationArea.mouseX) <= width && Math.abs(this.y - simulationArea.mouseY) <= height) return true;
+
         return false;
-    }
+    };
 }
-//
+
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
