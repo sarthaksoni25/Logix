@@ -616,7 +616,7 @@ function dots() {
 // Prototype Methods:
 //          - update: Used to update the state of object on mouse applicationCache
 //          - isHover: Used to check if mouse is hovering over object
-function CircuitElement(x, y, parent) {
+function CircuitElement(x, y, parent,scope) {
     // Data member initializations
     this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
     this.x = x;
@@ -632,17 +632,36 @@ function CircuitElement(x, y, parent) {
     this.rightDimensionX=10;
     this.upDimensionY=10;
     this.downDimensionY=10;
+    this.rectangleObject=false;
+    this.label="";
+    this.scope=scope;
+    this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
 
+    this.directionFixed=false;
+    this.orientationFixed=true;// should it be false?
+
+
+
+    // Method definitions
+
+    //This sets the width and height of the element if its rectangluar
+    // and the reference point is at the center of the object.
+    //width and height define the X and Y distance from the center.
+    //Effectively HALF the actual width and height.
     this.setDimensions(width,height){
         this.leftDimensionX=this.rightDimensionX=width;
         this.downDimensionY=this.upDimensionY=height;
     }
 
-    // Method definitions
-
     // The update method is used to change the parameters of the object on mouse click and hover.
     // Return Value: true if state has changed else false
-    CircuitElement.prototype.update = function() {
+    this.update = function() {
+
+        var update=false;
+        for (var i = 0; i < this.nodeList.length; i++) {
+            update |= this.nodeList[i].update();
+        }
+
         if (!simulationArea.mouseDown) this.hover = false;
 
         if ((this.clicked || !simulationArea.hover) && this.isHover()) {
@@ -658,35 +677,106 @@ function CircuitElement(x, y, parent) {
             this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
             this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
 
-            return true;
+            update|= true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             this.oldx = this.x;
             this.oldy = this.y;
             simulationArea.selected = this.clicked = this.hover = this.hover;
 
-            return this.clicked;
+            update|= this.clicked;
         } else {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
         }
 
-        return false;
+        if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
+            if (this.clicked) {
+                this.wasClicked = true;
+                if(this.click)this.click();
+                if(simulationArea.shiftDown){
+                    simulationArea.lastSelected=undefined;
+                    if(simulationArea.multipleObjectSelections.contains(this)){
+                        simulationArea.multipleObjectSelections.clean(this);
+                    }
+                    else {
+                        simulationArea.multipleObjectSelections.push(this);
+                    }
+                }
+                else{
+                    simulationArea.lastSelected = this;
+                }
+            }
+        }
+
+        return update;
     }
 
-    // The isHover method is used to check if the mouse is hovering over the object.
-    // Return Value: ture if mouse is hovering over object else false
-    CircuitElement.prototype.isHover = function() {
-        var width, height;
 
-        [width, height] = rotate(this.width, this.height, "left");
-        width = Math.abs(width);
-        height = Math.abs(height);
+    // The isHover method is used to check if the mouse is hovering over the object.
+    // Return Value: true if mouse is hovering over object else false
+    this.isHover = function() {
+        // var width, height;
+        //
+        // [width, height] = rotate(this.width, this.height, "left");
+        // width = Math.abs(width);
+        // height = Math.abs(height);
+
         var mouseX=simulationArea.mouseX;
         var mouseY=simulationArea.mouseY;
         if (mouseX-this.x<=this.rightDimensionX&&this.x-mouseX<=this.leftDimensionX&&mouseY-this.y<=this.downDimensionY&&this.y-mouseY<=this.upDimensionY) return true;
 
         return false;
     };
+
+    //Method that draws the outline of the module and calls draw function on module Nodes.
+    this.draw=function(){
+
+        // Draws rectangle and highlighs
+        if(this.rectangleObject){
+            ctx = simulationArea.context;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "white";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            rect(ctx, this.x - this.leftDimensionX, yy - this.upDimensionY, this.leftDimensionX+this.rightDimensionX, this.upDimensionY+this.downDimensionY);
+            if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+            ctx.fill();
+            ctx.stroke();
+            if (this.hover)
+                console.log(this);
+        }
+
+
+        //draws nodes
+        for (var i = 0; i < this.nodeList.length; i++)
+            this.nodeList[i].draw();
+    }
+
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        this.scope[this.objectType].clean(this); // CHECK IF THIS IS VALID
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].delete();
+        }
+    }
+
+    this.newDirection=function(dir) {
+        // Leave this for now
+        if(this.directionFixed&&this.orientationFixed)return;
+        else if(this.directionFixed){
+            this.newOrientation(dir);
+            return; // Should it return ?
+        }
+
+        // if (obj.direction == undefined) return;
+        obj.direction = dir;
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].refresh();
+        }
+
+    }
+
+
 }
 
 function distance(x1, y1, x2, y2) {
@@ -702,10 +792,9 @@ function deleteObj(obj) {
     obj.delete();
 }
 
-function updateObj(obj) {
+// function updateObj(obj) {
     var update = false;
     if (obj.update === undefined) {
-
 
         for (var i = 0; i < obj.nodeList.length; i++) {
             update |= obj.nodeList[i].update();
@@ -733,7 +822,9 @@ function updateObj(obj) {
                 }
             }
         }
-    } else {
+    }
+
+    else {
         update |= obj.update();
     }
     return update;
