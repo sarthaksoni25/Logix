@@ -64,6 +64,8 @@ Array.prototype.contains = function(value) {
     return this.indexOf(value) > -1
 };
 
+//Exact same name as object constructor
+moduleList=["Input","Output","NotGate"];
 //Scope object for each circuit level, globalScope for outer level
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
@@ -80,35 +82,40 @@ function Scope(name = "localScope") {
     }
     this.name = name;
     this.stack = [];
-    this.hexdis = [];
-    this.adders = [];
-    this.inputs = [];
-    this.constants = [];
-    this.splitters = [];
-    this.grounds = [];
-    this.andGates = [];
-    this.multiplexers = [];
-    this.sevenseg = [];
-    this.clocks = [];
-    this.bitSelectors = [];
-    this.flipflops = [];
-    this.TTYs = [];
-    this.keyboards = [];
-    this.subCircuits = [];
-    this.orGates = [];
-    this.notGates = [];
-    this.triStates = [];
-    this.rams = [];
-    this.outputs = [];
+
+    // this.hexdis = [];
+    // this.adders = [];
+    // this.inputs = [];
+    // this.constants = [];
+    // this.splitters = [];
+    // this.grounds = [];
+    // this.andGates = [];
+    // this.multiplexers = [];
+    // this.sevenseg = [];
+    // this.clocks = [];
+    // this.bitSelectors = [];
+    // this.flipflops = [];
+    // this.TTYs = [];
+    // this.keyboards = [];
+    // this.subCircuits = [];
+    // this.orGates = [];
+    // this.notGates = [];
+    // this.triStates = [];
+    // this.rams = [];
+    // this.outputs = [];
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
-    this.powers = [];
-    this.nandGates=[];
-    this.norGates=[];
-    this.xorGates=[];
-    this.xnorGates=[];
-    this.objects = [this.norGates,this.xnorGates,this.xorGates,this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
+    for(var i=0;i<moduleList.length;i++){
+        this[moduleList[i]]=[]
+    }
+    // this.powers = [];
+    // this.nandGates=[];
+    // this.norGates=[];
+    // this.xorGates=[];
+    // this.xnorGates=[];
+    this.objects=["wires",...moduleList,"nodes"];
+    // this.objects = [this.norGates,this.xnorGates,this.xorGates,this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
     // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 }
 
@@ -175,28 +182,28 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.allNodes.length; i++)
         scope.allNodes[i].reset();
 
-    for (var i = 0; i < scope.subCircuits.length; i++) {
-        if (scope.subCircuits[i].isResolvable())
-            scope.stack.push(scope.subCircuits[i]);
+    // for (var i = 0; i < scope.subCircuits.length; i++) {
+    //     if (scope.subCircuits[i].isResolvable())
+    //         scope.stack.push(scope.subCircuits[i]);
+    // }
+    // for (var i = 0; i < scope.flipflops.length; i++) {
+    //     scope.stack.push(scope.flipflops[i]);
+    // }
+    // for (var i = 0; i < scope.clocks.length; i++) {
+    //     scope.stack.push(scope.clocks[i]);
+    // }
+    // for (var i = 0; i < scope.grounds.length; i++) {
+    //     scope.stack.push(scope.grounds[i]);
+    // }
+    // for (var i = 0; i < scope.powers.length; i++) {
+    //     scope.stack.push(scope.powers[i]);
+    // }
+    for (var i = 0; i < scope.Input.length; i++) {
+        scope.stack.push(scope.Input[i]);
     }
-    for (var i = 0; i < scope.flipflops.length; i++) {
-        scope.stack.push(scope.flipflops[i]);
-    }
-    for (var i = 0; i < scope.clocks.length; i++) {
-        scope.stack.push(scope.clocks[i]);
-    }
-    for (var i = 0; i < scope.grounds.length; i++) {
-        scope.stack.push(scope.grounds[i]);
-    }
-    for (var i = 0; i < scope.powers.length; i++) {
-        scope.stack.push(scope.powers[i]);
-    }
-    for (var i = 0; i < scope.inputs.length; i++) {
-        scope.stack.push(scope.inputs[i]);
-    }
-    for (var i = 0; i < scope.constants.length; i++) {
-        scope.stack.push(scope.constants[i]);
-    }
+    // for (var i = 0; i < scope.constants.length; i++) {
+    //     scope.stack.push(scope.constants[i]);
+    // }
 
 
     // for (var i = 0; i < scope.outputs.length; i++) {
@@ -209,7 +216,7 @@ function play(scope = globalScope) {
         elem.resolve();
         stepCount++;
         if(stepCount>1000){
-            showError("Simulation Stack limit exceeded: maybe due to cyclic paths");
+            showError("Simulation Stack limit exceeded: maybe due to cyclic paths or contention");
             return;
         }
     }
@@ -462,7 +469,8 @@ var simulationArea = {
     }
 }
 
-//fn to change scale (zoom) - It also shifts origin so that the position
+// fn that calls update on everything else. If any change is there, it resolves the circuit and draws it again
+// fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
 
@@ -578,11 +586,12 @@ function update() {
     toBeUpdated=updateCanvas=false;
 }
 
-function sort2(a1,a2){
-    if(a1<=a2)
-    return [a1,a2];
-    return [a2,a1];
-}
+// function sort2(a1,a2){
+//     if(a1<=a2)
+//     return [a1,a2];
+//     return [a2,a1];
+// }
+
 //fn to draw Dots on screen
 function dots() {
     var canvasWidth = simulationArea.canvas.width; //max X distance
@@ -814,6 +823,7 @@ function CircuitElement(x, y, parent,scope) {
 
         }
     }
+
     //Dummy resolve function
     //OVERRIDE if necessary
     this.resolve=function(){
@@ -826,15 +836,17 @@ function distance(x1, y1, x2, y2) {
 }
 
 function deleteObj(obj) {
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++) {
-            obj.nodeList[i].delete();
-        }
+    // if (obj.nodeList !== undefined)
+    //     for (var i = 0; i < obj.nodeList.length; i++) {
+    //         obj.nodeList[i].delete();
+    //     }
 
     obj.delete();
 }
 
-// function updateObj(obj) {
+function updateObj(obj) {
+
+    return obj.update();
     var update = false;
     if (obj.update === undefined) {
 
@@ -875,8 +887,8 @@ function deleteObj(obj) {
 function drawObj(obj) {
     obj.draw();
 
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++)
-            obj.nodeList[i].draw();
+    // if (obj.nodeList !== undefined)
+    //     for (var i = 0; i < obj.nodeList.length; i++)
+    //         obj.nodeList[i].draw();
 
 }
