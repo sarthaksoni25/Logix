@@ -758,8 +758,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth) {
     // Calling base class constructor
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     // Inherit base class prototype
-    Input.prototype = Object.create(CircuitElement.prototype);
-    Input.prototype.constructor = Input;
+    OrGate.prototype = Object.create(CircuitElement.prototype);
+    OrGate.prototype.constructor = OrGate;
 
     // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
     // this.id = 'or' + uniqueIdCounter;
@@ -1584,8 +1584,8 @@ function Output(x, y, scope, dir, bitWidth) {
     // Calling base class constructor
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     // Inherit base class prototype
-    Input.prototype = Object.create(CircuitElement.prototype);
-    Input.prototype.constructor = Input;
+    Output.prototype = Object.create(CircuitElement.prototype);
+    Output.prototype.constructor = Output;
 
     // this.scope = scope;
     // this.id = 'output' + uniqueIdCounter;
