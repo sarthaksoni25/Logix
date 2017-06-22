@@ -644,9 +644,12 @@ function CircuitElement(x, y, parent,scope) {
 
 
     /* Methods to be Implemented for derivedClass
-        customDraw(); //This is to draw the custom design of the circuit
         saveObject(); //To generate JSON-safe data that can be loaded
-        resolve(); // To execute digital logic
+        customDraw(); //This is to draw the custom design of the circuit(Optional)
+        resolve(); // To execute digital logic(Optional)
+        override isResolvable(); // custom logic for checking if module is ready
+        override newDirection(dir) //To implement custom direction logic(Optional)
+        newOrientation(dir) //To implement custom orientation logic(Optional)
     */
 
     // Method definitions
@@ -797,7 +800,7 @@ function CircuitElement(x, y, parent,scope) {
     //OVERRIDE if necessary
     this.isResolvable = function() {
         for(var i=0;i<this.nodeList.length;i++)
-            if(this.nodeList.value==undefined)return false;
+            if(this.nodeList[i].type==0&&his.nodeList[i].value==undefined)return false;
         return true;
     }
 
@@ -810,6 +813,11 @@ function CircuitElement(x, y, parent,scope) {
                 this.nodeList[i].bitWidth = bitWidth;
 
         }
+    }
+    //Dummy resolve function
+    //OVERRIDE if necessary
+    this.resolve=function(){
+
     }
 }
 
