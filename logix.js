@@ -67,6 +67,12 @@ Array.prototype.contains = function(value) {
 
 //Exact same name as object constructor
 moduleList=["Input","Output","NotGate"];
+
+//Exact same name as object constructor
+//All the combinational modules which give rise to an value(independently)
+inputList=["Input"];
+
+
 //Scope object for each circuit level, globalScope for outer level
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
@@ -198,8 +204,10 @@ function play(scope = globalScope) {
     // for (var i = 0; i < scope.powers.length; i++) {
     //     scope.stack.push(scope.powers[i]);
     // }
-    for (var i = 0; i < scope.Input.length; i++) {
-        scope.stack.push(scope.Input[i]);
+    for(var i=0;i<inputList.length;i++){
+        for (var j = 0; j < scope[inputList[i]].length; j++) {
+            scope.stack.push(scope[inputList[i]][j]);
+        }
     }
     // for (var i = 0; i < scope.constants.length; i++) {
     //     scope.stack.push(scope.constants[i]);
@@ -653,6 +661,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.direction = dir;
     this.directionFixed = false;
     this.orientationFixed = true;// should it be false?
+    this.fixedBitWidth=false;
 
 
     /* Methods to be Implemented for derivedClass
@@ -827,6 +836,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     //Method to change object Bitwidth
     //OVERRIDE if necessary
     this.newBitWidth = function(bitWidth) {
+        if(this.fixedBitWidth)return;
             if(this.bitWidth==undefined)return;
             this.bitWidth = bitWidth;
             for (var i = 0; i < this.nodeList.length; i++)

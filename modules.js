@@ -1338,7 +1338,7 @@ function Input(x, y, scope, dir, bitWidth) {
         this.setWidth(this.bitWidth*10);
         this.state = 0;
         this.output1.bitWidth = bitWidth;
-        this.element.b.width = 10 * this.bitWidth;
+        // this.element.b.width = 10 * this.bitWidth;
         if (this.direction == "left") {
             this.output1.x = 10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
