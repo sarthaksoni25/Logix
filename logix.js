@@ -627,7 +627,7 @@ function dots() {
 //          - isHover: Used to check if mouse is hovering over object
 
 
-function CircuitElement(x, y, parent,scope) {
+function CircuitElement(x, y, scope, dir, bitWidth) {
     // Data member initializations
     this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
     this.x = x;
@@ -639,17 +639,19 @@ function CircuitElement(x, y, parent,scope) {
     this.hover = false;
     this.oldx = x;
     this.oldy = y;
-    this.leftDimensionX=10;
-    this.rightDimensionX=10;
-    this.upDimensionY=10;
-    this.downDimensionY=10;
-    this.rectangleObject=false;
-    this.label="";
-    this.scope=scope;
+    this.leftDimensionX = 10;
+    this.rightDimensionX = 10;
+    this.upDimensionY = 10;
+    this.downDimensionY = 10;
+    this.rectangleObject = false;
+    this.label = "";
+    this.scope = scope;
     this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
+    this.bitWidth = this.bitWidth || parseInt(prompt("Enter bitWidth"), 10);
 
-    this.directionFixed=false;
-    this.orientationFixed=true;// should it be false?
+    this.direction = dir;
+    this.directionFixed = false;
+    this.orientationFixed = true;// should it be false?
 
 
     /* Methods to be Implemented for derivedClass
@@ -669,8 +671,8 @@ function CircuitElement(x, y, parent,scope) {
     //Effectively HALF the actual width and height.
     // NOT OVERIDABLE
     this.setDimensions(width,height){
-        this.leftDimensionX=this.rightDimensionX=width;
-        this.downDimensionY=this.upDimensionY=height;
+        this.leftDimensionX = this.rightDimensionX=width;
+        this.downDimensionY = this.upDimensionY=height;
     }
 
     // The update method is used to change the parameters of the object on mouse click and hover.
@@ -752,7 +754,7 @@ function CircuitElement(x, y, parent,scope) {
 
     //Method that draws the outline of the module and calls draw function on module Nodes.
     //NOT OVERIDABLE
-    this.draw=function(){
+    this.draw = function(){
 
         // Draws rectangle and highlighs
         if(this.rectangleObject){
@@ -789,7 +791,7 @@ function CircuitElement(x, y, parent,scope) {
 
     //method to change direction
     //OVERRIDE WITH CAUTION
-    this.newDirection=function(dir) {
+    this.newDirection = function(dir) {
         // Leave this for now
         if(this.directionFixed&&this.orientationFixed)return;
         else if(this.directionFixed){
@@ -826,7 +828,7 @@ function CircuitElement(x, y, parent,scope) {
 
     //Dummy resolve function
     //OVERRIDE if necessary
-    this.resolve=function(){
+    this.resolve = function(){
 
     }
 }

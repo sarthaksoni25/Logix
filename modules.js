@@ -754,17 +754,23 @@ function loadOr(data, scope) {
     for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 
-function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = undefined) {
-    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth) {
+    // Calling base class constructor
+    CircuitElement.call(this, x, y, scope, dir, bitWidth);
+    // Inherit base class prototype
+    Input.prototype = Object.create(CircuitElement.prototype);
+    Input.prototype.constructor = Input;
 
-    this.id = 'or' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.scope = scope;
-    this.direction = dir;
-    this.element = new Element(x, y, "or", 25, this);
+    // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    // this.id = 'or' + uniqueIdCounter;
+    // uniqueIdCounter++;
+    // this.scope = scope;
+    // this.direction = dir;
+    // this.element = new Element(x, y, "or", 25, this);
     this.nodeList = [];
     this.inp = [];
     this.inputs = inputs;
+
     if (inputs % 2 == 1) {
         for (var i = 0; i < inputs / 2 - 1; i++) {
             var a = new Node(-10, -10 * (i + 1), 0, this);
@@ -802,12 +808,14 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = 
         }
         return data;
     }
+
     this.isResolvable = function() {
 
         for (var i = 0; i < this.inputs; i++)
             if (this.inp[i].value == undefined) return false;
         return true;
     }
+
     this.resolve = function() {
         var result = this.inp[0].value;
         if (this.isResolvable() == false) {
@@ -818,7 +826,8 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = 
         this.output1.value = result;
         this.scope.stack.push(this.output1);
     }
-    this.draw = function() {
+
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
         ctx.strokeStyle = ("rgba(0,0,0,1)");
@@ -840,10 +849,11 @@ function OrGate(x, y, scope = globalScope, inputs = 2, dir = 'left', bitWidth = 
         if (this.element.b.isHover())
             console.log(this, this.id);
     }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.orGates.clean(this);
-    }
+
+    // this.delete = function() {
+    //     simulationArea.lastSelected = undefined;
+    //     scope.orGates.clean(this);
+    // }
 }
 
 function loadNot(data, scope) {
@@ -1266,32 +1276,39 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
 }
 
 function loadInput(data, scope) {
-
     var v = new Input(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
     v.output1 = replace(v.output1, data["output1"]);
     v.state = data["state"];
     v.label = data["label"];
-
 }
 
-function Input(x, y, scope, dir, bitWidth = undefined) {
+function Input(x, y, scope, dir, bitWidth) {
 
-    this.id = 'input' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.scope = scope;
-    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    // Call base class constructor
+    CircuitElement.call(this, x, y, scope, dir, bitWidth);
+    // Inherit base class prototype
+    Input.prototype = Object.create(CircuitElement.prototype);
+    Input.prototype.constructor = Input;
+
+    // this.id = 'input' + uniqueIdCounter;
+    // uniqueIdCounter++;
+    // this.scope = scope;
+    // this.bitWidth = this.bitWidth || parseInt(prompt("Enter bitWidth"), 10);
     this.nodeList = [];
-    this.direction = dir;
+    // this.direction = dir;
     this.state = 0;
-    this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
+    // this.element = new Element(x, y, "input", 10 * this.bitWidth, this, 10);
     this.state = bin2dec(this.state); // in integer format
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     scope.inputs.push(this);
     this.wasClicked = false;
-    this.label = "";
+    this.rectangleObject = true;    // Trying to make use of base class draw
+    // this.label = "";
+
     this.setLabel = function() {
         this.label = prompt("Enter Label:");
     }
+
     this.saveObject = function() {
         var data = {
             x: this.element.x,
@@ -1304,6 +1321,7 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
         }
         return data;
     }
+
     this.isResolvable = function() {
         return true;
     }
@@ -1312,6 +1330,8 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
         this.output1.value = this.state;
         this.scope.stack.push(this.output1);
     }
+
+    // Check if override is necessary!!
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
         this.state = 0;
@@ -1325,6 +1345,7 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
             this.output1.leftx = 10 * this.bitWidth;
         }
     }
+
     this.click = function() { // toggle
         var pos = this.findPos();
         if (pos == 0) pos = 1; // minor correction
@@ -1348,19 +1369,22 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
     //     return updated;
     //
     // }
-    this.draw = function() {
 
-        ctx = simulationArea.context;
-        ctx.beginPath();
-        ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 3;
-        var xx = this.element.x;
-        var yy = this.element.y;
+    // Not sure if its okay to remove commented code...VERIFY!
+    this.customDraw = function() {
 
-        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
-        ctx.stroke();
+        // ctx = simulationArea.context;
+        // ctx.beginPath();
+        // ctx.strokeStyle = ("rgba(0,0,0,1)");
+        // ctx.fillStyle = "white";
+        // ctx.lineWidth = 3;
+        // var xx = this.element.x;
+        // var yy = this.element.y;
+
+        // rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
+        // if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        // ctx.fill();
+        // ctx.stroke();
 
         ctx.beginPath();
         ctx.fillStyle = "green";
@@ -1395,13 +1419,14 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
             fillText(ctx, this.label, xx, yy + 5 + 25, 14);
             ctx.fill();
         }
-
     }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.inputs.clean(this);
 
-    }
+    // this.delete = function() {
+    //     simulationArea.lastSelected = undefined;
+    //     scope.inputs.clean(this);
+
+    // }
+
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
         this.output1.refresh();
@@ -1414,8 +1439,8 @@ function Input(x, y, scope, dir, bitWidth = undefined) {
         }
         this.direction = dir;
         this.output1.refresh();
-
     }
+    
     this.findPos = function() {
         return Math.round((simulationArea.mouseX - this.element.x + 10 * this.bitWidth) / 20.0);
     }
@@ -1550,22 +1575,26 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
 }
 
 function loadOutput(data, scope) {
-
     var v = new Output(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
     v.inp1 = replace(v.inp1, data["inp1"]);
     v.label = data["label"];
 }
 
-function Output(x, y, scope, dir, bitWidth = undefined) {
+function Output(x, y, scope, dir, bitWidth) {
+    // Calling base class constructor
+    CircuitElement.call(this, x, y, scope, dir, bitWidth);
+    // Inherit base class prototype
+    Input.prototype = Object.create(CircuitElement.prototype);
+    Input.prototype.constructor = Input;
 
-    this.scope = scope;
-    this.id = 'output' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.direction = dir;
-    this.prevDir = dir;
-    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    // this.scope = scope;
+    // this.id = 'output' + uniqueIdCounter;
+    // uniqueIdCounter++;
+    // this.direction = dir;
+    // this.prevDir = dir;
+    // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
 
-    this.element = new Element(x, y, "output", 10 * this.bitWidth, this, 10);
+    // this.element = new Element(x, y, "output", 10 * this.bitWidth, this, 10);
     this.nodeList = [];
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
@@ -1582,7 +1611,7 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
         }
         return data;
     }
-    this.label = "";
+
     this.newBitWidth = function(bitWidth) {
         // console.log(this.direction);
         this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
@@ -1597,9 +1626,11 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
             this.inp1.leftx = 10 * this.bitWidth;
         }
     }
+
     this.setLabel = function() {
         this.label = prompt("Enter Label:");
     }
+
     this.resolve = function() {
         this.state = this.inp1.value;
     }
@@ -1608,7 +1639,7 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
         return this.inp1.value != undefined;
     }
 
-    this.draw = function() {
+    this.CustomDraw = function() {
 
         ctx = simulationArea.context;
         ctx.beginPath();
@@ -1661,10 +1692,12 @@ function Output(x, y, scope, dir, bitWidth = undefined) {
             ctx.fill();
         }
     }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        this.scope.outputs.clean(this);
-    }
+
+    // this.delete = function() {
+    //     simulationArea.lastSelected = undefined;
+    //     this.scope.outputs.clean(this);
+    // }
+    
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
         this.inp1.refresh();
