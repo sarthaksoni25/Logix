@@ -10,6 +10,12 @@ willBeUpdated = false;
 objectSelection=false;
 var backups=[]
 loading=false
+//Exact same name as object constructor
+moduleList=["Input","Output","NotGate","OrGate","AndGate","NorGate","NandGate","XorGate","XnorGate","SevenSegDisplay","HexDisplay","Multiplexer","BitSelector","Splitter","Power","Ground","ConstantVal","TriState","Adder","Ram","FlipFlop","TTY","Keyboard","Clock","SubCircuit"];
+
+//Exact same name as object constructor
+//All the combinational modules which give rise to an value(independently)
+inputList=["Ground","Power","ConstantVal","Input","Clock"];
 
 function showError(error){
     console.log("ERROR: "+error);
@@ -35,6 +41,7 @@ function scheduleUpdate(count=0) {
 
 }
 function scheduleBackup() {
+    // return;
     // setTimeout(function(){
         var backup=backUp();
         // if(backups.length==0||backups[backups.length-1]!=backup){
@@ -64,53 +71,31 @@ Array.prototype.contains = function(value) {
     return this.indexOf(value) > -1
 };
 
+
+
+
 //Scope object for each circuit level, globalScope for outer level
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
-    this.root = {
-        element: new Element(simulationArea.ox, simulationArea.oy, "root"),
-        scope: this,
-        direction: 'left'
-    }
+    this.CircuitElement=[];
+    this.root = new CircuitElement(0,0,this,"left",1);
+
     this.clockTick = function() {
-        for (var i = 0; i < this.clocks.length; i++)
-            this.clocks[i].toggleState(); //tick clock!
-        for (var i = 0; i < this.subCircuits.length; i++)
-            this.subCircuits[i].localScope.clockTick(); //tick clock!
+        for (var i = 0; i < this.Clock.length; i++)
+            this.Clock[i].toggleState(); //tick clock!
+        // for (var i = 0; i < this.subCircuits.length; i++)
+        //     this.subCircuits[i].localScope.clockTick(); //tick clock!
     }
     this.name = name;
     this.stack = [];
-    this.hexdis = [];
-    this.adders = [];
-    this.inputs = [];
-    this.constants = [];
-    this.splitters = [];
-    this.grounds = [];
-    this.andGates = [];
-    this.multiplexers = [];
-    this.sevenseg = [];
-    this.clocks = [];
-    this.bitSelectors = [];
-    this.flipflops = [];
-    this.TTYs = [];
-    this.keyboards = [];
-    this.subCircuits = [];
-    this.orGates = [];
-    this.notGates = [];
-    this.triStates = [];
-    this.rams = [];
-    this.outputs = [];
+
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
-    this.powers = [];
-    this.nandGates=[];
-    this.norGates=[];
-    this.xorGates=[];
-    this.xnorGates=[];
-    this.objects = [this.norGates,this.xnorGates,this.xorGates,this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-    // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-
+    for(var i=0;i<moduleList.length;i++){
+        this[moduleList[i]]=[]
+    }
+    this.objects=["wires",...moduleList,"nodes"];
 }
 
 //fn to setup environment
@@ -168,49 +153,37 @@ window.onresize = resetup;
 window.addEventListener('orientationchange', resetup);
 
 //Main fn that resolves circuit
-function play(scope = globalScope) {
+function play(scope = globalScope,resetNodes=true) {
 
     // console.log("simulation");
     if(loading==true)return;
 
-    for (var i = 0; i < scope.allNodes.length; i++)
-        scope.allNodes[i].reset();
-
-    for (var i = 0; i < scope.subCircuits.length; i++) {
-        if (scope.subCircuits[i].isResolvable())
-            scope.stack.push(scope.subCircuits[i]);
+    if(resetNodes){
+        for (var i = 0; i < scope.allNodes.length; i++)
+            scope.allNodes[i].reset();
+        for (var i = 0; i < scope.SubCircuit.length; i++) {
+            scope.SubCircuit[i].resetNodes();
+        }
     }
-    for (var i = 0; i < scope.flipflops.length; i++) {
-        scope.stack.push(scope.flipflops[i]);
+    for (var i = 0; i < scope.SubCircuit.length; i++) {
+        if (scope.SubCircuit[i].isResolvable())
+            scope.stack.push(scope.SubCircuit[i]);
     }
-    for (var i = 0; i < scope.clocks.length; i++) {
-        scope.stack.push(scope.clocks[i]);
+    for (var i = 0; i < scope.FlipFlop.length; i++) {
+        scope.stack.push(scope.FlipFlop[i]);
     }
-    for (var i = 0; i < scope.grounds.length; i++) {
-        scope.stack.push(scope.grounds[i]);
+    for(var i=0;i<inputList.length;i++){
+        for (var j = 0; j < scope[inputList[i]].length; j++) {
+            scope.stack.push(scope[inputList[i]][j]);
+        }
     }
-    for (var i = 0; i < scope.powers.length; i++) {
-        scope.stack.push(scope.powers[i]);
-    }
-    for (var i = 0; i < scope.inputs.length; i++) {
-        scope.stack.push(scope.inputs[i]);
-    }
-    for (var i = 0; i < scope.constants.length; i++) {
-        scope.stack.push(scope.constants[i]);
-    }
-
-
-    // for (var i = 0; i < scope.outputs.length; i++) {
-    //     scope.stack.push(scope.outputs[i]);
-    // }
     var stepCount=0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
-        // console.log("DEBUG",elem);
         elem.resolve();
         stepCount++;
         if(stepCount>1000){
-            showError("Simulation Stack limit exceeded: maybe due to cyclic paths");
+            showError("Simulation Stack limit exceeded: maybe due to cyclic paths or contention");
             return;
         }
     }
@@ -240,6 +213,8 @@ var simulationArea = {
             simulationArea.clickCount = 0;
         }, 600);
     },
+
+
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -328,7 +303,7 @@ var simulationArea = {
             }
             if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
                 if (simulationArea.lastSelected.bitWidth !== undefined)
-                    newBitWidth(simulationArea.lastSelected, parseInt(prompt("Enter new bitWidth"), 10));
+                    simulationArea.lastSelected.newBitWidth(parseInt(prompt("Enter new bitWidth"), 10));
             }
             if ((e.keyCode == 67 || e.keyCode == 99)) {
                 simulationArea.changeClockTime(prompt("Enter Time:"));
@@ -463,7 +438,8 @@ var simulationArea = {
     }
 }
 
-//fn to change scale (zoom) - It also shifts origin so that the position
+// fn that calls update on everything else. If any change is there, it resolves the circuit and draws it again
+// fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
 
@@ -482,8 +458,8 @@ function update() {
     }
 
     for (var i = 0; i < globalScope.objects.length; i++)
-        for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= updateObj(globalScope.objects[i][j]);
+        for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
+            updated |= updateObj(globalScope[globalScope.objects[i]][j]);
     toBeUpdated |= updated;
 
     if (toBeUpdated ) {
@@ -536,8 +512,8 @@ function update() {
             }
             // console.log(x1,x2,y1,y2);
             for(var i=0;i<globalScope.objects.length;i++){
-                for(var j=0;j<globalScope.objects[i].length;j++){
-                    var obj=globalScope.objects[i][j];
+                for(var j=0;j<globalScope[globalScope.objects[i]].length;j++){
+                    var obj=globalScope[globalScope.objects[i]][j];
                     // console.log(obj);
                     var x,y;
                     if(obj.objectType=="Node"){
@@ -545,8 +521,8 @@ function update() {
                         y=obj.absY();
                     }
                     else if(obj.objectType!="Wire"){
-                        x=obj.element.x;
-                        y=obj.element.y;
+                        x=obj.x;
+                        y=obj.y;
                     }else{
                         // console.log(obj);
                         continue;
@@ -564,8 +540,8 @@ function update() {
         simulationArea.clear();
         dots(); // draw dots
         for (var i = 0; i < globalScope.objects.length; i++)
-            for (var j = 0; j < globalScope.objects[i].length; j++)
-                updated |= drawObj(globalScope.objects[i][j]);
+            for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
+                updated |= drawObj(globalScope[globalScope.objects[i]][j]);
         if(objectSelection){
             ctx=simulationArea.context;
             ctx.beginPath();
@@ -579,11 +555,12 @@ function update() {
     toBeUpdated=updateCanvas=false;
 }
 
-function sort2(a1,a2){
-    if(a1<=a2)
-    return [a1,a2];
-    return [a2,a1];
-}
+// function sort2(a1,a2){
+//     if(a1<=a2)
+//     return [a1,a2];
+//     return [a2,a1];
+// }
+
 //fn to draw Dots on screen
 function dots() {
     var canvasWidth = simulationArea.canvas.width; //max X distance
@@ -612,53 +589,101 @@ function dots() {
 
 }
 
-function Element(x, y, type, width, parent, height = undefined) {
-    this.type = type;
-    this.x = x;
-    this.y = y;
-    if (height == undefined)
-        this.height = width;
-    else
-        this.height = height;
-    this.width = width;
-    this.b = new Button(x, y, this.width, this.height, parent);
-    this.isResolved = false;
-    this.update = function() {
-        var updated = false;
-        updated |= this.b.update();
+// The Circuit element class serves as the abstract class for all circuit elements.
+// Data Members: /* Insert Description */
+// Prototype Methods:
+//          - update: Used to update the state of object on mouse applicationCache
+//          - isHover: Used to check if mouse is hovering over object
 
-        if (this.b.clicked){
-            // if(simulationArea.shiftDown)simulationArea.multipleObjectSelections.push(parent);
-            // else
-            // simulationArea.lastSelected = parent;
-        }
-        this.x = this.b.x;
-        this.y = this.b.y;
-        return updated;
-    }
 
-    // this.draw = function() {
-    //     return this.b.draw();
-    // }
-}
-
-function Button(x, y, width, height, parent) {
-    this.width = width;
-    this.height = height;
+function CircuitElement(x, y, scope, dir, bitWidth) {
+    // Data member initializations
+    this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
     this.x = x;
     this.y = y;
     this.parent = parent;
-    // this.radius = radius;
+    this.nodeList=[]
+    this.isResolved = false;
     this.clicked = false;
     this.hover = false;
     this.oldx = x;
     this.oldy = y;
-    // this.draw = function() {
-    //
-    // }
+    this.leftDimensionX = 10;
+    this.rightDimensionX = 10;
+    this.upDimensionY = 10;
+    this.downDimensionY = 10;
+    this.rectangleObject = true;
+    this.label = "";
+    this.scope = scope;
+    this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
+    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+
+    this.direction = dir;
+    this.directionFixed = false;
+    this.orientationFixed = true;// should it be false?
+    this.fixedBitWidth=false;
+
+
+    /* Methods to be Implemented for derivedClass
+        saveObject(); //To generate JSON-safe data that can be loaded
+        customDraw(); //This is to draw the custom design of the circuit(Optional)
+        resolve(); // To execute digital logic(Optional)
+        override isResolvable(); // custom logic for checking if module is ready
+        override newDirection(dir) //To implement custom direction logic(Optional)
+        newOrientation(dir) //To implement custom orientation logic(Optional)
+    */
+
+    // Method definitions
+
+    this.saveObject=function(){
+        var data={
+            x:this.x,
+            y:this.y,
+            objectType:this.objectType,
+            label:this.label,
+            direction:this.direction,
+            customData:this.customSave()
+        }
+        return data;
+
+    }
+    this.customSave=function() {
+        return {
+            values:{},
+            nodes:{},
+            constructorParamaters:[],
+        }
+    }
+
+    //This sets the width and height of the element if its rectangluar
+    // and the reference point is at the center of the object.
+    //width and height define the X and Y distance from the center.
+    //Effectively HALF the actual width and height.
+    // NOT OVERIDABLE
+    this.setDimensions=function(width,height){
+        this.leftDimensionX = this.rightDimensionX=width;
+        this.downDimensionY = this.upDimensionY=height;
+    }
+    this.setWidth=function(width){
+        this.leftDimensionX = this.rightDimensionX=width;
+    }
+    this.setHeight=function(height){
+        this.downDimensionY = this.upDimensionY=height;
+    }
+
+    // The update method is used to change the parameters of the object on mouse click and hover.
+    // Return Value: true if state has changed else false
+    // NOT OVERIDABLE
     this.update = function() {
 
+        var update=false;
+        // console.log(this.nodeList)
+        for (var i = 0; i < this.nodeList.length; i++) {
+            update |= this.nodeList[i].update();
+        }
+
         if (!simulationArea.mouseDown) this.hover = false;
+
         if ((this.clicked || !simulationArea.hover) && this.isHover()) {
             this.hover = true;
             simulationArea.hover = true;
@@ -671,50 +696,161 @@ function Button(x, y, width, height, parent) {
             if (this.x == simulationArea.mouseX && this.y == simulationArea.mouseY) return false;
             this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
             this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
-            return true;
+
+            update|= true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             this.oldx = this.x;
             this.oldy = this.y;
             simulationArea.selected = this.clicked = this.hover = this.hover;
-            return this.clicked;
+
+            update|= this.clicked;
         } else {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
+            this.wasClicked=false;
         }
 
+        if (simulationArea.mouseDown && !this.wasClicked) {
+            if (this.clicked) {
+                this.wasClicked = true;
+                if(this.click)this.click();
+                if(simulationArea.shiftDown){
+                    simulationArea.lastSelected=undefined;
+                    if(simulationArea.multipleObjectSelections.contains(this)){
+                        simulationArea.multipleObjectSelections.clean(this);
+                    }
+                    else {
+                        simulationArea.multipleObjectSelections.push(this);
+                    }
+                }
+                else{
+                    simulationArea.lastSelected = this;
+                }
+            }
+        }
 
+        // if (this.hover)
+        //     console.log(this);
 
-        return false;
+        return update;
     }
+
+
+    // The isHover method is used to check if the mouse is hovering over the object.
+    // Return Value: true if mouse is hovering over object else false
+    // NOT OVERIDABLE
     this.isHover = function() {
-        // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
-        var width, height;
-        // [width,height]=rotate(this.width,this.height,this.parent.direction);
-        [width, height] = rotate(this.width, this.height, "left");
-        width = Math.abs(width);
-        height = Math.abs(height);
-        if (Math.abs(this.x - simulationArea.mouseX) <= width && Math.abs(this.y - simulationArea.mouseY) <= height) return true;
+        // var width, height;
+        //
+        // [width, height] = rotate(this.width, this.height, "left");
+        // width = Math.abs(width);
+        // height = Math.abs(height);
+
+        var mouseX=simulationArea.mouseX;
+        var mouseY=simulationArea.mouseY;
+        if (mouseX-this.x<=this.rightDimensionX&&this.x-mouseX<=this.leftDimensionX&&mouseY-this.y<=this.downDimensionY&&this.y-mouseY<=this.upDimensionY) return true;
+
         return false;
+    };
+
+    //Method that draws the outline of the module and calls draw function on module Nodes.
+    //NOT OVERIDABLE
+    this.draw = function(){
+
+        // Draws rectangle and highlighs
+        if(this.rectangleObject){
+            ctx = simulationArea.context;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "white";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            rect(ctx, this.x - this.leftDimensionX, this.y - this.upDimensionY, this.leftDimensionX+this.rightDimensionX, this.upDimensionY+this.downDimensionY);
+            if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+            ctx.fill();
+            ctx.stroke();
+            // if (this.hover)
+            //     console.log(this);
+        }
+
+        // calls the custom circuit design
+        if(this.customDraw)this.customDraw();
+
+        //draws nodes
+        for (var i = 0; i < this.nodeList.length; i++)
+            this.nodeList[i].draw();
+    }
+
+    //method to delete object
+    //OVERRIDE WITH CAUTION
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        this.scope[this.objectType].clean(this); // CHECK IF THIS IS VALID
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].delete();
+        }
+    }
+
+    //method to change direction
+    //OVERRIDE WITH CAUTION
+    this.newDirection = function(dir) {
+        // Leave this for now
+        if(this.directionFixed&&this.orientationFixed)return;
+        else if(this.directionFixed){
+            this.newOrientation(dir);
+            return; // Should it return ?
+        }
+
+        // if (obj.direction == undefined) return;
+        this.direction = dir;
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].refresh();
+        }
+
+    }
+
+    //Method to check if object can be resolved
+    //OVERRIDE if necessary
+    this.isResolvable = function() {
+        for(var i=0;i<this.nodeList.length;i++)
+            if(this.nodeList[i].type==0&&this.nodeList[i].value==undefined)return false;
+        return true;
+    }
+
+    //Method to change object Bitwidth
+    //OVERRIDE if necessary
+    this.newBitWidth = function(bitWidth) {
+        if(this.fixedBitWidth)return;
+            if(this.bitWidth==undefined)return;
+            this.bitWidth = bitWidth;
+            for (var i = 0; i < this.nodeList.length; i++)
+                this.nodeList[i].bitWidth = bitWidth;
+    }
+
+    //Dummy resolve function
+    //OVERRIDE if necessary
+    this.resolve = function(){
+
     }
 }
-//
+
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
 
 function deleteObj(obj) {
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++) {
-            obj.nodeList[i].delete();
-        }
+    // if (obj.nodeList !== undefined)
+    //     for (var i = 0; i < obj.nodeList.length; i++) {
+    //         obj.nodeList[i].delete();
+    //     }
 
     obj.delete();
 }
 
 function updateObj(obj) {
+    // console.log(obj)
+    return obj.update();
     var update = false;
     if (obj.update === undefined) {
-
 
         for (var i = 0; i < obj.nodeList.length; i++) {
             update |= obj.nodeList[i].update();
@@ -742,17 +878,20 @@ function updateObj(obj) {
                 }
             }
         }
-    } else {
+    }
+
+    else {
         update |= obj.update();
     }
     return update;
 }
 
 function drawObj(obj) {
+    // console.log(obj);
     obj.draw();
 
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++)
-            obj.nodeList[i].draw();
+    // if (obj.nodeList !== undefined)
+    //     for (var i = 0; i < obj.nodeList.length; i++)
+    //         obj.nodeList[i].draw();
 
 }

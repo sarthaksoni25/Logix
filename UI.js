@@ -1,5 +1,5 @@
 function addAnd() {
-    var a = new AndGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
+    var a = new AndGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addPower() {
@@ -11,7 +11,7 @@ function addGround() {
 }
 
 function addOr() {
-    var or = new OrGate(200, 150, globalScope, prompt("No of inputs:"));
+    var or = new OrGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addNot() {
@@ -19,7 +19,7 @@ function addNot() {
 }
 
 function addNor() {
-    var a = new NorGate(200, 150, globalScope, prompt("No of inputs:"));
+    var a = new NorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addTriState() {
@@ -84,13 +84,13 @@ function addConstantVal() {
     var a = new ConstantVal(200, 150, globalScope, 'left');
 }
 function addNand(){
-    var a = new NandGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
+    var a = new NandGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 function addXor() {
-    var or = new XorGate(200, 150, globalScope, prompt("No of inputs:"));
+    var or = new XorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 function addXnor() {
-    var or = new XnorGate(200, 150, globalScope, prompt("No of inputs:"));
+    var or = new XnorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);
