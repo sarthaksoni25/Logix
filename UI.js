@@ -1,5 +1,5 @@
 function addAnd() {
-    var a = new AndGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
+    var a = new AndGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addPower() {

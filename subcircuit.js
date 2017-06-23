@@ -76,16 +76,16 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         this.width = 100;
         this.title = this.data["title"];
         this.localScope.name=this.title;
-        this.height = Math.max(this.localScope.inputs.length, this.localScope.outputs.length) * 20 + 30;
+        this.height = Math.max(this.localScope.Input.length, this.localScope.Output.length) * 20 + 30;
         this.setDimensions(this.width/2,this.height/2);
 
         if (this.savedData == undefined) {
-            for (var i = 0; i < this.localScope.inputs.length; i++) {
-                var a = new Node(-this.width / 2, -this.localScope.inputs.length * 10 + 20 * i + 10, 0, this, this.localScope.inputs[i].bitWidth);
+            for (var i = 0; i < this.localScope.Input.length; i++) {
+                var a = new Node(-this.width / 2, -this.localScope.Input.length * 10 + 20 * i + 10, 0, this, this.localScope.Input[i].bitWidth);
                 this.inputNodes.push(a);
             }
-            for (var i = 0; i < this.localScope.outputs.length; i++) {
-                var a = new Node(this.width / 2, -this.localScope.outputs.length * 10 + 20 * i + 10, 1, this, this.localScope.outputs[i].bitWidth);
+            for (var i = 0; i < this.localScope.Output.length; i++) {
+                var a = new Node(this.width / 2, -this.localScope.Output.length * 10 + 20 * i + 10, 1, this, this.localScope.Output[i].bitWidth);
                 this.outputNodes.push(a);
             }
         }
@@ -93,19 +93,19 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
     }
 
     this.resolve = function() {
-        for (i = 0; i < this.localScope.inputs.length; i++) {
-            this.localScope.inputs[i].state = this.inputNodes[i].value;
+        for (i = 0; i < this.localScope.Input.length; i++) {
+            this.localScope.Input[i].state = this.inputNodes[i].value;
         }
 
-        for (i = 0; i < this.localScope.inputs.length; i++) {
-            this.localScope.stack.push(this.localScope.inputs[i]);
+        for (i = 0; i < this.localScope.Input.length; i++) {
+            this.localScope.stack.push(this.localScope.Input[i]);
         }
         play(this.localScope);
 
-        for (i = 0; i < this.localScope.outputs.length; i++) {
-            this.outputNodes[i].value = this.localScope.outputs[i].state;
+        for (i = 0; i < this.localScope.Output.length; i++) {
+            this.outputNodes[i].value = this.localScope.Output[i].state;
         }
-        for (i = 0; i < this.localScope.outputs.length; i++) {
+        for (i = 0; i < this.localScope.Output.length; i++) {
             this.scope.stack.push(this.outputNodes[i]);
         }
 
@@ -130,12 +130,12 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
 
         ctx.textAlign = "left";
 
-        for (var i = 0; i < this.localScope.inputs.length; i++) {
-            fillText(ctx, this.localScope.inputs[i].label, -this.width / 2 + 5 + xx, yy - this.localScope.inputs.length * 10 + 20 * i + 10 + 5, 14);
+        for (var i = 0; i < this.localScope.Input.length; i++) {
+            fillText(ctx, this.localScope.Input[i].label, -this.width / 2 + 5 + xx, yy - this.localScope.Input.length * 10 + 20 * i + 10 + 5, 14);
         }
         ctx.textAlign = "right";
-        for (var i = 0; i < this.localScope.outputs.length; i++) {
-            fillText(ctx, this.localScope.outputs[i].label, this.width / 2 - 5 + xx, yy - this.localScope.outputs.length * 10 + 20 * i + 10 + 5, 14);
+        for (var i = 0; i < this.localScope.Output.length; i++) {
+            fillText(ctx, this.localScope.Output[i].label, this.width / 2 - 5 + xx, yy - this.localScope.Output.length * 10 + 20 * i + 10 + 5, 14);
         }
         ctx.fill();
 

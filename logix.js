@@ -614,7 +614,6 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.x = x;
     this.y = y;
     this.parent = parent;
-    // this.width = width;
     this.nodeList=[]
     this.isResolved = false;
     this.clicked = false;
@@ -628,7 +627,6 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.rectangleObject = true;
     this.label = "";
     this.scope = scope;
-    // console.log(this.scope);
     this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
     this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
 
@@ -704,7 +702,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             this.wasClicked=false;
         }
 
-        if (simulationArea.mouseDown && !this.wasClicked) { //&& this.element.b.clicked afterwards
+        if (simulationArea.mouseDown && !this.wasClicked) {
             if (this.clicked) {
                 this.wasClicked = true;
                 if(this.click)this.click();
@@ -806,7 +804,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     //OVERRIDE if necessary
     this.isResolvable = function() {
         for(var i=0;i<this.nodeList.length;i++)
-            if(this.nodeList[i].type==0&&his.nodeList[i].value==undefined)return false;
+            if(this.nodeList[i].type==0&&this.nodeList[i].value==undefined)return false;
         return true;
     }
 
