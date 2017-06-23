@@ -66,11 +66,11 @@ Array.prototype.contains = function(value) {
 };
 
 //Exact same name as object constructor
-moduleList=["Input","Output","NotGate"];
+moduleList=["Input","Output","NotGate","FlipFlop","TTY","Keyboard","Clock"];
 
 //Exact same name as object constructor
 //All the combinational modules which give rise to an value(independently)
-inputList=["Input"];
+inputList=["Input","Clock"];
 
 
 //Scope object for each circuit level, globalScope for outer level
@@ -80,10 +80,10 @@ function Scope(name = "localScope") {
     this.root = new CircuitElement(0,0,this,"left",1);
 
     this.clockTick = function() {
-        for (var i = 0; i < this.clocks.length; i++)
-            this.clocks[i].toggleState(); //tick clock!
-        for (var i = 0; i < this.subCircuits.length; i++)
-            this.subCircuits[i].localScope.clockTick(); //tick clock!
+        for (var i = 0; i < this.Clock.length; i++)
+            this.Clock[i].toggleState(); //tick clock!
+        // for (var i = 0; i < this.subCircuits.length; i++)
+        //     this.subCircuits[i].localScope.clockTick(); //tick clock!
     }
     this.name = name;
     this.stack = [];
@@ -192,9 +192,9 @@ function play(scope = globalScope) {
     //     if (scope.subCircuits[i].isResolvable())
     //         scope.stack.push(scope.subCircuits[i]);
     // }
-    // for (var i = 0; i < scope.flipflops.length; i++) {
-    //     scope.stack.push(scope.flipflops[i]);
-    // }
+    for (var i = 0; i < scope.FlipFlop.length; i++) {
+        scope.stack.push(scope.FlipFlop[i]);
+    }
     // for (var i = 0; i < scope.clocks.length; i++) {
     //     scope.stack.push(scope.clocks[i]);
     // }
@@ -259,7 +259,7 @@ var simulationArea = {
         this.canvas.height = height;
         this.context = this.canvas.getContext("2d");
         // this.interval = setInterval(update, 100);
-        // this.ClockInterval = setInterval(clockTick, 500);
+        this.ClockInterval = setInterval(clockTick, 500);
         this.mouseDown = false;
         // this.shiftDown=false;
 
@@ -652,7 +652,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.rightDimensionX = 10;
     this.upDimensionY = 10;
     this.downDimensionY = 10;
-    this.rectangleObject = false;
+    this.rectangleObject = true;
     this.label = "";
     this.scope = scope;
     this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
