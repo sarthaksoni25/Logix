@@ -53,12 +53,6 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
         return data;
     }
 
-    // checks if the module has enough information to resolve
-    this.isResolvable = function() {
-        for (var i = 0; i < inputLength; i++)
-            if (this.inp[i].value == undefined) return false;
-        return true;
-    }
 
     //resolve output values based on inputData
     this.resolve = function() {
@@ -154,14 +148,6 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
         return data;
     }
 
-    // checks if the module has enough information to resolve
-    this.isResolvable = function() {
-
-        for (var i = 0; i < inputLength; i++)
-            if (this.inp[i].value == undefined) return false;
-        return true;
-    }
-
     //resolve output values based on inputData
     this.resolve = function() {
         var result = this.inp[0].value;
@@ -204,7 +190,6 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
     }
 }
 
-
 function loadMultiplexer(data, scope) {
     var v = new Multiplexer(data["x"], data["y"], scope, data["dir"], data["bitWidth"], data["controlSignalSize"]);
     v.output1 = replace(v.output1, data["output1"]);
@@ -229,7 +214,6 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
         var a = new Node(-20, +10 * (i - this.inputSize / 2), 0, this);
         this.inp.push(a);
     }
-
 
     this.output1 = new Node(20, 0, 1, this);
     this.controlSignalInput = new Node(0, 5 * this.inputSize, 0, this, this.controlSignalSize);
@@ -313,12 +297,6 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
             bitWidth: this.bitWidth,
         }
         return data;
-    }
-    this.isResolvable = function() {
-
-        for (var i = 0; i < this.inputs; i++)
-            if (this.inp[i].value == undefined) return false;
-        return true;
     }
     this.resolve = function() {
         var result = this.inp[0].value;
@@ -455,7 +433,6 @@ function loadSevenSegmentDisplay(data, scope) {
 
 function SevenSegDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 1);
-    this.rectangleObject=false;
     this.fixedBitWidth=true;
     this.directionFixed=true;
     this.setDimensions(30,50);
@@ -529,7 +506,6 @@ function loadHexDisplay(data, scope) {
 
 function HexDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 4);
-    this.rectangleObject=false;
     this.directionFixed=true;
     this.fixedBitWidth=true;
     this.setDimensions(30,50);
@@ -567,14 +543,8 @@ function HexDisplay(x, y, scope = globalScope) {
         var xx = this.x;
         var yy = this.y;
 
-        ctx.beginPath();
         ctx.strokeStyle = "black";
         ctx.lineWidth = 3;
-        rect(ctx, xx - 30, yy - 50, 60, 100)
-        ctx.fillStyle = "white";
-
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(100, 100, 100,0.5)";ctx.fill();
-        ctx.stroke();
         var a = b = c = d = e = f = g = 0;
         switch (this.inp.value) {
             case 0:
@@ -818,10 +788,6 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
         this.bitWidth = bitWidth;
     }
 
-    this.isResolvable = function() {
-        return this.inp1.value != undefined && this.state.value !== undefined;
-    }
-
     this.resolve = function() {
         if (this.isResolvable() == false) {
             return;
@@ -909,21 +875,6 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
         this.scope.stack.push(this.sum);
     }
 
-    this.customDraw = function() {
-
-        ctx = simulationArea.context;
-        ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 3;
-        var xx = this.x;
-        var yy = this.y;
-        ctx.beginPath();
-        rect(ctx, xx - 20, yy - 20, 40, 40);
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
-        ctx.stroke();
-
-    }
-
 }
 
 function loadRam(data, scope) {
@@ -968,21 +919,6 @@ function Ram(x, y, scope, dir, data = undefined) {
         }
         this.dataOut.value = this.data[this.memAddr.value];
         this.scope.stack.push(this.dataOut);
-    }
-
-    this.customDraw = function() {
-
-        ctx = simulationArea.context;
-        ctx.strokeStyle = ("rgba(0,0,0,1)");
-        ctx.fillStyle = "white";
-        ctx.lineWidth = 3;
-        var xx = this.x;
-        var yy = this.y;
-        ctx.beginPath();
-        rect(ctx, xx - 30, yy - 30, 60, 60);
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
-        ctx.stroke();
-
     }
 
 }
@@ -1127,10 +1063,6 @@ function Input(x, y, scope, dir, bitWidth) {
         return data;
     }
 
-    this.isResolvable = function() {
-        return true;
-    }
-
     this.resolve = function() {
         this.output1.value = this.state;
         this.scope.stack.push(this.output1);
@@ -1229,7 +1161,6 @@ function loadGround(data, scope) {
     v.output1 = replace(v.output1, data["output1"]);
 }
 
-
 function Ground(x, y, scope = globalScope, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, "left", bitWidth);
     this.rectangleObject=false;
@@ -1288,17 +1219,10 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
     this.directionFixed=true;
     this.rectangleObject=false;
     this.setDimensions(15,15);
-
-    //this.id = 'power' + uniqueIdCounter;
-
-
-
-    //this.element new Element(x, y, "power", 15, this);
     this.output1 = new Node(0, 20, 1, this);
     this.output1.value = this.state;
     this.wasClicked = false;
     this.resolve = function() {
-
         this.output1.value = ~0 >>> (32 - this.bitWidth);
         this.scope.stack.push(this.output1);
     }
@@ -1331,10 +1255,6 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
         moveTo(ctx, 0, 10, xx, yy, this.direction);
         lineTo(ctx, 0, 20, xx, yy, this.direction);
         ctx.stroke();
-
-        // this.customDraw();
-        // this.output1.draw();
-
 
     }
 }
@@ -1388,10 +1308,6 @@ function Output(x, y, scope, dir, bitWidth) {
 
     this.resolve = function() {
         this.state = this.inp1.value;
-    }
-
-    this.isResolvable = function() {
-        return this.inp1.value != undefined;
     }
 
     this.customDraw = function() {
@@ -1478,7 +1394,7 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.setDimensions(20,20);
     this.selectorBitWidth = selectorBitWidth || parseInt(prompt("Enter Selector bitWidth"), 10);
-
+    this.rectangleObject=false;
     this.inp1 = new Node(-20, 0, 0, this,this.bitWidth);
     this.output1 = new Node(20, 0, 1, this,1);
     this.bitSelectorInp = new Node(0, 20, 0, this,this.selectorBitWidth);
@@ -1506,10 +1422,6 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
         this.scope.stack.push(this.output1);
     }
 
-    this.isResolvable = function() {
-        return this.inp1.value != undefined&&this.bitSelectorInp.value!=undefined;
-    }
-
     this.customDraw = function() {
 
         ctx = simulationArea.context;
@@ -1535,18 +1447,6 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
         fillText(ctx, bit, xx, yy + 5);
         ctx.stroke();
     }
-}
-
-
-function newBitWidth(obj, bitWidth) {
-    if (obj.newBitWidth !== undefined) {
-        obj.newBitWidth(bitWidth);
-        return;
-    }
-    obj.bitWidth = bitWidth;
-    for (var i = 0; i < obj.nodeList.length; i++)
-        obj.nodeList[i].bitWidth = bitWidth;
-
 }
 
 function saveasimg() {
@@ -1594,9 +1494,6 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
             state: this.state,
         }
         return data;
-    }
-    this.isResolvable = function() {
-        return true;
     }
     this.resolve = function() {
         this.output1.value = bin2dec(this.state);
@@ -1734,11 +1631,6 @@ function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
             bitWidth: this.bitWidth,
         }
         return data;
-    }
-    this.isResolvable = function() {
-s        for (var i = 0; i < this.inputs; i++)
-            if (this.inp[i].value == undefined) return false;
-        return true;
     }
     this.resolve = function() {
         var result = this.inp[0].value;
