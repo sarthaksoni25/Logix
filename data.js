@@ -12,40 +12,11 @@ function backUp(){
             data[moduleList[i]]=globalScope[moduleList[i]].map(extract);
         }
 
-        // data["inputs"] = globalScope.inputs.map(extract);
-        // data["constants"] = globalScope.constants.map(extract);
-        // data["TTYs"] = globalScope.TTYs.map(extract);
-        // data["keyboards"] = globalScope.keyboards.map(extract);
-        // data["bitSelectors"] = globalScope.bitSelectors.map(extract);
-        // data["outputs"] = globalScope.outputs.map(extract);
-        //
-        // data["andGates"] = globalScope.andGates.map(extract);
-        // data["orGates"] = globalScope.orGates.map(extract);
-        // data["multiplexers"] = globalScope.multiplexers.map(extract);
-        // data["adders"] = globalScope.adders.map(extract);
-        // data["splitters"] = globalScope.splitters.map(extract);
-        // data["notGates"] = globalScope.notGates.map(extract);
-        // data["triStates"] = globalScope.triStates.map(extract);
-        // data["rams"] = globalScope.rams.map(extract);
-        // data["sevenseg"] = globalScope.sevenseg.map(extract);
-        // data["hexdis"] = globalScope.hexdis.map(extract);
-        // data["grounds"] = globalScope.grounds.map(extract);
-        // data["powers"] = globalScope.powers.map(extract);
-        // data["clocks"] = globalScope.clocks.map(extract);
-        // data["flipflops"] = globalScope.flipflops.map(extract);
-        // data["subCircuits"] = globalScope.subCircuits.map(extract);
-        // data["NandGates"] = globalScope.nandGates.map(extract);
-        //
-        // data["norGates"] = globalScope.norGates.map(extract);
-
-
-        // data["XorGates"]=globalScope.xorGates.map(extract);
-        // data["XnorGates"]=globalScope.xnorGates.map(extract);
-
 
         data["nodes"] = []
         for (var i = 0; i < globalScope.nodes.length; i++)
             data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
+        // console.log(data);
         return data
 
 }
@@ -69,7 +40,54 @@ function Save() {
     }
 }
 
-function load(scope, data) {
+function loadModule(data,scope){
+    console.log(data);
+    obj=new window[data["objectType"]](data["x"],data["y"],scope,...data.customData["constructorParamaters"]||[]);
+    if(data.customData["values"])
+    for(prop in data.customData["values"]){
+        obj[prop]=data.customData["values"][prop];
+    }
+    if(data.customData["nodes"])
+    for(node in data.customData["nodes"]){
+        var n=data.customData["nodes"][node]
+        if(n instanceof Array){
+            for(var i=0;i<n.length;i++){
+                obj[node][i]=replace(obj[node][i], n[i]);
+            }
+        }
+        else{
+            obj[node]=replace(obj[node], n);
+        }
+    }
+}
+
+function load(scope,data){
+    // console.log(data);
+    data["allNodes"].map(function(x) {
+        return loadNode(x, scope)
+    });
+
+    for (var i = 0; i < data["allNodes"].length; i++)
+        constructNodeConnections(scope.allNodes[i], data["allNodes"][i]);
+
+    for(var i=0;i<moduleList.length;i++){
+        if(data[moduleList[i]]){
+            if(moduleList[i]=="SubCircuit"){
+                for(var j=0;j<data[moduleList[i]].length;j++)
+                    loadSubCircuit(data[moduleList[i]][j],scope);
+            }else{
+            for(var j=0;j<data[moduleList[i]].length;j++)
+                loadModule(data[moduleList[i]][j],scope);
+            }
+        }
+    }
+
+    scope.wires.map(function(x) {
+        x.updateData()
+    });
+}
+
+function load3(scope, data) {
 
     data["allNodes"].map(function(x) {
         return loadNode(x, scope)

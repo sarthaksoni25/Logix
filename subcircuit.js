@@ -58,6 +58,9 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.localScope.SubCircuit[i].resetNodes();
         }
     }
+    this.click=function(){
+        this.dataHash=prompt();
+    }
     this.isResolvable=function(){
         return true;
     }
@@ -81,7 +84,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         return data;
     }
     this.buildCircuit = function() {
-        load(this.localScope, this.data);
+        load3(this.localScope, this.data);
         toBeUpdated = true;
         this.width = 100;
         this.title = this.data["title"];
@@ -103,6 +106,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
     }
 
     this.resolve = function() {
+        return;
         for (i = 0; i < this.localScope.Input.length; i++) {
             this.localScope.Input[i].state = this.inputNodes[i].value;
         }
@@ -110,8 +114,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         for (i = 0; i < this.localScope.Input.length; i++) {
             this.localScope.stack.push(this.localScope.Input[i]);
         }
-        play(this.localScope,false);
-        
+        play(this.localScope);
+
         for (i = 0; i < this.localScope.Output.length; i++) {
             this.outputNodes[i].value = this.localScope.Output[i].state;
         }
@@ -153,8 +157,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.inputNodes[i].draw();
         for (var i = 0; i < this.outputNodes.length; i++)
             this.outputNodes[i].draw();
-        if (this.hover)
-            console.log(this);
+
     }
 
 }

@@ -40,15 +40,13 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
     this.output1 = new Node(20, 0, 1, this);
 
     //fn to create save Json Data of object
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            nodes:{
             inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            output1: findNode(this.output1)},
+
         }
         return data;
     }
@@ -135,15 +133,13 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
     this.output1 = new Node(30, 0, 1, this);
 
     //fn to create save Json Data of object
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
+
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            nodes:{
             inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            output1: findNode(this.output1)},
         }
         return data;
     }
@@ -219,17 +215,12 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
     this.controlSignalInput = new Node(0, 5 * this.inputSize, 0, this, this.controlSignalSize);
 
     //fn to create save Json Data of object
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
-            inp: this.inp.map(findNode),
+            constructorParamaters:[this.direction,this.bitWidth,this.controlSignalSize],
+            nodes:{inp: this.inp.map(findNode),
             output1: findNode(this.output1),
-            controlSignalInput: findNode(this.controlSignalInput),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            controlSignalSize: this.controlSignalSize,
+            controlSignalInput: findNode(this.controlSignalInput)},
         }
         return data;
     }
@@ -285,16 +276,12 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
     }
     this.output1 = new Node(20, 0, 1, this);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         // console.log(this.scope.allNodes);
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            nodes:{inp: this.inp.map(findNode),
+            output1: findNode(this.output1)},
         }
         return data;
     }
@@ -369,15 +356,12 @@ function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth 
     }
     this.output1 = new Node(30, 0, 1, this);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            nodes:{
             inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            output1: findNode(this.output1)},
         }
         return data;
     }
@@ -447,10 +431,10 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     this.dot = new Node(+20, +50, 0, this);
     this.direction = "left";
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+
+            nodes:{
             g: findNode(this.g),
             f: findNode(this.f),
             a: findNode(this.a),
@@ -459,7 +443,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
             e: findNode(this.e),
             c: findNode(this.c),
             d: findNode(this.d),
-            dot: findNode(this.dot),
+            dot: findNode(this.dot)},
         }
         return data;
     }
@@ -513,11 +497,11 @@ function HexDisplay(x, y, scope = globalScope) {
     this.inp = new Node(0, -50, 0, this, 4);
     this.direction = "left";
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inp: findNode(this.inp),
+
+
+            nodes:{inp: findNode(this.inp)},
 
         }
         return data;
@@ -648,15 +632,13 @@ function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     }
     this.output1 = new Node(20, 0, 1, this);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+
+            nodes:{inp: this.inp.map(findNode),
+            output1: findNode(this.output1)},
         }
         return data;
     }
@@ -711,14 +693,11 @@ function NotGate(x, y, scope, dir, bitWidth = undefined) {
 
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            inp1: findNode(this.inp1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            constructorParamaters:[this.direction,this.bitWidth],
+            nodes:{output1: findNode(this.output1),
+            inp1: findNode(this.inp1)},
         }
         return data;
     }
@@ -770,15 +749,12 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     this.state = new Node(0, 0, 0, this, 1);
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
+            constructorParamaters:[this.direction,this.bitWidth],
+            nodes:{output1: findNode(this.output1),
             inp1: findNode(this.inp1),
-            state: findNode(this.state),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            state: findNode(this.state)},
         }
         return data;
     }
@@ -841,17 +817,15 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
     this.sum = new Node(20, 0, 1, this, this.bitWidth);
     this.carryOut = new Node(20, 10, 1, this, 1);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            constructorParamaters:[this.direction,this.bitWidth],
+            nodes:{
             inpA: findNode(this.inpA),
             inpB: findNode(this.inpB),
             carryIn: findNode(this.carryIn),
             carryOut: findNode(this.carryOut),
-            sum: findNode(this.sum),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            sum: findNode(this.sum)},
         }
         return data;
     }
@@ -896,14 +870,13 @@ function Ram(x, y, scope, dir, data = undefined) {
     console.log(this.data);
     this.dataOut = new Node(30, 0, 1, this, 8);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            constructorParamaters:[this.direction,this.data],
+            nodes:{
             memAddr: findNode(this.memAddr),
-            dataOut: findNode(this.dataOut),
-            dir: this.direction,
-            data: this.data,
+            dataOut: findNode(this.dataOut)},
+
         }
         return data;
     }
@@ -947,15 +920,12 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     this.outputs = [];
     for (var i = 0; i < this.splitCount; i++)
         this.outputs.push(new Node(20, i * 20 - this.yOffset - 20, 0, this, this.bitWidthSplit[i]));
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            outputs: this.outputs.map(findNode),
-            bitWidthSplit: this.bitWidthSplit,
-            inp1: findNode(this.inp1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+
+            constructorParamaters:[this.direction,this.bitWidth,this.bitWidthSplit],
+            nodes:{outputs: this.outputs.map(findNode),
+            inp1: findNode(this.inp1)},
         }
         return data;
     }
@@ -1050,15 +1020,11 @@ function Input(x, y, scope, dir, bitWidth) {
         this.label = prompt("Enter Label:");
     }
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            label: this.label,
-            state: this.state,
+            nodes:{output1: findNode(this.output1)},
+            values:{state: this.state},
+            constructorParamaters:[this.direction,this.bitWidth]
         }
         return data;
     }
@@ -1175,12 +1141,10 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
         this.output1.value = 0;
         this.scope.stack.push(this.output1);
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            bitWidth: this.bitWidth,
+            nodes:{output1: findNode(this.output1)},
+            constructorParamaters:[this.bitWidth],
         }
         return data;
     }
@@ -1226,12 +1190,12 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
         this.output1.value = ~0 >>> (32 - this.bitWidth);
         this.scope.stack.push(this.output1);
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            bitWidth: this.bitWidth,
+
+
+            nodes:{output1: findNode(this.output1)},
+            constructorParamaters:[this.bitWidth],
         }
         return data;
     }
@@ -1274,14 +1238,10 @@ function Output(x, y, scope, dir, bitWidth) {
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inp1: scope.allNodes.indexOf(this.inp1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            label: this.label,
+            nodes:{inp1: scope.allNodes.indexOf(this.inp1)},
+            constructorParamaters:[this.direction,this.bitWidth],
         }
         return data;
     }
@@ -1399,16 +1359,15 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
     this.output1 = new Node(20, 0, 1, this,1);
     this.bitSelectorInp = new Node(0, 20, 0, this,this.selectorBitWidth);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inp1: scope.allNodes.indexOf(this.inp1),
-            output1: scope.allNodes.indexOf(this.output1),
-            bitSelectorInp: scope.allNodes.indexOf(this.bitSelectorInp),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            selectorBitWidth: this.selectorBitWidth,
+
+            nodes:{
+                inp1: scope.allNodes.indexOf(this.inp1),
+                output1: scope.allNodes.indexOf(this.output1),
+                bitSelectorInp: scope.allNodes.indexOf(this.bitSelectorInp)
+            },
+            constructorParamaters:[this.direction,this.bitWidth,this.selectorBitWidth],
         }
         return data;
     }
@@ -1483,15 +1442,10 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
     this.setLabel = function() {
         this.label = prompt("Enter Label:");
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            label: this.label,
-            state: this.state,
+            nodes:{output1: findNode(this.output1)},
+            constructorParamaters:[this.direction,this.bitWidth,this.state],
         }
         return data;
     }
@@ -1620,15 +1574,11 @@ function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
     }
     this.output1 = new Node(30, 0, 1, this);
 
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            inputs: this.inputs,
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            nodes:{inp: this.inp.map(findNode),
+            output1: findNode(this.output1)},
         }
         return data;
     }

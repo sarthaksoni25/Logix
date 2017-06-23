@@ -89,17 +89,15 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
             this.scope.stack.push(this.qOutput);
         }
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             dInp: findNode(this.dInp),
             qOutput: findNode(this.qOutput),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.bitWidth]
 
         }
         return data;
@@ -203,18 +201,14 @@ function TTY(x, y, scope, dir,rows,cols) {
         }
 
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             asciiInp: findNode(this.asciiInp),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            rows:this.rows,
-            cols:this.cols,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.rows,this.cols],
         }
         return data;
     }
@@ -360,18 +354,15 @@ function Keyboard(x, y, scope, dir,bufferSize) {
         }
 
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             asciiOutput: findNode(this.asciiOutput),
             available: findNode(this.available),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            bufferSize:this.bufferSize,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.bufferSize]
         }
         return data;
     }
@@ -413,12 +404,10 @@ function Clock(x, y, scope, dir) {
     this.output1.value = this.state;
     this.wasClicked = false;
     this.interval = null;
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.x,
-            y: this.y,
-            output1: findNode(this.output1),
-            dir: this.direction,
+            nodes:{output1: findNode(this.output1)},
+            constructorParamaters:[this.direction],
 
         }
         return data;

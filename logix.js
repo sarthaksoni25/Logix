@@ -213,6 +213,8 @@ var simulationArea = {
             simulationArea.clickCount = 0;
         }, 600);
     },
+
+
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -301,7 +303,7 @@ var simulationArea = {
             }
             if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
                 if (simulationArea.lastSelected.bitWidth !== undefined)
-                    newBitWidth(simulationArea.lastSelected, parseInt(prompt("Enter new bitWidth"), 10));
+                    simulationArea.lastSelected.newBitWidth(parseInt(prompt("Enter new bitWidth"), 10));
             }
             if ((e.keyCode == 67 || e.keyCode == 99)) {
                 simulationArea.changeClockTime(prompt("Enter Time:"));
@@ -633,6 +635,26 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
 
     // Method definitions
 
+    this.saveObject=function(){
+        var data={
+            x:this.x,
+            y:this.y,
+            objectType:this.objectType,
+            label:this.label,
+            direction:this.direction,
+            customData:this.customSave()
+        }
+        return data;
+
+    }
+    this.customSave=function() {
+        return {
+            values:{},
+            nodes:{},
+            constructorParamaters:[],
+        }
+    }
+
     //This sets the width and height of the element if its rectangluar
     // and the reference point is at the center of the object.
     //width and height define the X and Y distance from the center.
@@ -707,8 +729,8 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             }
         }
 
-        if (this.hover)
-            console.log(this);
+        // if (this.hover)
+        //     console.log(this);
 
         return update;
     }
@@ -746,8 +768,8 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
             ctx.fill();
             ctx.stroke();
-            if (this.hover)
-                console.log(this);
+            // if (this.hover)
+            //     console.log(this);
         }
 
         // calls the custom circuit design
