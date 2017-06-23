@@ -4,15 +4,12 @@ function loadSubCircuit(savedData, scope) {
 
 //subCircuit
 function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefined) {
+    CircuitElement.call(this, x, y, scope, dir, 1);
+    this.directionFixed=true;
+    this.fixedBitWidth=true;
+
     this.savedData = savedData;
-    this.direction = dir;
-    this.scope = scope;
     this.localScope = new Scope();
-    this.id = 'subCircuits' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.element = new Element(x, y, "subCircuit", 35, this);
-    this.scope.subCircuits.push(this);
-    this.nodeList = [];
     this.inputNodes = [];
     this.outputNodes = [];
     this.width = 0;
@@ -22,7 +19,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         this.dataHash = prompt("Enter Hash: ");
     if (this.savedData != undefined) {
         this.height = savedData["height"];
-        this.height = savedData["width"];
+        this.width = savedData["width"];
+        this.setDimensions(this.width/2,this.height/2);
         this.dataHash = savedData["dataHash"];
         for (var i = 0; i < this.savedData["inputNodes"].length; i++) {
             this.inputNodes.push(this.scope.allNodes[this.savedData["inputNodes"][i]]);
@@ -53,9 +51,6 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.parent.buildCircuit();
         }
     }
-    this.newDirection = function(dir) {
-        //dummy
-    }
     this.dblclick = function() {
         var prevHash = window.location.hash;
         window.location.hash = simulationArea.lastSelected.dataHash;
@@ -64,8 +59,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
     }
     this.saveObject = function() {
         var data = {
-            x: this.element.x,
-            y: this.element.y,
+            x: this.x,
+            y: this.y,
             dataHash: this.dataHash,
             height: this.height,
             width: this.width,
@@ -80,9 +75,9 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         toBeUpdated = true;
         this.width = 100;
         this.title = this.data["title"];
+        this.localScope.name=this.title;
         this.height = Math.max(this.localScope.inputs.length, this.localScope.outputs.length) * 20 + 30;
-        this.element.b.width = this.width / 2;
-        this.element.b.height = this.height / 2;
+        this.setDimensions(this.width/2,this.height/2);
 
         if (this.savedData == undefined) {
             for (var i = 0; i < this.localScope.inputs.length; i++) {
@@ -95,13 +90,6 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             }
         }
 
-    }
-
-    this.isResolvable = function() {
-        for (i = 0; i < this.inputNodes.length; i++) {
-            if (this.inputNodes[i].isResolvable() == false) return false;
-        }
-        return true;
     }
 
     this.resolve = function() {
@@ -124,21 +112,15 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
 
 
     }
-    this.draw = function() {
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
 
-        ctx.beginPath();
         ctx.lineWidth = 3;
         ctx.strokeStyle = "black"; //("rgba(0,0,0,1)");
         ctx.fillStyle = "white";
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect2(ctx, -this.width / 2, -this.height / 2, this.width, this.height, xx, yy, this.direction);
-        ctx.closePath();
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-         ctx.fill();
-        ctx.stroke();
+        var xx = this.x;
+        var yy = this.y;
 
         ctx.beginPath();
 
@@ -161,13 +143,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.inputNodes[i].draw();
         for (var i = 0; i < this.outputNodes.length; i++)
             this.outputNodes[i].draw();
-        if (this.element.b.hover)
-            console.log(this, this.id);
+        if (this.hover)
+            console.log(this);
     }
 
-    this.delete = function() {
-        this.scope.subCircuits.clean(this);
-        for (var i = 0; i < this.inputNodes.length; i++) this.inputNodes[i].delete();
-        for (var i = 0; i < this.outputNodes.length; i++) this.outputNodes[i].delete();
-    }
 }

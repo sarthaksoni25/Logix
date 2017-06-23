@@ -66,7 +66,7 @@ Array.prototype.contains = function(value) {
 };
 
 //Exact same name as object constructor
-moduleList=["Input","Output","NotGate","FlipFlop","TTY","Keyboard","Clock"];
+moduleList=["Input","Output","NotGate","FlipFlop","TTY","Keyboard","Clock","SubCircuit"];
 
 //Exact same name as object constructor
 //All the combinational modules which give rise to an value(independently)
@@ -88,41 +88,13 @@ function Scope(name = "localScope") {
     this.name = name;
     this.stack = [];
 
-    // this.hexdis = [];
-    // this.adders = [];
-    // this.inputs = [];
-    // this.constants = [];
-    // this.splitters = [];
-    // this.grounds = [];
-    // this.andGates = [];
-    // this.multiplexers = [];
-    // this.sevenseg = [];
-    // this.clocks = [];
-    // this.bitSelectors = [];
-    // this.flipflops = [];
-    // this.TTYs = [];
-    // this.keyboards = [];
-    // this.subCircuits = [];
-    // this.orGates = [];
-    // this.notGates = [];
-    // this.triStates = [];
-    // this.rams = [];
-    // this.outputs = [];
-
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
     for(var i=0;i<moduleList.length;i++){
         this[moduleList[i]]=[]
     }
-    // this.powers = [];
-    // this.nandGates=[];
-    // this.norGates=[];
-    // this.xorGates=[];
-    // this.xnorGates=[];
     this.objects=["wires",...moduleList,"nodes"];
-    // this.objects = [this.norGates,this.xnorGates,this.xorGates,this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-    // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
 }
 
 //fn to setup environment
@@ -188,10 +160,10 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.allNodes.length; i++)
         scope.allNodes[i].reset();
 
-    // for (var i = 0; i < scope.subCircuits.length; i++) {
-    //     if (scope.subCircuits[i].isResolvable())
-    //         scope.stack.push(scope.subCircuits[i]);
-    // }
+    for (var i = 0; i < scope.SubCircuit.length; i++) {
+        if (scope.SubCircuit[i].isResolvable())
+            scope.stack.push(scope.SubCircuit[i]);
+    }
     for (var i = 0; i < scope.FlipFlop.length; i++) {
         scope.stack.push(scope.FlipFlop[i]);
     }
