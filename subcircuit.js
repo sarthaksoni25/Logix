@@ -51,6 +51,16 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.parent.buildCircuit();
         }
     }
+    this.resetNodes=function(){
+        for (var i = 0; i < this.localScope.allNodes.length; i++)
+            this.localScope.allNodes[i].reset();
+        for (var i = 0; i < this.localScope.SubCircuit.length; i++) {
+            this.localScope.SubCircuit[i].resetNodes();
+        }
+    }
+    this.isResolvable=function(){
+        return true;
+    }
     this.dblclick = function() {
         var prevHash = window.location.hash;
         window.location.hash = simulationArea.lastSelected.dataHash;
@@ -100,8 +110,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         for (i = 0; i < this.localScope.Input.length; i++) {
             this.localScope.stack.push(this.localScope.Input[i]);
         }
-        play(this.localScope);
-
+        play(this.localScope,false);
+        
         for (i = 0; i < this.localScope.Output.length; i++) {
             this.outputNodes[i].value = this.localScope.Output[i].state;
         }

@@ -153,14 +153,18 @@ window.onresize = resetup;
 window.addEventListener('orientationchange', resetup);
 
 //Main fn that resolves circuit
-function play(scope = globalScope) {
+function play(scope = globalScope,resetNodes=true) {
 
     // console.log("simulation");
     if(loading==true)return;
 
-    for (var i = 0; i < scope.allNodes.length; i++)
-        scope.allNodes[i].reset();
-
+    if(resetNodes){
+        for (var i = 0; i < scope.allNodes.length; i++)
+            scope.allNodes[i].reset();
+        for (var i = 0; i < scope.SubCircuit.length; i++) {
+            scope.SubCircuit[i].resetNodes();
+        }
+    }
     for (var i = 0; i < scope.SubCircuit.length; i++) {
         if (scope.SubCircuit[i].isResolvable())
             scope.stack.push(scope.SubCircuit[i]);
@@ -168,32 +172,14 @@ function play(scope = globalScope) {
     for (var i = 0; i < scope.FlipFlop.length; i++) {
         scope.stack.push(scope.FlipFlop[i]);
     }
-    // for (var i = 0; i < scope.clocks.length; i++) {
-    //     scope.stack.push(scope.clocks[i]);
-    // }
-    // for (var i = 0; i < scope.grounds.length; i++) {
-    //     scope.stack.push(scope.grounds[i]);
-    // }
-    // for (var i = 0; i < scope.powers.length; i++) {
-    //     scope.stack.push(scope.powers[i]);
-    // }
     for(var i=0;i<inputList.length;i++){
         for (var j = 0; j < scope[inputList[i]].length; j++) {
             scope.stack.push(scope[inputList[i]][j]);
         }
     }
-    // for (var i = 0; i < scope.constants.length; i++) {
-    //     scope.stack.push(scope.constants[i]);
-    // }
-
-
-    // for (var i = 0; i < scope.outputs.length; i++) {
-    //     scope.stack.push(scope.outputs[i]);
-    // }
     var stepCount=0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
-        // console.log("DEBUG",elem);
         elem.resolve();
         stepCount++;
         if(stepCount>1000){
