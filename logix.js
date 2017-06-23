@@ -10,6 +10,12 @@ willBeUpdated = false;
 objectSelection=false;
 var backups=[]
 loading=false
+//Exact same name as object constructor
+moduleList=["Input","Output","NotGate","OrGate","AndGate","NorGate","NandGate","XorGate","XnorGate","SevenSegDisplay","HexDisplay","Multiplexer","BitSelector","Splitter","Power","Ground","ConstantVal","TriState","Adder","Ram","FlipFlop","TTY","Keyboard","Clock","SubCircuit"];
+
+//Exact same name as object constructor
+//All the combinational modules which give rise to an value(independently)
+inputList=["Ground","Power","ConstantVal","Input","Clock"];
 
 function showError(error){
     console.log("ERROR: "+error);
@@ -35,7 +41,7 @@ function scheduleUpdate(count=0) {
 
 }
 function scheduleBackup() {
-    return;
+    // return;
     // setTimeout(function(){
         var backup=backUp();
         // if(backups.length==0||backups[backups.length-1]!=backup){
@@ -65,12 +71,7 @@ Array.prototype.contains = function(value) {
     return this.indexOf(value) > -1
 };
 
-//Exact same name as object constructor
-moduleList=["Input","Output","NotGate","FlipFlop","TTY","Keyboard","Clock","SubCircuit"];
 
-//Exact same name as object constructor
-//All the combinational modules which give rise to an value(independently)
-inputList=["Input","Clock"];
 
 
 //Scope object for each circuit level, globalScope for outer level
@@ -627,6 +628,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.rectangleObject = true;
     this.label = "";
     this.scope = scope;
+    // console.log(this.scope);
     this.scope[this.objectType].push(this);// CHECK IF THIS IS VALID
     this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
 
@@ -721,6 +723,9 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             }
         }
 
+        if (this.hover)
+            console.log(this);
+
         return update;
     }
 
@@ -790,7 +795,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
         }
 
         // if (obj.direction == undefined) return;
-        obj.direction = dir;
+        this.direction = dir;
         for (var i = 0; i < this.nodeList.length; i++) {
             this.nodeList[i].refresh();
         }
