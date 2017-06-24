@@ -1013,12 +1013,9 @@ function Input(x, y, scope, dir, bitWidth) {
     this.state = bin2dec(this.state); // in integer format
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
+    this.directionFixed=true;
     this.setWidth(this.bitWidth*10);
     this.rectangleObject = true;    // Trying to make use of base class draw
-
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
-    }
 
     this.customSave = function() {
         var data = {
@@ -1074,31 +1071,7 @@ function Input(x, y, scope, dir, bitWidth) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
+
     }
 
 
@@ -1115,6 +1088,7 @@ function Input(x, y, scope, dir, bitWidth) {
         }
 
         this.output1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 
     this.findPos = function() {
@@ -1234,6 +1208,7 @@ function Output(x, y, scope, dir, bitWidth) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject=false;
+    this.directionFixed=true;
     this.setDimensions(this.bitWidth*10,10);
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
@@ -1260,10 +1235,6 @@ function Output(x, y, scope, dir, bitWidth) {
             this.inp1.x = -10 * this.bitWidth;
             this.inp1.leftx = 10 * this.bitWidth;
         }
-    }
-
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
     }
 
     this.resolve = function() {
@@ -1296,31 +1267,6 @@ function Output(x, y, scope, dir, bitWidth) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.stroke();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
     }
 
 
@@ -1337,6 +1283,7 @@ function Output(x, y, scope, dir, bitWidth) {
         }
 
         this.inp1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 }
 
@@ -1434,14 +1381,12 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
     CircuitElement.call(this, x, y, scope, dir, this.state.length);
     this.setDimensions(10*this.state.length,10);
     this.bitWidth=bitWidth||this.state.length;
+    this.directionFixed=true;
     this.rectangleObject=false;
 
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
     this.label = "";
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
-    }
     this.customSave = function() {
         var data = {
             nodes:{output1: findNode(this.output1)},
@@ -1494,32 +1439,6 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
-
     }
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
@@ -1534,6 +1453,7 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
         }
 
         this.output1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 }
 

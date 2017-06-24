@@ -259,10 +259,10 @@ var simulationArea = {
            }
             if (e.keyCode == 8 ) {
                 // simulationArea.lastSelected.delete(); // delete key
-                if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
+                if(simulationArea.lastSelected)simulationArea.lastSelected.delete();
                 for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
-                    deleteObj(simulationArea.multipleObjectSelections[i]);
-                    console.log("SD",simulationArea.multipleObjectSelections[i]);
+                    simulationArea.multipleObjectSelections[i].delete();
+                    // console.log("SD",simulationArea.multipleObjectSelections[i]);
                 }
             }
             if (e.keyCode == 16) {
@@ -275,7 +275,7 @@ var simulationArea = {
             }
             //change direction fns
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'right');
+                simulationArea.lastSelected.newDirection('right');
             }
             if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
                 if(backups.length==0)return;
@@ -293,13 +293,13 @@ var simulationArea = {
             }
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'down');
+                simulationArea.lastSelected.newDirection( 'down');
             }
             if (e.keyCode == 39 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'left');
+                simulationArea.lastSelected.newDirection('left');
             }
             if (e.keyCode == 40 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'up');
+                simulationArea.lastSelected.newDirection('up');
             }
             if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
                 if (simulationArea.lastSelected.bitWidth !== undefined)
@@ -335,6 +335,13 @@ var simulationArea = {
             }
             // console.log(simulationArea.mouseDown, "mouseDOn");
         });
+        // window.addEventListener('click', function(e) {
+        //     // console.log("click");
+        //     // if(simulationArea.lastSelected.click!==undefined){
+        //     //     simulationArea.lastSelected.click();
+        //     // }
+        //     // scheduleUpdate(1);
+        // });
         window.addEventListener('mousedown', function(e) {
             // return;
             scheduleBackup();
@@ -459,7 +466,7 @@ function update() {
 
     for (var i = 0; i < globalScope.objects.length; i++)
         for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
-            updated |= updateObj(globalScope[globalScope.objects[i]][j]);
+            updated |= globalScope[globalScope.objects[i]][j].update();
     toBeUpdated |= updated;
 
     if (toBeUpdated ) {
@@ -541,7 +548,7 @@ function update() {
         dots(); // draw dots
         for (var i = 0; i < globalScope.objects.length; i++)
             for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
-                updated |= drawObj(globalScope[globalScope.objects[i]][j]);
+                updated |= globalScope[globalScope.objects[i]][j].draw();
         if(objectSelection){
             ctx=simulationArea.context;
             ctx.beginPath();
@@ -620,6 +627,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
 
     this.direction = dir;
     this.directionFixed = false;
+    this.labelDirection = dir;
     this.orientationFixed = true;// should it be false?
     this.fixedBitWidth=false;
 
@@ -745,13 +753,39 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
         // [width, height] = rotate(this.width, this.height, "left");
         // width = Math.abs(width);
         // height = Math.abs(height);
-
+        var rX=this.rightDimensionX;
+        var lX=this.leftDimensionX;
+        var uY=this.upDimensionY;
+        var dY=this.downDimensionY;
+        if(!this.directionFixed){
+            if(this.direction=="right"){
+                lX=this.rightDimensionX;
+                rX=this.leftDimensionX
+            }
+            else if(this.direction=="up"){
+                lX=this.downDimensionY;
+                rX=this.upDimensionY;
+                uY=this.leftDimensionX;
+                dY=this.rightDimensionX;
+            }
+            else if(this.direction=="down") {
+                lX=this.downDimensionY;
+                rX=this.upDimensionY;
+                dY=this.leftDimensionX;
+                uY=this.rightDimensionX;
+            }
+        }
         var mouseX=simulationArea.mouseX;
         var mouseY=simulationArea.mouseY;
-        if (mouseX-this.x<=this.rightDimensionX&&this.x-mouseX<=this.leftDimensionX&&mouseY-this.y<=this.downDimensionY&&this.y-mouseY<=this.upDimensionY) return true;
+        if (mouseX-this.x<=rX&&this.x-mouseX<=lX&&mouseY-this.y<=dY&&this.y-mouseY<=uY) return true;
 
         return false;
     };
+
+    this.setLabel = function() {
+        this.label = prompt("Enter Label:");
+        // console.log(this.label);
+    }
 
     //Method that draws the outline of the module and calls draw function on module Nodes.
     //NOT OVERIDABLE
@@ -764,13 +798,64 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             ctx.fillStyle = "white";
             ctx.lineWidth = 3;
             ctx.beginPath();
-            rect(ctx, this.x - this.leftDimensionX, this.y - this.upDimensionY, this.leftDimensionX+this.rightDimensionX, this.upDimensionY+this.downDimensionY);
+            rect2(ctx, - this.leftDimensionX, - this.upDimensionY, this.leftDimensionX+this.rightDimensionX, this.upDimensionY+this.downDimensionY,this.x,this.y,[this.direction,"left"][+this.directionFixed]);
             if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
             ctx.fill();
             ctx.stroke();
             // if (this.hover)
             //     console.log(this);
         }
+        if(this.label!=""){
+            var rX=this.rightDimensionX;
+            var lX=this.leftDimensionX;
+            var uY=this.upDimensionY;
+            var dY=this.downDimensionY;
+            if(!this.directionFixed){
+                if(this.direction=="right"){
+                    lX=this.rightDimensionX;
+                    rX=this.leftDimensionX
+                }
+                else if(this.direction=="up"){
+                    lX=this.downDimensionY;
+                    rX=this.upDimensionY;
+                    uY=this.leftDimensionX;
+                    dY=this.rightDimensionX;
+                }
+                else if(this.direction=="down") {
+                    lX=this.downDimensionY;
+                    rX=this.upDimensionY;
+                    dY=this.leftDimensionX;
+                    uY=this.rightDimensionX;
+                }
+            }
+
+            if (this.labelDirection == "right") {
+                ctx.beginPath();
+                ctx.textAlign = "right";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x - lX - 10, this.y + 5, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "left") {
+                ctx.beginPath();
+                ctx.textAlign = "left";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x + rX + 10, this.y + 5, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "down") {
+                ctx.beginPath();
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x, this.y + 5 - uY -10, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "up") {
+                ctx.beginPath();
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x, this.y + 5 + dY+10, 14);
+                ctx.fill();
+            }
+        }
+
 
         // calls the custom circuit design
         if(this.customDraw)this.customDraw();
@@ -793,6 +878,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     //method to change direction
     //OVERRIDE WITH CAUTION
     this.newDirection = function(dir) {
+        console.log(dir)
         // Leave this for now
         if(this.directionFixed&&this.orientationFixed)return;
         else if(this.directionFixed){
@@ -835,63 +921,4 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
 
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-}
-
-function deleteObj(obj) {
-    // if (obj.nodeList !== undefined)
-    //     for (var i = 0; i < obj.nodeList.length; i++) {
-    //         obj.nodeList[i].delete();
-    //     }
-
-    obj.delete();
-}
-
-function updateObj(obj) {
-    // console.log(obj)
-    return obj.update();
-    var update = false;
-    if (obj.update === undefined) {
-
-        for (var i = 0; i < obj.nodeList.length; i++) {
-            update |= obj.nodeList[i].update();
-        }
-        update |= obj.element.update();
-
-        if (simulationArea.mouseDown == false)
-            obj.wasClicked = false;
-
-        if (simulationArea.mouseDown && !obj.wasClicked) { //&& this.element.b.clicked afterwards
-            if (obj.element.b.clicked) {
-                obj.wasClicked = true;
-                if(obj.click)obj.click();
-                if(simulationArea.shiftDown){
-                    simulationArea.lastSelected=undefined;
-                    if(simulationArea.multipleObjectSelections.contains(obj)){
-                        simulationArea.multipleObjectSelections.clean(obj);
-                    }
-                    else {
-                        simulationArea.multipleObjectSelections.push(obj);
-                    }
-                }
-                else{
-                    simulationArea.lastSelected = obj;
-                }
-            }
-        }
-    }
-
-    else {
-        update |= obj.update();
-    }
-    return update;
-}
-
-function drawObj(obj) {
-    // console.log(obj);
-    obj.draw();
-
-    // if (obj.nodeList !== undefined)
-    //     for (var i = 0; i < obj.nodeList.length; i++)
-    //         obj.nodeList[i].draw();
-
 }

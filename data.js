@@ -43,6 +43,7 @@ function Save() {
 function loadModule(data,scope){
     console.log(data);
     obj=new window[data["objectType"]](data["x"],data["y"],scope,...data.customData["constructorParamaters"]||[]);
+    obj.label=data["label"];
     if(data.customData["values"])
     for(prop in data.customData["values"]){
         obj[prop]=data.customData["values"][prop];
