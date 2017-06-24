@@ -44,7 +44,8 @@ function loadModule(data, scope) {
     console.log(data);
     obj = new window[data["objectType"]](data["x"], data["y"], scope, ...data.customData["constructorParamaters"] || []);
     obj.label = data["label"];
-    obj.labelDirection = data["labelDirection"] || oppositeDirection[obj.direction];
+    obj.labelDirection = data["labelDirection"] || oppositeDirection[fixDirection[obj.direction]];
+    obj.fixDirection();
     if (data.customData["values"])
         for (prop in data.customData["values"]) {
             obj[prop] = data.customData["values"][prop];
@@ -60,6 +61,7 @@ function loadModule(data, scope) {
                 obj[node] = replace(obj[node], n);
             }
         }
+
 }
 
 function load(scope, data) {

@@ -88,22 +88,22 @@ function rect2(ctx, x1, y1, x2, y2, xx, yy, dir) {
 
 
 function rotate(x1, y1, dir) {
-    if (dir == 'right')
+    if (dir == "LEFT")
         return [-x1, y1];
-    else if (dir == 'up')
+    else if (dir == "DOWN")
         return [y1, x1];
-    else if (dir == 'down')
+    else if (dir == "UP")
         return [y1, -x1];
     else
         return [x1, y1];
 }
 
 function rotateAngle(start, stop, dir) {
-    if (dir == 'right')
+    if (dir == "LEFT")
         return [start, stop, true];
-    else if (dir == 'up')
+    else if (dir == "DOWN")
         return [start - Math.PI / 2, stop - Math.PI / 2, true];
-    else if (dir == 'down')
+    else if (dir == "UP")
         return [start - Math.PI / 2, stop - Math.PI / 2, false];
     else
         return [start, stop, false];
@@ -146,10 +146,10 @@ function fillText(ctx, str, x1, y1, fontSize = 20) {
 
 function fillText2(ctx, str, x1, y1, xx, yy, dir) {
     angle = {
-        "left": 0,
-        "right": 0,
-        "up": Math.PI / 2,
-        "down": -Math.PI / 2,
+        "RIGHT": 0,
+        "LEFT": 0,
+        "DOWN": Math.PI / 2,
+        "UP": -Math.PI / 2,
     }
     x1 = x1 * simulationArea.scale;
     y1 = y1 * simulationArea.scale;
@@ -184,8 +184,18 @@ function fillText3(ctx, str, x1, y1, xx = 0, yy = 0, fontSize = 14, font = "Geor
 
 }
 oppositeDirection = {
-    "left": "right",
-    "right": "left",
-    "up": "down",
-    "down": "up",
+    "RIGHT": "LEFT",
+    "LEFT": "RIGHT",
+    "DOWN": "UP",
+    "UP": "DOWN",
+}
+fixDirection = {
+    "right": "LEFT",
+    "left": "RIGHT",
+    "down": "UP",
+    "up": "DOWN",
+    "LEFT": "LEFT",
+    "RIGHT": "RIGHT",
+    "UP": "UP",
+    "DOWN": "DOWN",
 }

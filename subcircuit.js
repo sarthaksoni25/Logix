@@ -3,7 +3,7 @@ function loadSubCircuit(savedData, scope) {
 }
 
 //subCircuit
-function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefined) {
+function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefined) {
     CircuitElement.call(this, x, y, scope, dir, 1);
     this.directionFixed = true;
     this.fixedBitWidth = true;
