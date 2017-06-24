@@ -650,6 +650,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             objectType:this.objectType,
             label:this.label,
             direction:this.direction,
+            labelDirection:this.labelDirection,
             customData:this.customSave()
         }
         return data;
