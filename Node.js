@@ -211,7 +211,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;
-            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.x, this.parent.y, "left");
+            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.x, this.parent.y, "RIGHT");
             ctx.closePath();
             ctx.stroke();
             //   console.log("HIT");

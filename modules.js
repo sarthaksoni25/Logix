@@ -224,7 +224,7 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
 
 }
 
-function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
+function XorGate(x, y, scope = globalScope, dir = "RIGHT", inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject = false;
     this.setDimensions(15, 20);
@@ -303,7 +303,7 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
     }
 }
 
-function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
+function XnorGate(x, y, scope = globalScope, dir = "RIGHT", inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject = false;
     this.setDimensions(15, 20);
@@ -384,7 +384,7 @@ function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth 
 }
 
 function SevenSegDisplay(x, y, scope = globalScope) {
-    CircuitElement.call(this, x, y, scope, "left", 1);
+    CircuitElement.call(this, x, y, scope, "RIGHT", 1);
     this.fixedBitWidth = true;
     this.directionFixed = true;
     this.setDimensions(30, 50);
@@ -397,7 +397,7 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     this.d = new Node(-10, +50, 0, this);
     this.c = new Node(+10, +50, 0, this);
     this.dot = new Node(+20, +50, 0, this);
-    this.direction = "left";
+    this.direction = "RIGHT";
 
     this.customSave = function() {
         var data = {
@@ -452,13 +452,13 @@ function SevenSegDisplay(x, y, scope = globalScope) {
 }
 
 function HexDisplay(x, y, scope = globalScope) {
-    CircuitElement.call(this, x, y, scope, "left", 4);
+    CircuitElement.call(this, x, y, scope, "RIGHT", 4);
     this.directionFixed = true;
     this.fixedBitWidth = true;
     this.setDimensions(30, 50);
 
     this.inp = new Node(0, -50, 0, this, 4);
-    this.direction = "left";
+    this.direction = "RIGHT";
 
     this.customSave = function() {
         var data = {
@@ -558,7 +558,7 @@ function HexDisplay(x, y, scope = globalScope) {
     }
 }
 
-function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
+function OrGate(x, y, scope = globalScope, dir = "RIGHT", inputs = 2, bitWidth) {
     // Calling base class constructor
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject = false;
@@ -972,10 +972,10 @@ function Input(x, y, scope, dir, bitWidth) {
         this.setWidth(this.bitWidth * 10);
         this.state = 0;
         this.output1.bitWidth = bitWidth;
-        if (this.direction == "left") {
+        if (this.direction == "RIGHT") {
             this.output1.x = 10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
-        } else if (this.direction == "right") {
+        } else if (this.direction == "LEFT") {
             this.output1.x = -10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
         }
@@ -1014,7 +1014,7 @@ function Input(x, y, scope, dir, bitWidth) {
         if (dir == this.direction) return;
         this.direction = dir;
         this.output1.refresh();
-        if (dir == "left" || dir == "right") {
+        if (dir == "RIGHT" || dir == "LEFT") {
             this.output1.leftx = 10 * this.bitWidth;
             this.output1.lefty = 0;
         } else {
@@ -1032,7 +1032,7 @@ function Input(x, y, scope, dir, bitWidth) {
 }
 
 function Ground(x, y, scope = globalScope, bitWidth = undefined) {
-    CircuitElement.call(this, x, y, scope, "left", bitWidth);
+    CircuitElement.call(this, x, y, scope, "RIGHT", bitWidth);
     this.rectangleObject = false;
     this.setDimensions(20, 20);
     this.directionFixed = true;
@@ -1080,7 +1080,7 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
 
 function Power(x, y, scope = globalScope, bitWidth = undefined) {
 
-    CircuitElement.call(this, x, y, scope, "left", bitWidth);
+    CircuitElement.call(this, x, y, scope, "RIGHT", bitWidth);
     this.directionFixed = true;
     this.rectangleObject = false;
     this.setDimensions(15, 15);
@@ -1154,10 +1154,10 @@ function Output(x, y, scope, dir, bitWidth) {
         this.bitWidth = bitWidth;
         this.setWidth(10 * this.bitWidth);
 
-        if (this.direction == "left") {
+        if (this.direction == "RIGHT") {
             this.inp1.x = 10 * this.bitWidth;
             this.inp1.leftx = 10 * this.bitWidth;
-        } else if (this.direction == "right") {
+        } else if (this.direction == "LEFT") {
             this.inp1.x = -10 * this.bitWidth;
             this.inp1.leftx = 10 * this.bitWidth;
         }
@@ -1177,7 +1177,7 @@ function Output(x, y, scope, dir, bitWidth) {
         var xx = this.x;
         var yy = this.y;
 
-        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
+        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "RIGHT");
         if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.fill();
         ctx.stroke();
@@ -1201,7 +1201,7 @@ function Output(x, y, scope, dir, bitWidth) {
         if (dir == this.direction) return;
         this.direction = dir;
         this.inp1.refresh();
-        if (dir == "left" || dir == "right") {
+        if (dir == "RIGHT" || dir == "LEFT") {
             this.inp1.leftx = 10 * this.bitWidth;
             this.inp1.lefty = 0;
         } else {
@@ -1321,10 +1321,10 @@ function ConstantVal(x, y, scope, dir, bitWidth = undefined, state = undefined) 
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
         this.output1.bitWidth = bitWidth;
         this.setDimensions(10 * this.bitWidth, 10);
-        if (this.direction == "left") {
+        if (this.direction == "RIGHT") {
             this.output1.x = 10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
-        } else if (this.direction == "right") {
+        } else if (this.direction == "LEFT") {
             this.output1.x = -10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
         }
@@ -1339,7 +1339,7 @@ function ConstantVal(x, y, scope, dir, bitWidth = undefined, state = undefined) 
         var xx = this.x;
         var yy = this.y;
 
-        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
+        rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "RIGHT");
         if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.fill();
         ctx.stroke();
@@ -1357,7 +1357,7 @@ function ConstantVal(x, y, scope, dir, bitWidth = undefined, state = undefined) 
         if (dir == this.direction) return;
         this.direction = dir;
         this.output1.refresh();
-        if (dir == "left" || dir == "right") {
+        if (dir == "RIGHT" || dir == "LEFT") {
             this.output1.leftx = 10 * this.bitWidth;
             this.output1.lefty = 0;
         } else {
@@ -1370,7 +1370,7 @@ function ConstantVal(x, y, scope, dir, bitWidth = undefined, state = undefined) 
     }
 }
 
-function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
+function NorGate(x, y, scope = globalScope, dir = "RIGHT", inputs = 2, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject = false;

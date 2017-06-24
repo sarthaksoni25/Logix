@@ -80,7 +80,7 @@ Array.prototype.contains = function(value) {
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
     this.CircuitElement = [];
-    this.root = new CircuitElement(0, 0, this, "left", 1);
+    this.root = new CircuitElement(0, 0, this, "RIGHT", 1);
 
     this.clockTick = function() {
         for (var i = 0; i < this.Clock.length; i++)
@@ -277,7 +277,7 @@ var simulationArea = {
             }
             //change direction fns
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.newDirection('right');
+                simulationArea.lastSelected.newDirection("LEFT");
             }
             if (e.key.charCodeAt(0) == 122) { // detect the special CTRL-Z code
                 if (backups.length == 0) return;
@@ -295,13 +295,13 @@ var simulationArea = {
             }
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.newDirection('down');
+                simulationArea.lastSelected.newDirection("UP");
             }
             if (e.keyCode == 39 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.newDirection('left');
+                simulationArea.lastSelected.newDirection("RIGHT");
             }
             if (e.keyCode == 40 && simulationArea.lastSelected != undefined) {
-                simulationArea.lastSelected.newDirection('up');
+                simulationArea.lastSelected.newDirection("DOWN");
             }
             if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
                 if (simulationArea.lastSelected.bitWidth !== undefined)
@@ -555,7 +555,7 @@ function update() {
             ctx.beginPath();
             ctx.lineWidth = 2;
             ctx.strokeStyle = "black"
-            rect2(ctx, simulationArea.mouseDownX, simulationArea.mouseDownY, simulationArea.mouseX - simulationArea.mouseDownX, simulationArea.mouseY - simulationArea.mouseDownY, 0, 0, "left");
+            rect2(ctx, simulationArea.mouseDownX, simulationArea.mouseDownY, simulationArea.mouseX - simulationArea.mouseDownX, simulationArea.mouseY - simulationArea.mouseDownY, 0, 0, "RIGHT");
             ctx.stroke();
         }
     }
@@ -743,6 +743,10 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
         return update;
     }
 
+    this.fixDirection=function(){
+        this.direction=fixDirection[this.direction]||this.direction;
+        this.labelDirection=fixDirection[this.labelDirection]||this.labelDirection;
+    }
 
     // The isHover method is used to check if the mouse is hovering over the object.
     // Return Value: true if mouse is hovering over object else false
@@ -750,7 +754,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     this.isHover = function() {
         // var width, height;
         //
-        // [width, height] = rotate(this.width, this.height, "left");
+        // [width, height] = rotate(this.width, this.height, "RIGHT");
         // width = Math.abs(width);
         // height = Math.abs(height);
         var rX = this.rightDimensionX;
@@ -758,15 +762,15 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
         var uY = this.upDimensionY;
         var dY = this.downDimensionY;
         if (!this.directionFixed) {
-            if (this.direction == "right") {
+            if (this.direction == "LEFT") {
                 lX = this.rightDimensionX;
                 rX = this.leftDimensionX
-            } else if (this.direction == "up") {
+            } else if (this.direction == "DOWN") {
                 lX = this.downDimensionY;
                 rX = this.upDimensionY;
                 uY = this.leftDimensionX;
                 dY = this.rightDimensionX;
-            } else if (this.direction == "down") {
+            } else if (this.direction == "UP") {
                 lX = this.downDimensionY;
                 rX = this.upDimensionY;
                 dY = this.leftDimensionX;
@@ -796,7 +800,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             ctx.fillStyle = "white";
             ctx.lineWidth = 3;
             ctx.beginPath();
-            rect2(ctx, -this.leftDimensionX, -this.upDimensionY, this.leftDimensionX + this.rightDimensionX, this.upDimensionY + this.downDimensionY, this.x, this.y, [this.direction, "left"][+this.directionFixed]);
+            rect2(ctx, -this.leftDimensionX, -this.upDimensionY, this.leftDimensionX + this.rightDimensionX, this.upDimensionY + this.downDimensionY, this.x, this.y, [this.direction, "RIGHT"][+this.directionFixed]);
             if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
             ctx.fill();
             ctx.stroke();
@@ -809,15 +813,15 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             var uY = this.upDimensionY;
             var dY = this.downDimensionY;
             if (!this.directionFixed) {
-                if (this.direction == "right") {
+                if (this.direction == "LEFT") {
                     lX = this.rightDimensionX;
                     rX = this.leftDimensionX
-                } else if (this.direction == "up") {
+                } else if (this.direction == "DOWN") {
                     lX = this.downDimensionY;
                     rX = this.upDimensionY;
                     uY = this.leftDimensionX;
                     dY = this.rightDimensionX;
-                } else if (this.direction == "down") {
+                } else if (this.direction == "UP") {
                     lX = this.downDimensionY;
                     rX = this.upDimensionY;
                     dY = this.leftDimensionX;
@@ -825,25 +829,25 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
                 }
             }
 
-            if (this.labelDirection == "right") {
+            if (this.labelDirection == "LEFT") {
                 ctx.beginPath();
                 ctx.textAlign = "right";
                 ctx.fillStyle = "black";
                 fillText(ctx, this.label, this.x - lX - 10, this.y + 5, 14);
                 ctx.fill();
-            } else if (this.labelDirection == "left") {
+            } else if (this.labelDirection == "RIGHT") {
                 ctx.beginPath();
                 ctx.textAlign = "left";
                 ctx.fillStyle = "black";
                 fillText(ctx, this.label, this.x + rX + 10, this.y + 5, 14);
                 ctx.fill();
-            } else if (this.labelDirection == "down") {
+            } else if (this.labelDirection == "UP") {
                 ctx.beginPath();
                 ctx.textAlign = "center";
                 ctx.fillStyle = "black";
                 fillText(ctx, this.label, this.x, this.y + 5 - uY - 10, 14);
                 ctx.fill();
-            } else if (this.labelDirection == "up") {
+            } else if (this.labelDirection == "DOWN") {
                 ctx.beginPath();
                 ctx.textAlign = "center";
                 ctx.fillStyle = "black";
