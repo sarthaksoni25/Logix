@@ -51,7 +51,7 @@ function extractNode(x, scope, parent) {
 //input node=0
 //intermediate node =2
 function Node(x, y, type, parent, bitWidth = undefined) {
-    this.objectType="Node";
+    this.objectType = "Node";
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
@@ -78,7 +78,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
-    this.highlighted=false;
+    this.highlighted = false;
 
     //This fn is called during rotations and setup
 
@@ -135,7 +135,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
 
     this.reset = function() {
         this.value = undefined;
-        this.highlighted=false;
+        this.highlighted = false;
     }
 
     this.connect = function(n) {
@@ -157,18 +157,18 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             if (this.connections[i].value != this.value) {
 
                 if (this.connections[i].type == 1 && this.connections[i].value != undefined) {
-                    this.highlighted=true;
-                    this.connections[i].highlighted=true;
-                    showError("Contention Error: "+this.value+" and "+this.connections[i].value);
+                    this.highlighted = true;
+                    this.connections[i].highlighted = true;
+                    showError("Contention Error: " + this.value + " and " + this.connections[i].value);
                     // console.log("CONTENTION", this.connections[i].value, this.value);
                 } else if (this.connections[i].bitWidth == this.bitWidth || this.connections[i].type == 2) {
                     this.connections[i].bitWidth = this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
                 } else {
-                    this.highlighted=true;
-                    this.connections[i].highlighted=true;
-                    showError("BitWidth Error: "+this.bitWidth+" and "+this.connections[i].bitWidth);
+                    this.highlighted = true;
+                    this.connections[i].highlighted = true;
+                    showError("BitWidth Error: " + this.bitWidth + " and " + this.connections[i].bitWidth);
                     // console.log("BIT WIDTH ERROR");
                 }
             }
@@ -202,12 +202,12 @@ function Node(x, y, type, parent, bitWidth = undefined) {
         }
         // if (this.type != 2) {
 
-            var color=(this.bitWidth!=1||this.value==undefined)?"black":["green","lightgreen"][this.value];
-            if(this.type==1||this.type==0)color="green";
-            drawCircle(ctx, this.absX(), this.absY(), 3, color);
+        var color = (this.bitWidth != 1 || this.value == undefined) ? "black" : ["green", "lightgreen"][this.value];
+        if (this.type == 1 || this.type == 0) color = "green";
+        drawCircle(ctx, this.absX(), this.absY(), 3, color);
         // }
 
-        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected&&!simulationArea.shiftDown)||simulationArea.multipleObjectSelections.contains(this)) {
+        if (this.highlighted || simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected && !simulationArea.shiftDown) || simulationArea.multipleObjectSelections.contains(this)) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;
@@ -288,19 +288,17 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             this.count = 0;
         }
 
-        if(this.clicked&&!this.wasClicked){
-            this.wasClicked=true;
-            if(this.type==2){
-                if(simulationArea.shiftDown){
-                    simulationArea.lastSelected=undefined;
-                    if(simulationArea.multipleObjectSelections.contains(this)){
+        if (this.clicked && !this.wasClicked) {
+            this.wasClicked = true;
+            if (this.type == 2) {
+                if (simulationArea.shiftDown) {
+                    simulationArea.lastSelected = undefined;
+                    if (simulationArea.multipleObjectSelections.contains(this)) {
                         simulationArea.multipleObjectSelections.clean(this);
-                    }
-                    else {
+                    } else {
                         simulationArea.multipleObjectSelections.push(this);
                     }
-                }
-                else{
+                } else {
                     simulationArea.lastSelected = this;
                 }
             }
@@ -382,7 +380,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
 
 
 
-            // return;
+        // return;
         if (this.type == 2) {
             if (this.connections.length == 2 && simulationArea.mouseDown == false) {
                 if ((this.connections[0].absX() == this.connections[1].absX()) || (this.connections[0].absY() == this.connections[1].absY())) {

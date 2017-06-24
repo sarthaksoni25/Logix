@@ -5,8 +5,8 @@ function loadSubCircuit(savedData, scope) {
 //subCircuit
 function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefined) {
     CircuitElement.call(this, x, y, scope, dir, 1);
-    this.directionFixed=true;
-    this.fixedBitWidth=true;
+    this.directionFixed = true;
+    this.fixedBitWidth = true;
 
     this.savedData = savedData;
     this.localScope = new Scope();
@@ -20,7 +20,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
     if (this.savedData != undefined) {
         this.height = savedData["height"];
         this.width = savedData["width"];
-        this.setDimensions(this.width/2,this.height/2);
+        this.setDimensions(this.width / 2, this.height / 2);
         this.dataHash = savedData["dataHash"];
         for (var i = 0; i < this.savedData["inputNodes"].length; i++) {
             this.inputNodes.push(this.scope.allNodes[this.savedData["inputNodes"][i]]);
@@ -51,17 +51,17 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
             this.parent.buildCircuit();
         }
     }
-    this.resetNodes=function(){
+    this.resetNodes = function() {
         for (var i = 0; i < this.localScope.allNodes.length; i++)
             this.localScope.allNodes[i].reset();
         for (var i = 0; i < this.localScope.SubCircuit.length; i++) {
             this.localScope.SubCircuit[i].resetNodes();
         }
     }
-    this.click=function(){
+    this.click = function() {
         // this.dataHash=prompt();
     }
-    this.isResolvable=function(){
+    this.isResolvable = function() {
         return true;
     }
     this.dblclick = function() {
@@ -88,9 +88,9 @@ function SubCircuit(x, y, scope = globalScope, dir = "left", savedData = undefin
         toBeUpdated = true;
         this.width = 100;
         this.title = this.data["title"];
-        this.localScope.name=this.title;
+        this.localScope.name = this.title;
         this.height = Math.max(this.localScope.Input.length, this.localScope.Output.length) * 20 + 30;
-        this.setDimensions(this.width/2,this.height/2);
+        this.setDimensions(this.width / 2, this.height / 2);
 
         if (this.savedData == undefined) {
             for (var i = 0; i < this.localScope.Input.length; i++) {
