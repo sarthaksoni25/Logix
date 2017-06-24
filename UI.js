@@ -37,9 +37,11 @@ function addOutput() {
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
 }
+
 function addTTY() {
     var a = new TTY(200, 150, globalScope, 'left');
 }
+
 function addKeyboard() {
     var a = new Keyboard(200, 150, globalScope, 'left');
 }
@@ -77,18 +79,21 @@ function addSplitter() {
 }
 
 function addBitSelector() {
-    var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
+    var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined, selectorBitWidth = undefined)
 }
 
 function addConstantVal() {
     var a = new ConstantVal(200, 150, globalScope, 'left');
 }
-function addNand(){
+
+function addNand() {
     var a = new NandGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
+
 function addXor() {
     var or = new XorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
+
 function addXnor() {
     var or = new XnorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
@@ -115,7 +120,7 @@ document.getElementById("splitterButton").addEventListener("click", addSplitter)
 document.getElementById("constantValButton").addEventListener("click", addConstantVal);
 document.getElementById("NAND").addEventListener("click", addNand);
 
-document.getElementById("xorButton").addEventListener("click",addXor);
-document.getElementById("xnorButton").addEventListener("click",addXnor);
+document.getElementById("xorButton").addEventListener("click", addXor);
+document.getElementById("xnorButton").addEventListener("click", addXnor);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
 document.getElementById("norButton").addEventListener("click", addNor);

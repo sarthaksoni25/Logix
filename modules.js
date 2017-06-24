@@ -1,9 +1,8 @@
-
 //AndGate - (x,y)-position , scope - circuit level, inputLength - no of nodes, dir - direction of gate
-function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
+function AndGate(x, y, scope, dir, inputLength, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
     this.inp = [];
 
     this.inputs = inputLength;
@@ -36,10 +35,11 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
     //fn to create save Json Data of object
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
-            nodes:{
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
 
         }
         return data;
@@ -76,16 +76,18 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
         lineTo(ctx, -10, -20, xx, yy, this.direction);
         ctx.closePath();
 
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
 
     }
 
 }
-function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
+
+function NandGate(x, y, scope, dir, inputLength, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
     this.inp = [];
 
 
@@ -93,26 +95,26 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
 
     //variable inputLength , node creation
     if (inputLength % 2 == 1) {
-          for (var i = 0; i < inputLength / 2 - 1; i++) {
-              var a = new Node(-10, -10 * (i + 1), 0, this);
-              this.inp.push(a);
-          }
-          var a = new Node(-10, 0, 0, this);
-          this.inp.push(a);
-          for (var i = inputLength / 2 + 1; i < inputLength; i++) {
-              var a = new Node(-10, 10 * (i + 1 - inputLength / 2 - 1), 0, this);
-              this.inp.push(a);
-          }
-      } else {
-          for (var i = 0; i < inputLength / 2; i++) {
-              var a = new Node(-10, -10 * (i + 1), 0, this);
-              this.inp.push(a);
-          }
-          for (var i = inputLength / 2; i < inputLength; i++) {
-              var a = new Node(-10, 10 * (i + 1 - inputLength / 2), 0, this);
-              this.inp.push(a);
-          }
-      }
+        for (var i = 0; i < inputLength / 2 - 1; i++) {
+            var a = new Node(-10, -10 * (i + 1), 0, this);
+            this.inp.push(a);
+        }
+        var a = new Node(-10, 0, 0, this);
+        this.inp.push(a);
+        for (var i = inputLength / 2 + 1; i < inputLength; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputLength / 2 - 1), 0, this);
+            this.inp.push(a);
+        }
+    } else {
+        for (var i = 0; i < inputLength / 2; i++) {
+            var a = new Node(-10, -10 * (i + 1), 0, this);
+            this.inp.push(a);
+        }
+        for (var i = inputLength / 2; i < inputLength; i++) {
+            var a = new Node(-10, 10 * (i + 1 - inputLength / 2), 0, this);
+            this.inp.push(a);
+        }
+    }
 
     this.output1 = new Node(30, 0, 1, this);
 
@@ -120,10 +122,11 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
     this.customSave = function() {
         var data = {
 
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
-            nodes:{
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
         }
         return data;
     }
@@ -159,16 +162,17 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
         lineTo(ctx, -10, -20, xx, yy, this.direction);
         ctx.closePath();
 
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.5)" ;
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.5)";
         ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx, 25, 0, 5, 0,  2 * (Math.PI), xx, yy, this.direction);
+        arc(ctx, 25, 0, 5, 0, 2 * (Math.PI), xx, yy, this.direction);
         ctx.stroke();
 
 
     }
 }
+
 function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -176,8 +180,8 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
     this.controlSignalSize = controlSignalSize || parseInt(prompt("Enter control signal bitWidth"), 10);
     this.inputSize = 1 << this.controlSignalSize;
 
-    this.setDimensions(20,5 * (this.inputSize));
-    this.upDimensionY=5 * (this.inputSize+2);
+    this.setDimensions(20, 5 * (this.inputSize));
+    this.upDimensionY = 5 * (this.inputSize + 2);
     this.inp = [];
 
     //variable inputLength , node creation
@@ -193,10 +197,12 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
     //fn to create save Json Data of object
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.bitWidth,this.controlSignalSize],
-            nodes:{inp: this.inp.map(findNode),
-            output1: findNode(this.output1),
-            controlSignalInput: findNode(this.controlSignalInput)},
+            constructorParamaters: [this.direction, this.bitWidth, this.controlSignalSize],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1),
+                controlSignalInput: findNode(this.controlSignalInput)
+            },
         }
         return data;
     }
@@ -217,10 +223,11 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
     }
 
 }
+
 function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
 
     this.inp = [];
     this.inputs = inputs;
@@ -250,9 +257,11 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
     this.customSave = function() {
         // console.log(this.scope.allNodes);
         var data = {
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
-            nodes:{inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
         }
         return data;
     }
@@ -283,19 +292,21 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
         bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
         // arc(ctx, 0, 0, -20, (-Math.PI / 2), (Math.PI / 2), xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx, -35, 0, 25,1.70*(Math.PI), 0.30*(Math.PI), xx, yy, this.direction);
+        arc(ctx, -35, 0, 25, 1.70 * (Math.PI), 0.30 * (Math.PI), xx, yy, this.direction);
         ctx.stroke();
 
 
     }
 }
+
 function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
 
     this.inp = [];
     this.inputs = inputs;
@@ -324,10 +335,11 @@ function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth 
 
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
-            nodes:{
-            inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
         }
         return data;
     }
@@ -358,22 +370,24 @@ function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth 
         bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
         // arc(ctx, 0, 0, -20, (-Math.PI / 2), (Math.PI / 2), xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx, -35, 0, 25,1.70*(Math.PI), 0.30*(Math.PI), xx, yy, this.direction);
+        arc(ctx, -35, 0, 25, 1.70 * (Math.PI), 0.30 * (Math.PI), xx, yy, this.direction);
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx, 25, 0, 5, 0,  2 * (Math.PI), xx, yy, this.direction);
+        arc(ctx, 25, 0, 5, 0, 2 * (Math.PI), xx, yy, this.direction);
         ctx.stroke();
 
     }
 }
+
 function SevenSegDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 1);
-    this.fixedBitWidth=true;
-    this.directionFixed=true;
-    this.setDimensions(30,50);
+    this.fixedBitWidth = true;
+    this.directionFixed = true;
+    this.setDimensions(30, 50);
 
     this.g = new Node(-20, -50, 0, this);
     this.f = new Node(-10, -50, 0, this);
@@ -388,16 +402,17 @@ function SevenSegDisplay(x, y, scope = globalScope) {
     this.customSave = function() {
         var data = {
 
-            nodes:{
-            g: findNode(this.g),
-            f: findNode(this.f),
-            a: findNode(this.a),
-            b: findNode(this.b),
-            d: findNode(this.d),
-            e: findNode(this.e),
-            c: findNode(this.c),
-            d: findNode(this.d),
-            dot: findNode(this.dot)},
+            nodes: {
+                g: findNode(this.g),
+                f: findNode(this.f),
+                a: findNode(this.a),
+                b: findNode(this.b),
+                d: findNode(this.d),
+                e: findNode(this.e),
+                c: findNode(this.c),
+                d: findNode(this.d),
+                dot: findNode(this.dot)
+            },
         }
         return data;
     }
@@ -435,11 +450,12 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.stroke();
     }
 }
+
 function HexDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 4);
-    this.directionFixed=true;
-    this.fixedBitWidth=true;
-    this.setDimensions(30,50);
+    this.directionFixed = true;
+    this.fixedBitWidth = true;
+    this.setDimensions(30, 50);
 
     this.inp = new Node(0, -50, 0, this, 4);
     this.direction = "left";
@@ -448,7 +464,9 @@ function HexDisplay(x, y, scope = globalScope) {
         var data = {
 
 
-            nodes:{inp: findNode(this.inp)},
+            nodes: {
+                inp: findNode(this.inp)
+            },
 
         }
         return data;
@@ -539,11 +557,12 @@ function HexDisplay(x, y, scope = globalScope) {
 
     }
 }
+
 function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     // Calling base class constructor
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
     // Inherit base class prototype
 
     this.inp = [];
@@ -575,10 +594,12 @@ function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     this.customSave = function() {
         var data = {
 
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
 
-            nodes:{inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
         }
         return data;
     }
@@ -610,7 +631,8 @@ function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
         bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20, -10, +20, xx, yy, this.direction);
         bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
 
 
@@ -618,19 +640,22 @@ function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     }
 
 }
+
 function NotGate(x, y, scope, dir, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,15);
+    this.rectangleObject = false;
+    this.setDimensions(15, 15);
 
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.bitWidth],
-            nodes:{output1: findNode(this.output1),
-            inp1: findNode(this.inp1)},
+            constructorParamaters: [this.direction, this.bitWidth],
+            nodes: {
+                output1: findNode(this.output1),
+                inp1: findNode(this.inp1)
+            },
         }
         return data;
     }
@@ -657,7 +682,8 @@ function NotGate(x, y, scope, dir, bitWidth = undefined) {
         lineTo(ctx, 10, 0, xx, yy, this.direction);
         lineTo(ctx, -10, 10, xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
         ctx.beginPath();
         arc(ctx, 15, 0, 5, 2 * (Math.PI), 0, xx, yy, this.direction);
@@ -666,20 +692,23 @@ function NotGate(x, y, scope, dir, bitWidth = undefined) {
     }
 
 }
+
 function TriState(x, y, scope, dir, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,15);
+    this.rectangleObject = false;
+    this.setDimensions(15, 15);
 
     this.inp1 = new Node(-10, 0, 0, this);
     this.output1 = new Node(20, 0, 1, this);
     this.state = new Node(0, 0, 0, this, 1);
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.bitWidth],
-            nodes:{output1: findNode(this.output1),
-            inp1: findNode(this.inp1),
-            state: findNode(this.state)},
+            constructorParamaters: [this.direction, this.bitWidth],
+            nodes: {
+                output1: findNode(this.output1),
+                inp1: findNode(this.inp1),
+                state: findNode(this.state)
+            },
         }
         return data;
     }
@@ -715,16 +744,18 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
         lineTo(ctx, 20, 0, xx, yy, this.direction);
         lineTo(ctx, -10, 15, xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
 
     }
 
 }
+
 function Adder(x, y, scope, dir, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.setDimensions(20,20);
+    this.setDimensions(20, 20);
 
     this.inpA = new Node(-20, -10, 0, this, this.bitWidth);
     this.inpB = new Node(-20, 0, 0, this, this.bitWidth);
@@ -734,13 +765,14 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
 
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.bitWidth],
-            nodes:{
-            inpA: findNode(this.inpA),
-            inpB: findNode(this.inpB),
-            carryIn: findNode(this.carryIn),
-            carryOut: findNode(this.carryOut),
-            sum: findNode(this.sum)},
+            constructorParamaters: [this.direction, this.bitWidth],
+            nodes: {
+                inpA: findNode(this.inpA),
+                inpB: findNode(this.inpB),
+                carryIn: findNode(this.carryIn),
+                carryOut: findNode(this.carryOut),
+                sum: findNode(this.sum)
+            },
         }
         return data;
     }
@@ -765,11 +797,12 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
     }
 
 }
+
 function Ram(x, y, scope, dir, data = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, 1);
-    this.fixedBitWidth=true;
-    this.setDimensions(30,30);
+    this.fixedBitWidth = true;
+    this.setDimensions(30, 30);
 
     this.memAddr = new Node(-30, 0, 0, this, 4);
     this.data = data || prompt("Enter data").split(' ').map(function(x) {
@@ -780,10 +813,11 @@ function Ram(x, y, scope, dir, data = undefined) {
 
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.data],
-            nodes:{
-            memAddr: findNode(this.memAddr),
-            dataOut: findNode(this.dataOut)},
+            constructorParamaters: [this.direction, this.data],
+            nodes: {
+                memAddr: findNode(this.memAddr),
+                dataOut: findNode(this.dataOut)
+            },
 
         }
         return data;
@@ -803,17 +837,18 @@ function Ram(x, y, scope, dir, data = undefined) {
     }
 
 }
+
 function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
+    this.rectangleObject = false;
 
     this.bitWidthSplit = bitWidthSplit || prompt("Enter bitWidth Split").split(' ').map(function(x) {
         return parseInt(x, 10);
     });
     this.splitCount = this.bitWidthSplit.length;
 
-    this.setDimensions(10,(this.splitCount - 1) * 10 + 10);
+    this.setDimensions(10, (this.splitCount - 1) * 10 + 10);
     this.yOffset = (this.splitCount / 2 - 1) * 20;
 
     this.inp1 = new Node(-10, 10 + this.yOffset, 0, this, this.bitWidth);
@@ -824,9 +859,11 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     this.customSave = function() {
         var data = {
 
-            constructorParamaters:[this.direction,this.bitWidth,this.bitWidthSplit],
-            nodes:{outputs: this.outputs.map(findNode),
-            inp1: findNode(this.inp1)},
+            constructorParamaters: [this.direction, this.bitWidth, this.bitWidthSplit],
+            nodes: {
+                outputs: this.outputs.map(findNode),
+                inp1: findNode(this.inp1)
+            },
         }
         return data;
     }
@@ -873,7 +910,7 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     this.customDraw = function() {
 
         ctx = simulationArea.context;
-        ctx.strokeStyle = ["black", "brown"][((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
+        ctx.strokeStyle = ["black", "brown"][((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
         ctx.lineWidth = 3;
 
         var xx = this.x;
@@ -898,6 +935,7 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     }
 
 }
+
 function Input(x, y, scope, dir, bitWidth) {
 
     // Call base class constructor
@@ -906,15 +944,19 @@ function Input(x, y, scope, dir, bitWidth) {
     this.state = bin2dec(this.state); // in integer format
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
-    this.directionFixed=true;
-    this.setWidth(this.bitWidth*10);
-    this.rectangleObject = true;    // Trying to make use of base class draw
+    this.directionFixed = true;
+    this.setWidth(this.bitWidth * 10);
+    this.rectangleObject = true; // Trying to make use of base class draw
 
     this.customSave = function() {
         var data = {
-            nodes:{output1: findNode(this.output1)},
-            values:{state: this.state},
-            constructorParamaters:[this.direction,this.bitWidth]
+            nodes: {
+                output1: findNode(this.output1)
+            },
+            values: {
+                state: this.state
+            },
+            constructorParamaters: [this.direction, this.bitWidth]
         }
         return data;
     }
@@ -927,7 +969,7 @@ function Input(x, y, scope, dir, bitWidth) {
     // Check if override is necessary!!
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
-        this.setWidth(this.bitWidth*10);
+        this.setWidth(this.bitWidth * 10);
         this.state = 0;
         this.output1.bitWidth = bitWidth;
         if (this.direction == "left") {
@@ -970,7 +1012,7 @@ function Input(x, y, scope, dir, bitWidth) {
 
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
-        this.direction=dir;
+        this.direction = dir;
         this.output1.refresh();
         if (dir == "left" || dir == "right") {
             this.output1.leftx = 10 * this.bitWidth;
@@ -981,18 +1023,19 @@ function Input(x, y, scope, dir, bitWidth) {
         }
 
         this.output1.refresh();
-        this.labelDirection=oppositeDirection[this.direction];
+        this.labelDirection = oppositeDirection[this.direction];
     }
 
     this.findPos = function() {
         return Math.round((simulationArea.mouseX - this.x + 10 * this.bitWidth) / 20.0);
     }
 }
+
 function Ground(x, y, scope = globalScope, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, "left", bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(20,20);
-    this.directionFixed=true;
+    this.rectangleObject = false;
+    this.setDimensions(20, 20);
+    this.directionFixed = true;
     this.output1 = new Node(0, -10, 1, this);
 
     this.output1.value = this.state;
@@ -1004,8 +1047,10 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
     }
     this.customSave = function() {
         var data = {
-            nodes:{output1: findNode(this.output1)},
-            constructorParamaters:[this.bitWidth],
+            nodes: {
+                output1: findNode(this.output1)
+            },
+            constructorParamaters: [this.bitWidth],
         }
         return data;
     }
@@ -1015,7 +1060,7 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
         ctx = simulationArea.context;
 
         ctx.beginPath();
-        ctx.strokeStyle = ["black", "brown"][((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
+        ctx.strokeStyle = ["black", "brown"][((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) + 0];
         ctx.lineWidth = 3;
 
         var xx = this.x;
@@ -1032,12 +1077,13 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
         ctx.stroke();
     }
 }
+
 function Power(x, y, scope = globalScope, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, "left", bitWidth);
-    this.directionFixed=true;
-    this.rectangleObject=false;
-    this.setDimensions(15,15);
+    this.directionFixed = true;
+    this.rectangleObject = false;
+    this.setDimensions(15, 15);
     this.output1 = new Node(0, 20, 1, this);
     this.output1.value = this.state;
     this.wasClicked = false;
@@ -1049,8 +1095,10 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
         var data = {
 
 
-            nodes:{output1: findNode(this.output1)},
-            constructorParamaters:[this.bitWidth],
+            nodes: {
+                output1: findNode(this.output1)
+            },
+            constructorParamaters: [this.bitWidth],
         }
         return data;
     }
@@ -1070,27 +1118,31 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
         lineTo(ctx, -10, 10, xx, yy, this.direction);
         lineTo(ctx, 10, 10, xx, yy, this.direction);
         lineTo(ctx, 0, 0, xx, yy, this.direction);
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         moveTo(ctx, 0, 10, xx, yy, this.direction);
         lineTo(ctx, 0, 20, xx, yy, this.direction);
         ctx.stroke();
 
     }
 }
+
 function Output(x, y, scope, dir, bitWidth) {
     // Calling base class constructor
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.directionFixed=true;
-    this.setDimensions(this.bitWidth*10,10);
+    this.rectangleObject = false;
+    this.directionFixed = true;
+    this.setDimensions(this.bitWidth * 10, 10);
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
 
     this.customSave = function() {
         var data = {
-            nodes:{inp1: scope.allNodes.indexOf(this.inp1)},
-            constructorParamaters:[this.direction,this.bitWidth],
+            nodes: {
+                inp1: scope.allNodes.indexOf(this.inp1)
+            },
+            constructorParamaters: [this.direction, this.bitWidth],
         }
         return data;
     }
@@ -1099,7 +1151,7 @@ function Output(x, y, scope, dir, bitWidth) {
 
         this.state = undefined;
         this.inp1.bitWidth = bitWidth;
-        this.bitWidth=bitWidth;
+        this.bitWidth = bitWidth;
         this.setWidth(10 * this.bitWidth);
 
         if (this.direction == "left") {
@@ -1126,7 +1178,8 @@ function Output(x, y, scope, dir, bitWidth) {
         var yy = this.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -1146,7 +1199,7 @@ function Output(x, y, scope, dir, bitWidth) {
 
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
-        this.direction=dir;
+        this.direction = dir;
         this.inp1.refresh();
         if (dir == "left" || dir == "right") {
             this.inp1.leftx = 10 * this.bitWidth;
@@ -1157,38 +1210,39 @@ function Output(x, y, scope, dir, bitWidth) {
         }
 
         this.inp1.refresh();
-        this.labelDirection=oppositeDirection[this.direction];
+        this.labelDirection = oppositeDirection[this.direction];
     }
 }
-function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=undefined) {
+
+function BitSelector(x, y, scope, dir, bitWidth = undefined, selectorBitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.setDimensions(20,20);
+    this.setDimensions(20, 20);
     this.selectorBitWidth = selectorBitWidth || parseInt(prompt("Enter Selector bitWidth"), 10);
-    this.rectangleObject=false;
-    this.inp1 = new Node(-20, 0, 0, this,this.bitWidth);
-    this.output1 = new Node(20, 0, 1, this,1);
-    this.bitSelectorInp = new Node(0, 20, 0, this,this.selectorBitWidth);
+    this.rectangleObject = false;
+    this.inp1 = new Node(-20, 0, 0, this, this.bitWidth);
+    this.output1 = new Node(20, 0, 1, this, 1);
+    this.bitSelectorInp = new Node(0, 20, 0, this, this.selectorBitWidth);
 
     this.customSave = function() {
         var data = {
 
-            nodes:{
+            nodes: {
                 inp1: scope.allNodes.indexOf(this.inp1),
                 output1: scope.allNodes.indexOf(this.output1),
                 bitSelectorInp: scope.allNodes.indexOf(this.bitSelectorInp)
             },
-            constructorParamaters:[this.direction,this.bitWidth,this.selectorBitWidth],
+            constructorParamaters: [this.direction, this.bitWidth, this.selectorBitWidth],
         }
         return data;
     }
 
     this.newBitWidth = function(bitWidth) {
-            this.inp1.bitWidth = bitWidth;
+        this.inp1.bitWidth = bitWidth;
     }
 
     this.resolve = function() {
-        this.output1.value=extractBits(this.inp1.value, this.bitSelectorInp.value+1, this.bitSelectorInp.value+1);//(this.inp1.value^(1<<this.bitSelectorInp.value))==(1<<this.bitSelectorInp.value);
+        this.output1.value = extractBits(this.inp1.value, this.bitSelectorInp.value + 1, this.bitSelectorInp.value + 1); //(this.inp1.value^(1<<this.bitSelectorInp.value))==(1<<this.bitSelectorInp.value);
         this.scope.stack.push(this.output1);
     }
 
@@ -1202,7 +1256,8 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
         var xx = this.x;
         var yy = this.y;
         rect(ctx, xx - 20, yy - 20, 40, 40);
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -1218,33 +1273,37 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
         ctx.stroke();
     }
 }
+
 function saveasimg() {
     //window.open(simulationArea.canvas.toDataURL('image/png'));
     var gh = simulationArea.canvas.toDataURL('image/png');
     var name = prompt("Enter imagename");
-    if(name!=null){
+    if (name != null) {
         var filename = name;
-        var anchor  = document.createElement('a');
+        var anchor = document.createElement('a');
         anchor.href = gh;
-        anchor.download = filename+'.png';
+        anchor.download = filename + '.png';
     }
     anchor.click()
 }
-function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
-    this.state = state||prompt("Enter value");
+
+function ConstantVal(x, y, scope, dir, bitWidth = undefined, state = undefined) {
+    this.state = state || prompt("Enter value");
     CircuitElement.call(this, x, y, scope, dir, this.state.length);
-    this.setDimensions(10*this.state.length,10);
-    this.bitWidth=bitWidth||this.state.length;
-    this.directionFixed=true;
-    this.rectangleObject=false;
+    this.setDimensions(10 * this.state.length, 10);
+    this.bitWidth = bitWidth || this.state.length;
+    this.directionFixed = true;
+    this.rectangleObject = false;
 
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
     this.label = "";
     this.customSave = function() {
         var data = {
-            nodes:{output1: findNode(this.output1)},
-            constructorParamaters:[this.direction,this.bitWidth,this.state],
+            nodes: {
+                output1: findNode(this.output1)
+            },
+            constructorParamaters: [this.direction, this.bitWidth, this.state],
         }
         return data;
     }
@@ -1253,15 +1312,15 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
         this.scope.stack.push(this.output1);
     }
     this.dblclick = function() {
-        this.state =  prompt("Re enter the value");
+        this.state = prompt("Re enter the value");
         console.log(this.state);
         this.newBitWidth(this.state.toString().length);
-        console.log(this.state,this.bitWidth);
+        console.log(this.state, this.bitWidth);
     }
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth; //||parseInt(prompt("Enter bitWidth"),10);
         this.output1.bitWidth = bitWidth;
-        this.setDimensions(10*this.bitWidth,10);
+        this.setDimensions(10 * this.bitWidth, 10);
         if (this.direction == "left") {
             this.output1.x = 10 * this.bitWidth;
             this.output1.leftx = 10 * this.bitWidth;
@@ -1281,14 +1340,14 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
         var yy = this.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "left");
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
         ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
         ctx.fillStyle = "green";
         ctx.textAlign = "center";
-        var bin = this.state;//dec2bin(this.state,this.bitWidth);
+        var bin = this.state; //dec2bin(this.state,this.bitWidth);
         for (var k = 0; k < this.bitWidth; k++)
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
@@ -1296,7 +1355,7 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
     }
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
-        this.direction=dir;
+        this.direction = dir;
         this.output1.refresh();
         if (dir == "left" || dir == "right") {
             this.output1.leftx = 10 * this.bitWidth;
@@ -1307,14 +1366,15 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
         }
 
         this.output1.refresh();
-        this.labelDirection=oppositeDirection[this.direction];
+        this.labelDirection = oppositeDirection[this.direction];
     }
 }
+
 function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
-    this.rectangleObject=false;
-    this.setDimensions(15,20);
+    this.rectangleObject = false;
+    this.setDimensions(15, 20);
 
     this.inp = [];
     this.inputs = inputs;
@@ -1343,9 +1403,11 @@ function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
 
     this.customSave = function() {
         var data = {
-            constructorParamaters:[this.direction,this.inputs,this.bitWidth],
-            nodes:{inp: this.inp.map(findNode),
-            output1: findNode(this.output1)},
+            constructorParamaters: [this.direction, this.inputs, this.bitWidth],
+            nodes: {
+                inp: this.inp.map(findNode),
+                output1: findNode(this.output1)
+            },
         }
         return data;
     }
@@ -1357,7 +1419,7 @@ function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
         for (var i = 1; i < this.inputs; i++)
             result = result | (this.inp[i].value);
         result = ((~result >>> 0) << (32 - this.bitWidth)) >>> (32 - this.bitWidth);
-        this.output1.value=result
+        this.output1.value = result
         this.scope.stack.push(this.output1);
     }
     this.customDraw = function() {
@@ -1376,11 +1438,11 @@ function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
         bezierCurveTo(0 + 15, 0 + 10, 0, 0 + 20, -10, +20, xx, yy, this.direction);
         bezierCurveTo(0, 0, 0, 0, -10, -20, xx, yy, this.direction);
         ctx.closePath();
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))ctx.fillStyle = "rgba(255, 255, 32,0.5)" ;
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.5)";
         ctx.fill();
         ctx.stroke();
         ctx.beginPath();
-        arc(ctx, 25, 0, 5, 0,  2 * (Math.PI), xx, yy, this.direction);
+        arc(ctx, 25, 0, 5, 0, 2 * (Math.PI), xx, yy, this.direction);
         ctx.stroke();
         //for debugging
     }
