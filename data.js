@@ -4,31 +4,27 @@ function extract(obj) {
 }
 
 //fn to create save data
+function backUp(){
+        var data={};
+        data["allNodes"] = globalScope.allNodes.map(extract);
+
+        for(var i=0;i<moduleList.length;i++){
+            data[moduleList[i]]=globalScope[moduleList[i]].map(extract);
+        }
+
+
+        data["nodes"] = []
+        for (var i = 0; i < globalScope.nodes.length; i++)
+            data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
+        // console.log(data);
+        return data
+
+}
+
 function Save() {
-    var data = {
-        title: prompt("EnterName:")
-    };
-    data["inputs"] = globalScope.inputs.map(extract);
-    data["outputs"] = globalScope.outputs.map(extract);
-    data["allNodes"] = globalScope.allNodes.map(extract);
-    data["andGates"] = globalScope.andGates.map(extract);
-    data["orGates"] = globalScope.orGates.map(extract);
-    data["multiplexers"] = globalScope.multiplexers.map(extract);
-    data["adders"] = globalScope.adders.map(extract);
-    data["splitters"] = globalScope.splitters.map(extract);
-    data["notGates"] = globalScope.notGates.map(extract);
-    data["triStates"] = globalScope.triStates.map(extract);
-    data["rams"] = globalScope.rams.map(extract);
-    data["sevenseg"] = globalScope.sevenseg.map(extract);
-    data["hexdis"] = globalScope.hexdis.map(extract);
-    data["grounds"] = globalScope.grounds.map(extract);
-    data["powers"] = globalScope.powers.map(extract);
-    data["clocks"] = globalScope.clocks.map(extract);
-    data["flipflops"] = globalScope.flipflops.map(extract);
-    data["subCircuits"] = globalScope.subCircuits.map(extract);
-    data["nodes"] = []
-    for (var i = 0; i < globalScope.nodes.length; i++)
-        data["nodes"].push(globalScope.allNodes.indexOf(globalScope.nodes[i]));
+    var data=backUp();
+    data["title"]=prompt("EnterName:");
+    data["timePeriod"]=simulationArea.timePeriod;
 
     //covnvert to text
     data = JSON.stringify(data)
@@ -44,67 +40,51 @@ function Save() {
     }
 }
 
+function loadModule(data,scope){
+    console.log(data);
+    obj=new window[data["objectType"]](data["x"],data["y"],scope,...data.customData["constructorParamaters"]||[]);
+    obj.label=data["label"];
+    obj.labelDirection=data["labelDirection"]||oppositeDirection[obj.direction];
+    if(data.customData["values"])
+    for(prop in data.customData["values"]){
+        obj[prop]=data.customData["values"][prop];
+    }
+    if(data.customData["nodes"])
+    for(node in data.customData["nodes"]){
+        var n=data.customData["nodes"][node]
+        if(n instanceof Array){
+            for(var i=0;i<n.length;i++){
+                obj[node][i]=replace(obj[node][i], n[i]);
+            }
+        }
+        else{
+            obj[node]=replace(obj[node], n);
+        }
+    }
+}
 
-//fn to load from data
-function load(scope, data) {
-
+function load(scope,data){
+    // console.log(data);
     data["allNodes"].map(function(x) {
         return loadNode(x, scope)
     });
+
     for (var i = 0; i < data["allNodes"].length; i++)
         constructNodeConnections(scope.allNodes[i], data["allNodes"][i]);
-    if (data["inputs"]) data["inputs"].map(function(x) {
-        return loadInput(x, scope);
-    });
-    if (data["outputs"]) data["outputs"].map(function(x) {
-        return loadOutput(x, scope);
-    });
-    if (data["andGates"]) data["andGates"].map(function(x) {
-        return loadAnd(x, scope);
-    });
-    if (data["multiplexers"]) data["multiplexers"].map(function(x) {
-        return loadMultiplexer(x, scope);
-    });
-    if (data["rams"]) data["rams"].map(function(x) {
-        return loadRam(x, scope);
-    });
-    if (data["splitters"]) data["splitters"].map(function(x) {
-        return loadSplitter(x, scope);
-    });
-    if (data["adders"]) data["adders"].map(function(x) {
-        return loadAdder(x, scope);
-    });
-    if (data["clocks"]) data["clocks"].map(function(x) {
-        return loadClock(x, scope);
-    });
-    if (data["flipflops"]) data["flipflops"].map(function(x) {
-        return loadFlipFlop(x, scope);
-    });
-    if (data["orGates"]) data["orGates"].map(function(x) {
-        return loadOr(x, scope);
-    });
-    if (data["notGates"]) data["notGates"].map(function(x) {
-        return loadNot(x, scope);
-    });
-    if (data["triStates"]) data["triStates"].map(function(x) {
-        return loadTriState(x, scope);
 
-    });
-    if (data["sevenseg"]) data["sevenseg"].map(function(x) {
-        return loadSevenSegmentDisplay(x, scope);
-    });
-    if (data["hexdis"]) data["hexdis"].map(function(x) {
-        return loadHexDisplay(x, scope);
-    });
-    if (data["powers"]) data["powers"].map(function(x) {
-        return loadPower(x, scope);
-    });
-    if (data["grounds"]) data["grounds"].map(function(x) {
-        return loadGround(x, scope);
-    });
-    if (data["subCircuits"]) data["subCircuits"].map(function(x) {
-        return loadSubCircuit(x, scope);
-    });
+    for(var i=0;i<moduleList.length;i++){
+        if(data[moduleList[i]]){
+            if(moduleList[i]=="SubCircuit"){
+                for(var j=0;j<data[moduleList[i]].length;j++)
+                    loadSubCircuit(data[moduleList[i]][j],scope);
+            }else{
+            for(var j=0;j<data[moduleList[i]].length;j++)
+                loadModule(data[moduleList[i]][j],scope);
+            }
+        }
+    }
+
     scope.wires.map(function(x) {
         x.updateData()
-    })
+    });
+}

@@ -1,6 +1,7 @@
 //wire object
 function Wire(node1, node2, scope) {
 
+    this.objectType="Wire";
     //if data changes
     this.updateData = function() {
         this.node1 = node1;

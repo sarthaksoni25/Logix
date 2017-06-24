@@ -86,33 +86,6 @@ function rect2(ctx, x1, y1, x2, y2, xx, yy, dir) {
     ctx.rect(simulationArea.ox + xx + x1, simulationArea.oy + yy + y1, x2, y2);
 }
 
-function newDirection(obj, dir) {
-    if (obj.newDirection !== undefined) {
-        obj.newDirection(dir);
-        return;
-    }
-    if (obj.direction == undefined) return;
-    obj.direction = dir;
-    for (var i = 0; i < obj.nodeList.length; i++) {
-        // for (var j=0;j<obj.nodeList[i].length;j++){
-        // wireToBeChecked=1;
-        obj.nodeList[i].refresh();
-        // wireToBeChecked=1;
-        // }
-    }
-
-    //oldMethod for changing direction
-    // for(var i=0;i<globalScope.wires.length;i++)
-    //     globalScope.wires[i].checkConnections();
-    // var newFunction=obj.func;
-    // obj.list.pop();
-    // obj.list.push(dir);
-    // obj.list[0]=obj.element.x;
-    // obj.list[1]=obj.element.y;
-    // var b= new newFunction(obj.list);
-    // obj.delete();
-    // simulationArea.lastSelected=b;
-}
 
 function rotate(x1, y1, dir) {
     if (dir == 'right')
@@ -195,4 +168,24 @@ function fillText2(ctx, str, x1, y1, xx, yy, dir) {
     ctx.restore();
     // ctx.fillText(str, xx+x1+simulationArea.ox,yy+ y1+simulationArea.oy);
 
+}
+
+function fillText3(ctx, str, x1, y1, xx=0, yy=0, fontSize=14,font="Georgia",textAlign="center") {
+
+    x1 = x1 * simulationArea.scale;
+    y1 = y1 * simulationArea.scale;
+    xx = xx * simulationArea.scale;
+    yy = yy * simulationArea.scale;
+
+    ctx.font = fontSize * simulationArea.scale + "px "+font;
+    // console.log(ctx.font);
+    ctx.textAlign=textAlign;
+    ctx.fillText(str,xx+ x1 + simulationArea.ox,yy+ y1 + simulationArea.oy);
+
+}
+oppositeDirection={
+    "left":"right",
+    "right":"left",
+    "up":"down",
+    "down":"up",
 }

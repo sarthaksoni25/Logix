@@ -1,5 +1,5 @@
 function addAnd() {
-    var a = new AndGate(200, 150, globalScope, prompt("No of inputs:"), 'left');
+    var a = new AndGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addPower() {
@@ -11,11 +11,15 @@ function addGround() {
 }
 
 function addOr() {
-    var or = new OrGate(200, 150, globalScope, prompt("No of inputs:"));
+    var or = new OrGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addNot() {
     var a = new NotGate(200, 150, globalScope, 'left');
+}
+
+function addNor() {
+    var a = new NorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
 }
 
 function addTriState() {
@@ -32,6 +36,12 @@ function addOutput() {
 
 function addFlipflop() {
     var a = new FlipFlop(200, 150, globalScope, 'left');
+}
+function addTTY() {
+    var a = new TTY(200, 150, globalScope, 'left');
+}
+function addKeyboard() {
+    var a = new Keyboard(200, 150, globalScope, 'left');
 }
 
 function addMultiplexer() {
@@ -51,11 +61,11 @@ function addHexDis() {
 }
 
 function addAdder() {
-    var a = new Adder(400, 150, globalScope, "left", );
+    var a = new Adder(400, 150, globalScope, 'left');
 }
 
 function addRam() {
-    var a = new Ram(400, 150, globalScope, "left", );
+    var a = new Ram(400, 150, globalScope, 'left');
 }
 
 function addSubCircuit() {
@@ -63,11 +73,27 @@ function addSubCircuit() {
 }
 
 function addSplitter() {
-    var a = new Splitter(400, 400, globalScope, "left", );
+    var a = new Splitter(400, 400, globalScope, 'left');
 }
 
+function addBitSelector() {
+    var a = new BitSelector(400, 300, globalScope, "left", bitWidth = undefined,selectorBitWidth=undefined)
+}
 
+function addConstantVal() {
+    var a = new ConstantVal(200, 150, globalScope, 'left');
+}
+function addNand(){
+    var a = new NandGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
+}
+function addXor() {
+    var or = new XorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
+}
+function addXnor() {
+    var or = new XnorGate(200, 150, globalScope, 'left', prompt("No of inputs:"));
+}
 document.getElementById("powerButton").addEventListener("click", addPower);
+document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);
 document.getElementById("groundButton").addEventListener("click", addGround);
 document.getElementById("andButton").addEventListener("click", addAnd);
 document.getElementById("multiplexerButton").addEventListener("click", addMultiplexer);
@@ -80,8 +106,16 @@ document.getElementById("adderButton").addEventListener("click", addAdder);
 document.getElementById("ramButton").addEventListener("click", addRam);
 document.getElementById("clockButton").addEventListener("click", addClock);
 document.getElementById("flipflopButton").addEventListener("click", addFlipflop);
+document.getElementById("TTYButton").addEventListener("click", addTTY);
 document.getElementById("sevenSegButton").addEventListener("click", addSevenSeg);
 document.getElementById("hexButton").addEventListener("click", addHexDis);
 document.getElementById("subCircuitButton").addEventListener("click", addSubCircuit);
 document.getElementById("saveButton").addEventListener("click", Save);
 document.getElementById("splitterButton").addEventListener("click", addSplitter);
+document.getElementById("constantValButton").addEventListener("click", addConstantVal);
+document.getElementById("NAND").addEventListener("click", addNand);
+
+document.getElementById("xorButton").addEventListener("click",addXor);
+document.getElementById("xnorButton").addEventListener("click",addXnor);
+document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
+document.getElementById("norButton").addEventListener("click", addNor);

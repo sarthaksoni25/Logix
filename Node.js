@@ -51,6 +51,7 @@ function extractNode(x, scope, parent) {
 //input node=0
 //intermediate node =2
 function Node(x, y, type, parent, bitWidth = undefined) {
+    this.objectType="Node";
     this.id = 'node' + uniqueIdCounter;
     uniqueIdCounter++;
     this.parent = parent;
@@ -77,6 +78,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
     this.scope = this.parent.scope;
     this.prev = 'a';
     this.count = 0;
+    this.highlighted=false;
 
     //This fn is called during rotations and setup
 
@@ -120,14 +122,12 @@ function Node(x, y, type, parent, bitWidth = undefined) {
     this.parent.scope.allNodes.push(this);
 
     this.absX = function() {
-        return this.x + this.parent.element.x;
+        return this.x + this.parent.x;
     }
     this.absY = function() {
-        return this.y + this.parent.element.y;
+        return this.y + this.parent.y;
     }
 
-    this.prevx = this.absX();
-    this.prevy = this.absY();
 
     this.isResolvable = function() {
         return this.value != undefined;
@@ -135,6 +135,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
 
     this.reset = function() {
         this.value = undefined;
+        this.highlighted=false;
     }
 
     this.connect = function(n) {
@@ -156,13 +157,19 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             if (this.connections[i].value != this.value) {
 
                 if (this.connections[i].type == 1 && this.connections[i].value != undefined) {
-                    console.log("CONTENTION", this.connections[i].value, this.value);
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("Contention Error: "+this.value+" and "+this.connections[i].value);
+                    // console.log("CONTENTION", this.connections[i].value, this.value);
                 } else if (this.connections[i].bitWidth == this.bitWidth || this.connections[i].type == 2) {
                     this.connections[i].bitWidth = this.bitWidth;
                     this.connections[i].value = this.value;
                     this.scope.stack.push(this.connections[i]);
                 } else {
-                    console.log("BIT WIDTH ERROR");
+                    this.highlighted=true;
+                    this.connections[i].highlighted=true;
+                    showError("BitWidth Error: "+this.bitWidth+" and "+this.connections[i].bitWidth);
+                    // console.log("BIT WIDTH ERROR");
                 }
             }
             // else if(this.connections[i].value!=this.value){
@@ -186,22 +193,25 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                 drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
                 drawLine(ctx, this.absX(), simulationArea.mouseY, simulationArea.mouseX, simulationArea.mouseY, "black", 3);
             } else {
-                if (Math.abs(this.x + this.parent.element.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.element.y - simulationArea.mouseY)) {
+                if (Math.abs(this.x + this.parent.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.y - simulationArea.mouseY)) {
                     drawLine(ctx, this.absX(), this.absY(), simulationArea.mouseX, this.absY(), "black", 3);
                 } else {
                     drawLine(ctx, this.absX(), this.absY(), this.absX(), simulationArea.mouseY, "black", 3);
                 }
             }
         }
-        if (this.type != 2) {
-            drawCircle(ctx, this.absX(), this.absY(), 3, "green");
-        }
+        // if (this.type != 2) {
 
-        if (simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected)) {
+            var color=(this.bitWidth!=1||this.value==undefined)?"black":["green","lightgreen"][this.value];
+            if(this.type==1||this.type==0)color="green";
+            drawCircle(ctx, this.absX(), this.absY(), 3, color);
+        // }
+
+        if (this.highlighted||simulationArea.lastSelected == this || (this.isHover() && !simulationArea.selected&&!simulationArea.shiftDown)||simulationArea.multipleObjectSelections.contains(this)) {
             ctx.strokeStyle = "green";
             ctx.beginPath();
             ctx.lineWidth = 3;
-            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.element.x, this.parent.element.y, "left");
+            arc(ctx, this.x, this.y, 8, 0, Math.PI * 2, this.parent.x, this.parent.y, "left");
             ctx.closePath();
             ctx.stroke();
             //   console.log("HIT");
@@ -211,6 +221,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
     }
 
     this.update = function() {
+
         if (!this.clicked && !simulationArea.mouseDown) {
             var px = this.prevx;
             var py = this.prevy;
@@ -222,6 +233,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                 return updated;
             }
         }
+
         var updated = false;
         if (!simulationArea.mouseDown) this.hover = false;
         if ((this.clicked || !simulationArea.hover) && this.isHover()) {
@@ -235,16 +247,16 @@ function Node(x, y, type, parent, bitWidth = undefined) {
         if (simulationArea.mouseDown && (this.clicked)) {
 
             if (this.type == 2) {
-                //console.log(this.absY(),simulationArea.mouseDownY,simulationArea.mouseDownX-this.parent.element.x);
+                //console.log(this.absY(),simulationArea.mouseDownY,simulationArea.mouseDownX-this.parent.x);
                 if (this.absX() == simulationArea.mouseX && this.absY() == simulationArea.mouseY) {
                     updated = false;
                     this.prev = 'a';
                 } else if (this.connections.length == 1 && this.connections[0].absX() == simulationArea.mouseX && this.absX() == simulationArea.mouseX) {
-                    this.y = simulationArea.mouseY - this.parent.element.y;
+                    this.y = simulationArea.mouseY - this.parent.y;
                     this.prev = 'a';
                     updated = true;
                 } else if (this.connections.length == 1 && this.connections[0].absY() == simulationArea.mouseY && this.absY() == simulationArea.mouseY) {
-                    this.x = simulationArea.mouseX - this.parent.element.x;
+                    this.x = simulationArea.mouseX - this.parent.x;
                     this.prev = 'a';
                     updated = true;
                 }
@@ -259,7 +271,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                 }
             }
             if (this.prev == 'a' && distance(simulationArea.mouseX, simulationArea.mouseY, this.absX(), this.absY()) >= 10) {
-                if (Math.abs(this.x + this.parent.element.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.element.y - simulationArea.mouseY)) {
+                if (Math.abs(this.x + this.parent.x - simulationArea.mouseX) > Math.abs(this.y + this.parent.y - simulationArea.mouseY)) {
                     this.prev = 'x';
                 } else {
                     this.prev = 'y';
@@ -268,16 +280,36 @@ function Node(x, y, type, parent, bitWidth = undefined) {
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             simulationArea.selected = this.clicked = this.hover;
             updated |= this.clicked;
-            this.wasClicked |= this.clicked;
+            // this.wasClicked |= this.clicked;
             this.prev = 'a';
         } else if (!simulationArea.mouseDown) {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
             this.count = 0;
         }
+
+        if(this.clicked&&!this.wasClicked){
+            this.wasClicked=true;
+            if(this.type==2){
+                if(simulationArea.shiftDown){
+                    simulationArea.lastSelected=undefined;
+                    if(simulationArea.multipleObjectSelections.contains(this)){
+                        simulationArea.multipleObjectSelections.clean(this);
+                    }
+                    else {
+                        simulationArea.multipleObjectSelections.push(this);
+                    }
+                }
+                else{
+                    simulationArea.lastSelected = this;
+                }
+            }
+        }
+
         if (this.wasClicked && !this.clicked) {
             this.wasClicked = false;
-            if (simulationArea.mouseDownX == this.absX() && simulationArea.mouseDownY == this.absY()) {
+
+            if (simulationArea.mouseX == this.absX() && simulationArea.mouseY == this.absY()) {
                 this.nodeConnect();
                 return updated;
             }
@@ -304,7 +336,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                     break;
                 }
             }
-
+            // return;
             if (n == undefined) {
                 n = new Node(x, y, 2, this.scope.root);
                 this.connect(n);
@@ -315,12 +347,12 @@ function Node(x, y, type, parent, bitWidth = undefined) {
                 }
             }
             this.prev = 'a';
+            // return;
 
-
-            if (flag == 0 && (this.y + this.parent.element.y - simulationArea.mouseY) != 0) {
+            if (flag == 0 && (this.y + this.parent.y - simulationArea.mouseY) != 0) {
                 y = y1;
                 flag = 2;
-            } else if ((this.x + this.parent.element.x - simulationArea.mouseX) != 0 && flag == 1) {
+            } else if ((this.x + this.parent.x - simulationArea.mouseX) != 0 && flag == 1) {
                 x = x1;
                 flag = 2;
             }
@@ -348,6 +380,9 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             if (simulationArea.lastSelected == this) simulationArea.lastSelected = undefined;
         }
 
+
+
+            // return;
         if (this.type == 2) {
             if (this.connections.length == 2 && simulationArea.mouseDown == false) {
                 if ((this.connections[0].absX() == this.connections[1].absX()) || (this.connections[0].absY() == this.connections[1].absY())) {
@@ -363,7 +398,7 @@ function Node(x, y, type, parent, bitWidth = undefined) {
             } else if (this.connections.length == 0) this.delete();
         }
 
-        if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
+        // if (this.clicked && this.type == 2 && simulationArea.lastSelected == undefined) simulationArea.lastSelected = this;
         return updated;
 
 
@@ -418,5 +453,9 @@ function Node(x, y, type, parent, bitWidth = undefined) {
         }
 
     }
+
+
+    this.prevx = this.absX();
+    this.prevy = this.absY();
 
 }
