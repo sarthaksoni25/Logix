@@ -1,9 +1,3 @@
-//load AndGate fn
-function loadAnd(data, scope) {
-    var v = new AndGate(data["x"], data["y"], scope, data["dir"], data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
-}
 
 //AndGate - (x,y)-position , scope - circuit level, inputLength - no of nodes, dir - direction of gate
 function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
@@ -51,7 +45,6 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
         return data;
     }
 
-
     //resolve output values based on inputData
     this.resolve = function() {
         var result = this.inp[0].value;
@@ -86,17 +79,8 @@ function AndGate(x, y, scope,dir, inputLength, bitWidth = undefined) {
         if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
         ctx.stroke();
 
-        //for debugging
-
-
     }
 
-    //fn to delete object
-}
-function loadNand(data, scope) {
-    var v = new NandGate(data["x"], data["y"], scope, data["dir"], data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -185,14 +169,6 @@ function NandGate(x, y, scope, dir,inputLength, bitWidth = undefined) {
 
     }
 }
-
-function loadMultiplexer(data, scope) {
-    var v = new Multiplexer(data["x"], data["y"], scope, data["dir"], data["bitWidth"], data["controlSignalSize"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.controlSignalInput = replace(v.controlSignalInput, data["controlSignalInput"]);
-    for (var i = 0; i < v.inp.length; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
-}
-
 function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -240,11 +216,6 @@ function Multiplexer(x, y, scope, dir, bitWidth = undefined, controlSignalSize =
         this.scope.stack.push(this.output1);
     }
 
-}
-function loadXor(data, scope) {
-    var v = new XorGate(data["x"], data["y"], scope, data["dir"],data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -320,11 +291,6 @@ function XorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth =
 
 
     }
-}
-function loadXnor(data, scope) {
-    var v = new XnorGate(data["x"], data["y"], scope, data["dir"],data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
 }
 function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -403,18 +369,6 @@ function XnorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth 
 
     }
 }
-function loadSevenSegmentDisplay(data, scope) {
-    var v = new SevenSegDisplay(data["x"], data["y"], scope);
-    v.a = replace(v.a, data["a"]);
-    v.b = replace(v.b, data["b"]);
-    v.c = replace(v.c, data["c"]);
-    v.d = replace(v.d, data["d"]);
-    v.e = replace(v.e, data["e"]);
-    v.f = replace(v.f, data["f"]);
-    v.g = replace(v.g, data["g"]);
-    v.dot = replace(v.dot, data["dot"]);
-}
-
 function SevenSegDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 1);
     this.fixedBitWidth=true;
@@ -481,13 +435,6 @@ function SevenSegDisplay(x, y, scope = globalScope) {
         ctx.stroke();
     }
 }
-
-function loadHexDisplay(data, scope) {
-    var v = new HexDisplay(data["x"], data["y"], scope);
-    v.inp = replace(v.inp, data["inp"]);
-
-}
-
 function HexDisplay(x, y, scope = globalScope) {
     CircuitElement.call(this, x, y, scope, "left", 4);
     this.directionFixed=true;
@@ -592,13 +539,6 @@ function HexDisplay(x, y, scope = globalScope) {
 
     }
 }
-
-function loadOr(data, scope) {
-    var v = new OrGate(data["x"], data["y"], scope, data["dir"],data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
-}
-
 function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     // Calling base class constructor
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -678,13 +618,6 @@ function OrGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth) {
     }
 
 }
-
-function loadNot(data, scope) {
-    var v = new NotGate(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-}
-
 function NotGate(x, y, scope, dir, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -733,14 +666,6 @@ function NotGate(x, y, scope, dir, bitWidth = undefined) {
     }
 
 }
-
-function loadTriState(data, scope) {
-    var v = new TriState(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-    v.state = replace(v.state, data["state"]);
-}
-
 function TriState(x, y, scope, dir, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject=false;
@@ -796,16 +721,6 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
     }
 
 }
-
-function loadAdder(data, scope) {
-    var v = new Adder(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
-    v.inpA = replace(v.inpA, data["inpA"]);
-    v.inpB = replace(v.inpB, data["inpB"]);
-    v.carryIn = replace(v.carryIn, data["carryIn"]);
-    v.carryOut = replace(v.carryOut, data["carryOut"]);
-    v.sum = replace(v.sum, data["sum"]);
-}
-
 function Adder(x, y, scope, dir, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -850,13 +765,6 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
     }
 
 }
-
-function loadRam(data, scope) {
-    var v = new Ram(data["x"], data["y"], scope, data["dir"], data["data"]);
-    v.memAddr = replace(v.memAddr, data["memAddr"]);
-    v.dataOut = replace(v.dataOut, data["dataOut"]);
-}
-
 function Ram(x, y, scope, dir, data = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, 1);
@@ -895,13 +803,6 @@ function Ram(x, y, scope, dir, data = undefined) {
     }
 
 }
-
-function loadSplitter(data, scope) {
-    var v = new Splitter(data["x"], data["y"], scope, data["dir"], data["bitWidth"], data["bitWidthSplit"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-    for (var i = 0; i < v.outputs.length; i++) v.outputs[i] = replace(v.outputs[i], data["outputs"][i]);
-}
-
 function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -997,14 +898,6 @@ function Splitter(x, y, scope, dir, bitWidth = undefined, bitWidthSplit = undefi
     }
 
 }
-
-function loadInput(data, scope) {
-    var v = new Input(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.state = data["state"];
-    v.label = data["label"];
-}
-
 function Input(x, y, scope, dir, bitWidth) {
 
     // Call base class constructor
@@ -1013,12 +906,9 @@ function Input(x, y, scope, dir, bitWidth) {
     this.state = bin2dec(this.state); // in integer format
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
+    this.directionFixed=true;
     this.setWidth(this.bitWidth*10);
     this.rectangleObject = true;    // Trying to make use of base class draw
-
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
-    }
 
     this.customSave = function() {
         var data = {
@@ -1074,31 +964,7 @@ function Input(x, y, scope, dir, bitWidth) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
+
     }
 
 
@@ -1115,18 +981,13 @@ function Input(x, y, scope, dir, bitWidth) {
         }
 
         this.output1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 
     this.findPos = function() {
         return Math.round((simulationArea.mouseX - this.x + 10 * this.bitWidth) / 20.0);
     }
 }
-
-function loadGround(data, scope) {
-    var v = new Ground(data["x"], data["y"], scope, data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-}
-
 function Ground(x, y, scope = globalScope, bitWidth = undefined) {
     CircuitElement.call(this, x, y, scope, "left", bitWidth);
     this.rectangleObject=false;
@@ -1171,12 +1032,6 @@ function Ground(x, y, scope = globalScope, bitWidth = undefined) {
         ctx.stroke();
     }
 }
-
-function loadPower(data, scope) {
-    var v = new Power(data["x"], data["y"], scope, data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-}
-
 function Power(x, y, scope = globalScope, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, "left", bitWidth);
@@ -1222,18 +1077,12 @@ function Power(x, y, scope = globalScope, bitWidth = undefined) {
 
     }
 }
-
-function loadOutput(data, scope) {
-    var v = new Output(data["x"], data["y"], scope, data["dir"], data["bitWidth"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-    v.label = data["label"];
-}
-
 function Output(x, y, scope, dir, bitWidth) {
     // Calling base class constructor
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
     this.rectangleObject=false;
+    this.directionFixed=true;
     this.setDimensions(this.bitWidth*10,10);
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
     this.state = undefined;
@@ -1260,10 +1109,6 @@ function Output(x, y, scope, dir, bitWidth) {
             this.inp1.x = -10 * this.bitWidth;
             this.inp1.leftx = 10 * this.bitWidth;
         }
-    }
-
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
     }
 
     this.resolve = function() {
@@ -1296,31 +1141,6 @@ function Output(x, y, scope, dir, bitWidth) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.stroke();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
     }
 
 
@@ -1337,18 +1157,9 @@ function Output(x, y, scope, dir, bitWidth) {
         }
 
         this.inp1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 }
-
-function loadBitSelector(data, scope) {
-
-    var v = new BitSelector(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["selectorBitWidth"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.bitSelectorInp = replace(v.bitSelectorInp, data["bitSelectorInp"]);
-    // v.label = data["label"];
-}
-
 function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
@@ -1407,7 +1218,6 @@ function BitSelector(x, y, scope, dir, bitWidth = undefined,selectorBitWidth=und
         ctx.stroke();
     }
 }
-
 function saveasimg() {
     //window.open(simulationArea.canvas.toDataURL('image/png'));
     var gh = simulationArea.canvas.toDataURL('image/png');
@@ -1420,28 +1230,17 @@ function saveasimg() {
     }
     anchor.click()
 }
-
-function loadConstantVal(data, scope) {
-
-    var v = new ConstantVal(data["x"], data["y"], scope, data["dir"], data["bitWidth"],data["state"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    v.label = data["label"];
-}
-
-
 function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
     this.state = state||prompt("Enter value");
     CircuitElement.call(this, x, y, scope, dir, this.state.length);
     this.setDimensions(10*this.state.length,10);
     this.bitWidth=bitWidth||this.state.length;
+    this.directionFixed=true;
     this.rectangleObject=false;
 
     this.output1 = new Node(this.bitWidth * 10, 0, 1, this);
     this.wasClicked = false;
     this.label = "";
-    this.setLabel = function() {
-        this.label = prompt("Enter Label:");
-    }
     this.customSave = function() {
         var data = {
             nodes:{output1: findNode(this.output1)},
@@ -1494,32 +1293,6 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.fill();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
-
     }
     this.newDirection = function(dir) {
         if (dir == this.direction) return;
@@ -1534,15 +1307,9 @@ function ConstantVal(x, y, scope, dir, bitWidth=undefined,state=undefined) {
         }
 
         this.output1.refresh();
+        this.labelDirection=oppositeDirection[this.direction];
     }
 }
-
-function loadNor(data, scope) {
-    var v = new NorGate(data["x"], data["y"], scope, data["dir"],data["inputs"], data["bitWidth"]);
-    v.output1 = replace(v.output1, data["output1"]);
-    for (var i = 0; i < data["inputs"]; i++) v.inp[i] = replace(v.inp[i], data["inp"][i]);
-}
-
 function NorGate(x, y, scope = globalScope, dir = 'left', inputs = 2, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
