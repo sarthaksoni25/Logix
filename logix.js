@@ -328,7 +328,7 @@ var simulationArea = {
             // update();
         })
         window.addEventListener('dblclick', function(e) {
-            scheduleUpdate(1);
+            scheduleUpdate(2);
             if (simulationArea.lastSelected.dblclick !== undefined) {
                 simulationArea.lastSelected.dblclick();
             }
@@ -684,6 +684,16 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
     // The update method is used to change the parameters of the object on mouse click and hover.
     // Return Value: true if state has changed else false
     // NOT OVERIDABLE
+
+
+    this.startDragging=function(){
+        this.oldx = this.x;
+        this.oldy = this.y;
+    }
+    this.drag=function(){
+        this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
+        this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
+    }
     this.update = function() {
 
         var update = false;
@@ -704,13 +714,25 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
 
         if (simulationArea.mouseDown && (this.clicked)) {
             if (this.x == simulationArea.mouseX && this.y == simulationArea.mouseY) return false;
-            this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
-            this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
+            // this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
+            // this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
+            this.drag();
+            if(simulationArea.multipleObjectSelections.contains(this)){
+                for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
+                    simulationArea.multipleObjectSelections[i].drag();
+                }
+            }
 
             update |= true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
-            this.oldx = this.x;
-            this.oldy = this.y;
+            // this.oldx = this.x;
+            // this.oldy = this.y;
+            this.startDragging();
+            if(simulationArea.multipleObjectSelections.contains(this)){
+                for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
+                    simulationArea.multipleObjectSelections[i].startDragging();
+                }
+            }
             simulationArea.selected = this.clicked = this.hover = this.hover;
 
             update |= this.clicked;

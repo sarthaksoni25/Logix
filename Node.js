@@ -97,6 +97,15 @@ function Node(x, y, type, parent, bitWidth = undefined) {
 
     this.refresh();
 
+    this.startDragging=function(){
+        this.oldx = this.x;
+        this.oldy = this.y;
+    }
+    this.drag=function(){
+        this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
+        this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
+    }
+
     this.saveObject = function() {
 
         if (this.type == 2) {

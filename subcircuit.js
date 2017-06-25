@@ -1,5 +1,5 @@
 function loadSubCircuit(savedData, scope) {
-    var v = new SubCircuit(savedData["x"], savedData["y"], scope, savedData["dir"], savedData);
+    var v = new SubCircuit(savedData["x"], savedData["y"], scope, "RIGHT", savedData);
 }
 
 //subCircuit
@@ -107,6 +107,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
 
     this.resolve = function() {
         // return;
+
         for (i = 0; i < this.localScope.Input.length; i++) {
             this.localScope.Input[i].state = this.inputNodes[i].value;
         }
@@ -115,6 +116,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
             this.localScope.stack.push(this.localScope.Input[i]);
         }
         play(this.localScope);
+        console.log(this.localScope.Input.length,this.localScope.Output.length)
 
         for (i = 0; i < this.localScope.Output.length; i++) {
             this.outputNodes[i].value = this.localScope.Output[i].state;

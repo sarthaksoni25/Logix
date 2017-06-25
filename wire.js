@@ -8,10 +8,10 @@ function Wire(node1, node2, scope) {
         this.scope = scope;
         this.node2 = node2;
         this.type = "horizontal";
-        this.x1 = node1.absX();
-        this.y1 = node1.absY();
-        this.x2 = node2.absX();
-        this.y2 = node2.absY();
+        this.x1 = this.node1.absX();
+        this.y1 = this.node1.absY();
+        this.x2 = this.node2.absX();
+        this.y2 = this.node2.absY();
         if (this.x1 == this.x2) this.type = "vertical";
     }
 
@@ -27,6 +27,15 @@ function Wire(node1, node2, scope) {
 
 
     this.update = function() {
+
+        if(this.node1.absX()==this.node2.absX()){
+            this.x1=this.x2=this.node1.absX();
+            this.type="vertical";
+        }
+        else if(this.node1.absY()==this.node2.absY()){
+            this.y1=this.y2=this.node1.absY();
+            this.type="horizontal";
+        }
 
         var updated = false;
         if (wireToBeChecked && this.checkConnections()) {

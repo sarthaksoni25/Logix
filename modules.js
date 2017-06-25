@@ -790,7 +790,6 @@ function Adder(x, y, scope, dir, bitWidth = undefined) {
         var sum = this.inpA.value + this.inpB.value + carryIn;
 
         this.sum.value = ((sum) << (32 - this.bitWidth)) >>> (32 - this.bitWidth);
-        console.log(this.sum.value);
         this.carryOut.value = sum >>> (this.bitWidth);
         this.scope.stack.push(this.carryOut);
         this.scope.stack.push(this.sum);
