@@ -16,13 +16,17 @@ function loadFlipFlop(data, scope) {
 }
 
 function FlipFlop(x, y, scope, dir, bitWidth) {
-    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
-    this.direction = dir;
-    this.id = 'FlipFlip' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.scope = scope;
-    this.nodeList = [];
-    this.element = new Element(x, y, "FlipFlip", 20, this);
+    CircuitElement.call(this, x, y, scope, dir, bitWidth);
+    // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+    // this.direction = dir;
+    // this.id = 'FlipFlip' + uniqueIdCounter;
+    // uniqueIdCounter++;
+    // this.scope = scope;
+    // this.nodeList = [];
+    // this.element = new Element(x, y, "FlipFlip", 20, this);
+    this.directionFixed=true;
+    this.setDimensions(20,20);
+    this.rectangleObject=true;
     this.clockInp = new Node(-20, +10, 0, this, 1);
     this.dInp = new Node(-20, -10, 0, this);
     this.qOutput = new Node(20, -10, 1, this);
@@ -31,8 +35,9 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
     this.masterState = 0;
     this.slaveState = 0;
     this.prevClockState = 0;
-    scope.flipflops.push(this);
-    this.wasClicked = false;
+
+    // scope.flipflops.push(this);
+    // this.wasClicked = false;
     this.newBitWidth = function(bitWidth) {
         this.bitWidth = bitWidth;
         this.dInp.bitWidth = bitWidth;
@@ -84,37 +89,35 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
             this.scope.stack.push(this.qOutput);
         }
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.element.x,
-            y: this.element.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             dInp: findNode(this.dInp),
             qOutput: findNode(this.qOutput),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.bitWidth]
 
         }
         return data;
     }
-    this.draw = function() {
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect(ctx, xx - 20, yy - 20, 40, 40);
+        var xx = this.x;
+        var yy = this.y;
+        // rect(ctx, xx - 20, yy - 20, 40, 40);
         moveTo(ctx, -20, 5, xx, yy, this.direction);
         lineTo(ctx, -15, 10, xx, yy, this.direction);
         lineTo(ctx, -20, 15, xx, yy, this.direction);
 
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
+        // if ((this.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -123,11 +126,6 @@ function FlipFlop(x, y, scope, dir, bitWidth) {
         ctx.textAlign = "center";
         fillText(ctx, this.slaveState.toString(16), xx, yy + 5);
         ctx.stroke();
-
-    }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.flipflops.clean(this);
 
     }
 }
@@ -141,18 +139,17 @@ function loadTTY(data, scope) {
 }
 
 function TTY(x, y, scope, dir,rows,cols) {
-    // this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
-    this.direction = dir;
-    this.id = 'TTY' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.scope = scope;
-    this.nodeList = [];
+    CircuitElement.call(this, x, y, scope, dir, 1);
+    this.directionFixed=true;
+    this.fixedBitWidth=true;
     this.cols=cols||parseInt(prompt("Enter cols:"));
     this.rows=rows||parseInt(prompt("Enter rows:"));
 
     this.elementWidth=Math.max(40,Math.ceil(this.cols/2)*20);
     this.elementHeight=Math.max(40,Math.ceil(this.rows*15/20)*20);
-    this.element = new Element(x, y, "TTY",this.elementWidth/2, this,this.elementHeight/2);
+    this.setWidth(this.elementWidth/2);
+    this.setHeight(this.elementHeight/2);
+    // this.element = new Element(x, y, "TTY",this.elementWidth/2, this,this.elementHeight/2);
 
     this.clockInp = new Node(-this.elementWidth/2, this.elementHeight/2-10, 0, this, 1);
     this.asciiInp = new Node(-this.elementWidth/2, this.elementHeight/2-30, 0, this,7);
@@ -162,15 +159,15 @@ function TTY(x, y, scope, dir,rows,cols) {
     // this.masterState = 0;
     // this.slaveState = 0;
     this.prevClockState = 0;
-    scope.TTYs.push(this);
+
     this.data="";
     this.buffer="";
-    this.newBitWidth = function(bitWidth) {
-
-    }
-    this.dblclick=function(){
-
-    }
+    // this.newBitWidth = function(bitWidth) {
+    //
+    // }
+    // this.dblclick=function(){
+    //
+    // }
     this.isResolvable = function() {
         if(this.reset.value==1)return true;
         else if (this.en.value == 0) return false;
@@ -204,39 +201,36 @@ function TTY(x, y, scope, dir,rows,cols) {
         }
 
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.element.x,
-            y: this.element.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             asciiInp: findNode(this.asciiInp),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            rows:this.rows,
-            cols:this.cols,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.rows,this.cols],
         }
         return data;
     }
-    this.draw = function() {
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect(ctx, xx - this.elementWidth/2, yy - this.elementHeight/2, this.elementWidth, this.elementHeight);
+        var xx = this.x;
+        var yy = this.y;
+        // rect(ctx, xx - this.elementWidth/2, yy - this.elementHeight/2, this.elementWidth, this.elementHeight);
+
         moveTo(ctx, -this.elementWidth/2, this.elementHeight/2-15, xx, yy, this.direction);
         lineTo(ctx, 5-this.elementWidth/2, this.elementHeight/2-10, xx, yy, this.direction);
         lineTo(ctx, -this.elementWidth/2, this.elementHeight/2-5, xx, yy, this.direction);
 
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
-            ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.fill();
+        // if ((this.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
+        //     ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        // ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -252,14 +246,14 @@ function TTY(x, y, scope, dir,rows,cols) {
         ctx.stroke();
 
     }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.TTYs.clean(this);
-
-    }
-    this.newDirection=function(){
-
-    }
+    // this.delete = function() {
+    //     simulationArea.lastSelected = undefined;
+    //     scope.TTYs.clean(this);
+    //
+    // }
+    // this.newDirection=function(){
+    //
+    // }
 }
 
 function loadKeyboard(data, scope) {
@@ -272,15 +266,15 @@ function loadKeyboard(data, scope) {
 }
 
 function Keyboard(x, y, scope, dir,bufferSize) {
-    this.direction = dir;
-    this.id = 'TTY' + uniqueIdCounter;
-    uniqueIdCounter++;
-    this.scope = scope;
-    this.nodeList = [];
+    CircuitElement.call(this, x, y, scope, dir, 1);
+    this.directionFixed=true;
+    this.fixedBitWidth=true;
+
     this.bufferSize=bufferSize||parseInt(prompt("Enter buffer size:"));
     this.elementWidth=Math.max(80,Math.ceil(this.bufferSize/2)*20);
     this.elementHeight=40;//Math.max(40,Math.ceil(this.rows*15/20)*20);
-    this.element = new Element(x, y, "Keyboard",this.elementWidth/2, this,this.elementHeight/2);
+    this.setWidth(this.elementWidth/2);
+    this.setHeight(this.elementHeight/2);
 
     this.clockInp = new Node(-this.elementWidth/2, this.elementHeight/2-10, 0, this, 1);
     this.asciiOutput = new Node(30, this.elementHeight/2, 1, this,7);
@@ -288,7 +282,6 @@ function Keyboard(x, y, scope, dir,bufferSize) {
     this.reset = new Node(-10, this.elementHeight/2, 0, this, 1);
     this.en = new Node(-30, this.elementHeight/2, 0, this, 1);
     this.prevClockState = 0;
-    scope.keyboards.push(this);
     this.buffer="";
     this.bufferOutValue=undefined;
     // this.newBitWidth = function(bitWidth) {
@@ -361,38 +354,31 @@ function Keyboard(x, y, scope, dir,bufferSize) {
         }
 
     }
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.element.x,
-            y: this.element.y,
+            nodes:{
             clockInp: findNode(this.clockInp),
             asciiOutput: findNode(this.asciiOutput),
             available: findNode(this.available),
             reset: findNode(this.reset),
-            en: findNode(this.en),
-            dir: this.direction,
-            bitWidth: this.bitWidth,
-            bufferSize:this.bufferSize,
+            en: findNode(this.en)},
+            constructorParamaters:[this.direction,this.bufferSize]
         }
         return data;
     }
-    this.draw = function() {
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect(ctx, xx - this.elementWidth/2, yy - this.elementHeight/2, this.elementWidth, this.elementHeight);
+        var xx = this.x;
+        var yy = this.y;
         moveTo(ctx, -this.elementWidth/2, this.elementHeight/2-15, xx, yy, this.direction);
         lineTo(ctx, 5-this.elementWidth/2, this.elementHeight/2-10, xx, yy, this.direction);
         lineTo(ctx, -this.elementWidth/2, this.elementHeight/2-5, xx, yy, this.direction);
 
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
-            ctx.fillStyle = "rgba(255, 255, 32,0.8)";
-        ctx.fill();
         ctx.stroke();
 
         ctx.beginPath();
@@ -401,14 +387,6 @@ function Keyboard(x, y, scope, dir,bufferSize) {
         var lineData=this.buffer+' '.repeat(this.bufferSize-this.buffer.length);
         fillText3(ctx, lineData, 0,+5,xx,yy,fontSize=15,font="Courier New",textAlign="center");
         ctx.stroke();
-    }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.keyboards.clean(this);
-
-    }
-    this.newDirection=function(){
-
     }
 }
 
@@ -419,24 +397,17 @@ function loadClock(data, scope) {
 }
 
 function Clock(x, y, scope, dir) {
-    this.direction = dir;
-    this.id = 'clock' + uniqueIdCounter;
-    this.scope = scope;
-    this.nodeList = [];
-    uniqueIdCounter++;
-    this.element = new Element(x, y, "clock", 15, this);
+    CircuitElement.call(this, x, y, scope, dir, 1);
+    this.fixedBitWidth=true;
     this.output1 = new Node(10, 0, 1, this, 1);
     this.state = 0;
     this.output1.value = this.state;
-    scope.clocks.push(this);
     this.wasClicked = false;
     this.interval = null;
-    this.saveObject = function() {
+    this.customSave = function() {
         var data = {
-            x: this.element.x,
-            y: this.element.y,
-            output1: findNode(this.output1),
-            dir: this.direction,
+            nodes:{output1: findNode(this.output1)},
+            constructorParamaters:[this.direction],
 
         }
         return data;
@@ -453,18 +424,14 @@ function Clock(x, y, scope, dir) {
     }
     this.click=this.toggleState;
 
-    this.draw = function() {
+    this.customDraw = function() {
 
         ctx = simulationArea.context;
-        ctx.beginPath();
         ctx.strokeStyle = ("rgba(0,0,0,1)");
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
-        var xx = this.element.x;
-        var yy = this.element.y;
-        rect(ctx, xx - 10, yy - 10, 20, 20);
-        if ((this.element.b.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
-        ctx.stroke();
+        var xx = this.x;
+        var yy = this.y;
 
         ctx.beginPath();
         ctx.strokeStyle = ["DarkGreen", "Lime"][this.state];
@@ -486,11 +453,6 @@ function Clock(x, y, scope, dir) {
             lineTo(ctx, 6, 0, xx, yy, this.direction);
         }
         ctx.stroke();
-
-    }
-    this.delete = function() {
-        simulationArea.lastSelected = undefined;
-        scope.clocks.clean(this);
 
     }
 }

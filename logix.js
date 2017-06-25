@@ -7,39 +7,48 @@ toBeUpdated = true;
 updateCanvas = true;
 wireToBeChecked = 0; // when node disconnects from another node
 willBeUpdated = false;
-objectSelection=false;
-var backups=[]
-loading=false
+objectSelection = false;
+var backups = []
+loading = false
+//Exact same name as object constructor
+moduleList = ["Input", "Output", "NotGate", "OrGate", "AndGate", "NorGate", "NandGate", "XorGate", "XnorGate", "SevenSegDisplay", "HexDisplay", "Multiplexer", "BitSelector", "Splitter", "Power", "Ground", "ConstantVal", "TriState", "Adder", "Ram", "FlipFlop", "TTY", "Keyboard", "Clock", "SubCircuit", "DigitalLed"];
 
-function showError(error){
-    console.log("ERROR: "+error);
+//Exact same name as object constructor
+//All the combinational modules which give rise to an value(independently)
+inputList = ["Ground", "Power", "ConstantVal", "Input", "Clock"];
+
+function showError(error) {
+    console.log("ERROR: " + error);
 }
+
 function openInNewTab(url) {
     var win = window.open(url, '_blank');
     win.focus();
 }
 
-function scheduleUpdate(count=0) {
+function scheduleUpdate(count = 0) {
     // return;
-    if(count){
-        for(var i=0;i<count;i++)
-            setTimeout(update, 10+50*i);
+    if (count) {
+        for (var i = 0; i < count; i++)
+            setTimeout(update, 10 + 50 * i);
     }
     if (willBeUpdated) return;
 
     // if (simulationArea.mouseDown)
-        setTimeout(update, 100);
+    setTimeout(update, 100);
     // else
     //     setTimeout(update, 100);
     willBeUpdated = true;
 
 }
+
 function scheduleBackup() {
+    // return;
     // setTimeout(function(){
-        var backup=backUp();
-        // if(backups.length==0||backups[backups.length-1]!=backup){
-            backups.push(backup);
-        // }
+    var backup = backUp();
+    // if(backups.length==0||backups[backups.length-1]!=backup){
+    backups.push(backup);
+    // }
     // }, 1000);
 }
 //fn to remove elem in array
@@ -64,50 +73,31 @@ Array.prototype.contains = function(value) {
     return this.indexOf(value) > -1
 };
 
+
+
+
 //Scope object for each circuit level, globalScope for outer level
 function Scope(name = "localScope") {
     //root object for referring to main canvas - intermediate node uses this
-    this.root = {
-        element: new Element(simulationArea.ox, simulationArea.oy, "root"),
-        scope: this,
-        direction: 'left'
-    }
+    this.CircuitElement = [];
+    this.root = new CircuitElement(0, 0, this, "RIGHT", 1);
+
     this.clockTick = function() {
-        for (var i = 0; i < this.clocks.length; i++)
-            this.clocks[i].toggleState(); //tick clock!
-        for (var i = 0; i < this.subCircuits.length; i++)
-            this.subCircuits[i].localScope.clockTick(); //tick clock!
+        for (var i = 0; i < this.Clock.length; i++)
+            this.Clock[i].toggleState(); //tick clock!
+        // for (var i = 0; i < this.subCircuits.length; i++)
+        //     this.subCircuits[i].localScope.clockTick(); //tick clock!
     }
     this.name = name;
     this.stack = [];
-    this.hexdis = [];
-    this.adders = [];
-    this.inputs = [];
-    this.constants = [];
-    this.splitters = [];
-    this.grounds = [];
-    this.andGates = [];
-    this.multiplexers = [];
-    this.sevenseg = [];
-    this.clocks = [];
-    this.bitSelectors = [];
-    this.flipflops = [];
-    this.TTYs = [];
-    this.keyboards = [];
-    this.subCircuits = [];
-    this.orGates = [];
-    this.notGates = [];
-    this.triStates = [];
-    this.rams = [];
-    this.outputs = [];
+
     this.nodes = []; //intermediate nodes only
     this.allNodes = [];
     this.wires = [];
-    this.powers = [];
-    this.nandGates=[];
-    this.objects = [this.wires, this.inputs,this.nandGates, this.constants,this.bitSelectors,this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops,this.keyboards,this.TTYs, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-    // this.selectibleObjects = [this.wires, this.inputs, this.splitters, this.hexdis, this.adders, this.rams, this.clocks, this.flipflops, this.subCircuits, this.grounds, this.powers, this.andGates, this.multiplexers, this.sevenseg, this.orGates, this.triStates, this.notGates, this.outputs, this.nodes];
-
+    for (var i = 0; i < moduleList.length; i++) {
+        this[moduleList[i]] = []
+    }
+    this.objects = ["wires", ...moduleList, "nodes"];
 }
 
 //fn to setup environment
@@ -132,7 +122,7 @@ function setup() {
                 data = JSON.parse(http.responseText);
                 console.log(data);
                 load(globalScope, data);
-                simulationArea.changeClockTime(data["timePeriod"]||500);
+                simulationArea.changeClockTime(data["timePeriod"] || 500);
                 backups.push(backUp())
             }
         }
@@ -165,49 +155,37 @@ window.onresize = resetup;
 window.addEventListener('orientationchange', resetup);
 
 //Main fn that resolves circuit
-function play(scope = globalScope) {
+function play(scope = globalScope, resetNodes = true) {
 
     // console.log("simulation");
-    if(loading==true)return;
+    if (loading == true) return;
 
-    for (var i = 0; i < scope.allNodes.length; i++)
-        scope.allNodes[i].reset();
-
-    for (var i = 0; i < scope.subCircuits.length; i++) {
-        if (scope.subCircuits[i].isResolvable())
-            scope.stack.push(scope.subCircuits[i]);
+    if (resetNodes) {
+        for (var i = 0; i < scope.allNodes.length; i++)
+            scope.allNodes[i].reset();
+        for (var i = 0; i < scope.SubCircuit.length; i++) {
+            scope.SubCircuit[i].resetNodes();
+        }
     }
-    for (var i = 0; i < scope.flipflops.length; i++) {
-        scope.stack.push(scope.flipflops[i]);
+    for (var i = 0; i < scope.SubCircuit.length; i++) {
+        if (scope.SubCircuit[i].isResolvable())
+            scope.stack.push(scope.SubCircuit[i]);
     }
-    for (var i = 0; i < scope.clocks.length; i++) {
-        scope.stack.push(scope.clocks[i]);
+    for (var i = 0; i < scope.FlipFlop.length; i++) {
+        scope.stack.push(scope.FlipFlop[i]);
     }
-    for (var i = 0; i < scope.grounds.length; i++) {
-        scope.stack.push(scope.grounds[i]);
+    for (var i = 0; i < inputList.length; i++) {
+        for (var j = 0; j < scope[inputList[i]].length; j++) {
+            scope.stack.push(scope[inputList[i]][j]);
+        }
     }
-    for (var i = 0; i < scope.powers.length; i++) {
-        scope.stack.push(scope.powers[i]);
-    }
-    for (var i = 0; i < scope.inputs.length; i++) {
-        scope.stack.push(scope.inputs[i]);
-    }
-    for (var i = 0; i < scope.constants.length; i++) {
-        scope.stack.push(scope.constants[i]);
-    }
-
-
-    // for (var i = 0; i < scope.outputs.length; i++) {
-    //     scope.stack.push(scope.outputs[i]);
-    // }
-    var stepCount=0;
+    var stepCount = 0;
     while (scope.stack.length) {
         var elem = scope.stack.pop();
-        // console.log("DEBUG",elem);
         elem.resolve();
         stepCount++;
-        if(stepCount>1000){
-            showError("Simulation Stack limit exceeded: maybe due to cyclic paths");
+        if (stepCount > 1000) {
+            showError("Simulation Stack limit exceeded: maybe due to cyclic paths or contention");
             return;
         }
     }
@@ -227,9 +205,9 @@ var simulationArea = {
     oldx: 0,
     oldy: 0,
     scale: 1,
-    multipleObjectSelections:[],
-    shiftDown:false,
-    timePeriod:500,
+    multipleObjectSelections: [],
+    shiftDown: false,
+    timePeriod: 500,
     clickCount: 0, //double click
     lock: "unlocked",
     timer: function() {
@@ -237,6 +215,8 @@ var simulationArea = {
             simulationArea.clickCount = 0;
         }, 600);
     },
+
+
     setup: function() {
         this.canvas.width = width;
         this.canvas.height = height;
@@ -250,7 +230,7 @@ var simulationArea = {
             // return;
             scheduleUpdate();
             // toBeUpdated=true;
-            updateCanvas=true;
+            updateCanvas = true;
             var rect = simulationArea.canvas.getBoundingClientRect();
             simulationArea.mouseRawX = (e.clientX - rect.left);
             simulationArea.mouseRawY = (e.clientY - rect.top);
@@ -263,69 +243,69 @@ var simulationArea = {
             scheduleUpdate(1);
             if (e.keyCode == 16) {
                 // simulationArea.lastSelected.delete(); // delete key
-                simulationArea.shiftDown=false;
+                simulationArea.shiftDown = false;
             }
         });
         window.addEventListener('keydown', function(e) {
             scheduleUpdate(1);
-            updateCanvas=true;
+            updateCanvas = true;
             wireToBeChecked = 1;
             // e.preventDefault();
-        //    console.log("KEY:"+e.key);
-           if(simulationArea.lastSelected&&simulationArea.lastSelected.keyDown){
-               if(e.key.toString().length==1){
-               simulationArea.lastSelected.keyDown(e.key);
-               return;
+            //    console.log("KEY:"+e.key);
+            if (simulationArea.lastSelected && simulationArea.lastSelected.keyDown) {
+                if (e.key.toString().length == 1) {
+                    simulationArea.lastSelected.keyDown(e.key);
+                    return;
+                }
+                if (e.key == "Shift") return;
             }
-            if(e.key=="Shift")return;
-           }
-            if (e.keyCode == 8 ) {
+            if (e.keyCode == 8) {
                 // simulationArea.lastSelected.delete(); // delete key
-                if(simulationArea.lastSelected)deleteObj(simulationArea.lastSelected);
-                for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
-                    deleteObj(simulationArea.multipleObjectSelections[i]);
-                    console.log("SD",simulationArea.multipleObjectSelections[i]);
+                if (simulationArea.lastSelected) simulationArea.lastSelected.delete();
+                for (var i = 0; i < simulationArea.multipleObjectSelections.length; i++) {
+                    simulationArea.multipleObjectSelections[i].delete();
+                    // console.log("SD",simulationArea.multipleObjectSelections[i]);
                 }
             }
             if (e.keyCode == 16) {
                 // simulationArea.lastSelected.delete(); // delete key
-                simulationArea.shiftDown=true;
-                if(simulationArea.lastSelected){
+                simulationArea.shiftDown = true;
+                if (simulationArea.lastSelected) {
                     simulationArea.multipleObjectSelections.push(simulationArea.lastSelected);
-                    simulationArea.lastSelected=undefined;
+                    simulationArea.lastSelected = undefined;
                 }
             }
             //change direction fns
             if (e.keyCode == 37 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'right');
+                simulationArea.lastSelected.newDirection("LEFT");
             }
-            if (e.key.charCodeAt(0) == 122){ // detect the special CTRL-Z code
-                if(backups.length==0)return;
-                var backupOx=simulationArea.ox;
-                var backupOy=simulationArea.oy;
-                simulationArea.ox=0;
-                simulationArea.oy=0;
-                globalScope=new Scope("globalScope");
-                loading=true;
-                load(globalScope,backups.pop());
+            if (e.key.charCodeAt(0) == 122) { // detect the special CTRL-Z code
+                if (backups.length == 0) return;
+                var backupOx = simulationArea.ox;
+                var backupOy = simulationArea.oy;
+                simulationArea.ox = 0;
+                simulationArea.oy = 0;
+                globalScope = new Scope("globalScope");
+                loading = true;
+                load(globalScope, backups.pop());
                 console.log("UNDO");
-                loading=false;
-                simulationArea.ox=backupOx;
-                simulationArea.oy=backupOy;
+                loading = false;
+                simulationArea.ox = backupOx;
+                simulationArea.oy = backupOy;
             }
 
             if (e.keyCode == 38 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'down');
+                simulationArea.lastSelected.newDirection("UP");
             }
             if (e.keyCode == 39 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'left');
+                simulationArea.lastSelected.newDirection("RIGHT");
             }
             if (e.keyCode == 40 && simulationArea.lastSelected != undefined) {
-                newDirection(simulationArea.lastSelected, 'up');
+                simulationArea.lastSelected.newDirection("DOWN");
             }
             if ((e.keyCode == 113 || e.keyCode == 81) && simulationArea.lastSelected != undefined) {
                 if (simulationArea.lastSelected.bitWidth !== undefined)
-                    newBitWidth(simulationArea.lastSelected, parseInt(prompt("Enter new bitWidth"), 10));
+                    simulationArea.lastSelected.newBitWidth(parseInt(prompt("Enter new bitWidth"), 10));
             }
             if ((e.keyCode == 67 || e.keyCode == 99)) {
                 simulationArea.changeClockTime(prompt("Enter Time:"));
@@ -352,11 +332,18 @@ var simulationArea = {
             if (simulationArea.lastSelected.dblclick !== undefined) {
                 simulationArea.lastSelected.dblclick();
             }
-            if(!simulationArea.shiftDown){
-                simulationArea.multipleObjectSelections=[];
+            if (!simulationArea.shiftDown) {
+                simulationArea.multipleObjectSelections = [];
             }
             // console.log(simulationArea.mouseDown, "mouseDOn");
         });
+        // window.addEventListener('click', function(e) {
+        //     // console.log("click");
+        //     // if(simulationArea.lastSelected.click!==undefined){
+        //     //     simulationArea.lastSelected.click();
+        //     // }
+        //     // scheduleUpdate(1);
+        // });
         window.addEventListener('mousedown', function(e) {
             // return;
             scheduleBackup();
@@ -451,8 +438,8 @@ var simulationArea = {
     },
     changeClockTime(t) {
         clearInterval(this.ClockInterval);
-        t=t||prompt("Enter Time Period:");
-        this.timePeriod=t;
+        t = t || prompt("Enter Time Period:");
+        this.timePeriod = t;
         this.ClockInterval = setInterval(clockTick, t);
     },
     clear: function() {
@@ -460,11 +447,12 @@ var simulationArea = {
     }
 }
 
-//fn to change scale (zoom) - It also shifts origin so that the position
+// fn that calls update on everything else. If any change is there, it resolves the circuit and draws it again
+// fn to change scale (zoom) - It also shifts origin so that the position
 //of the object in focus doent changeB
 function update() {
 
-    if(loading==true)return;
+    if (loading == true) return;
     // console.log("UPDATE");
     willBeUpdated = false;
     var updated = false;
@@ -479,11 +467,11 @@ function update() {
     }
 
     for (var i = 0; i < globalScope.objects.length; i++)
-        for (var j = 0; j < globalScope.objects[i].length; j++)
-            updated |= updateObj(globalScope.objects[i][j]);
+        for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
+            updated |= globalScope[globalScope.objects[i]][j].update();
     toBeUpdated |= updated;
 
-    if (toBeUpdated ) {
+    if (toBeUpdated) {
         // toBeUpdated = false;
         play();
     }
@@ -495,12 +483,12 @@ function update() {
         simulationArea.lastSelected = globalScope.root;
         simulationArea.hover = true;
 
-        if(simulationArea.shiftDown){
-            objectSelection=true;
+        if (simulationArea.shiftDown) {
+            objectSelection = true;
         }
     } else if (simulationArea.lastSelected == globalScope.root && simulationArea.mouseDown) {
         //pane canvas
-        if(!objectSelection){
+        if (!objectSelection) {
             simulationArea.ox = (simulationArea.mouseRawX - simulationArea.mouseDownRawX) + simulationArea.oldx;
             simulationArea.oy = (simulationArea.mouseRawY - simulationArea.mouseDownRawY) + simulationArea.oldy;
             simulationArea.ox = Math.round(simulationArea.ox);
@@ -511,44 +499,43 @@ function update() {
         simulationArea.lastSelected = undefined;
         simulationArea.selected = false;
         simulationArea.hover = false;
-        if(objectSelection){
-            objectSelection=false;
-            var x1=simulationArea.mouseDownX;
-            var x2=simulationArea.mouseX;
-            var y1=simulationArea.mouseDownY;
-            var y2=simulationArea.mouseY;
+        if (objectSelection) {
+            objectSelection = false;
+            var x1 = simulationArea.mouseDownX;
+            var x2 = simulationArea.mouseX;
+            var y1 = simulationArea.mouseDownY;
+            var y2 = simulationArea.mouseY;
             // simulationArea.multipleObjectSelections=[];
             // console.log(x1,x2,y1,y2);
             // [x1,x2]=[x1,x2].sort();
             // [y1,y2]=[y1,y2].sort();
-            if(x1>x2){
-                var temp=x1;
-                x1=x2;
-                x2=temp;
+            if (x1 > x2) {
+                var temp = x1;
+                x1 = x2;
+                x2 = temp;
             }
-            if(y1>y2){
-                var temp=y1;
-                y1=y2;
-                y2=temp;
+            if (y1 > y2) {
+                var temp = y1;
+                y1 = y2;
+                y2 = temp;
             }
             // console.log(x1,x2,y1,y2);
-            for(var i=0;i<globalScope.objects.length;i++){
-                for(var j=0;j<globalScope.objects[i].length;j++){
-                    var obj=globalScope.objects[i][j];
+            for (var i = 0; i < globalScope.objects.length; i++) {
+                for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++) {
+                    var obj = globalScope[globalScope.objects[i]][j];
                     // console.log(obj);
-                    var x,y;
-                    if(obj.objectType=="Node"){
-                        x=obj.absX();
-                        y=obj.absY();
-                    }
-                    else if(obj.objectType!="Wire"){
-                        x=obj.element.x;
-                        y=obj.element.y;
-                    }else{
+                    var x, y;
+                    if (obj.objectType == "Node") {
+                        x = obj.absX();
+                        y = obj.absY();
+                    } else if (obj.objectType != "Wire") {
+                        x = obj.x;
+                        y = obj.y;
+                    } else {
                         // console.log(obj);
                         continue;
                     }
-                    if(x>x1&&x<x2&&y>y1&&y<y2){
+                    if (x > x1 && x < x2 && y > y1 && y < y2) {
                         simulationArea.multipleObjectSelections.push(obj);
                     }
                 }
@@ -557,30 +544,31 @@ function update() {
     }
 
     //Draw
-    if(toBeUpdated||updateCanvas){
+    if (toBeUpdated || updateCanvas) {
         simulationArea.clear();
         dots(); // draw dots
         for (var i = 0; i < globalScope.objects.length; i++)
-            for (var j = 0; j < globalScope.objects[i].length; j++)
-                updated |= drawObj(globalScope.objects[i][j]);
-        if(objectSelection){
-            ctx=simulationArea.context;
+            for (var j = 0; j < globalScope[globalScope.objects[i]].length; j++)
+                updated |= globalScope[globalScope.objects[i]][j].draw();
+        if (objectSelection) {
+            ctx = simulationArea.context;
             ctx.beginPath();
-            ctx.lineWidth=2;
-            ctx.strokeStyle="black"
-            rect2(ctx,simulationArea.mouseDownX, simulationArea.mouseDownY,simulationArea.mouseX-simulationArea.mouseDownX , simulationArea.mouseY-simulationArea.mouseDownY, 0, 0, "left");
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "black"
+            rect2(ctx, simulationArea.mouseDownX, simulationArea.mouseDownY, simulationArea.mouseX - simulationArea.mouseDownX, simulationArea.mouseY - simulationArea.mouseDownY, 0, 0, "RIGHT");
             ctx.stroke();
         }
     }
-    if(toBeUpdated)scheduleUpdate();
-    toBeUpdated=updateCanvas=false;
+    if (toBeUpdated) scheduleUpdate();
+    toBeUpdated = updateCanvas = false;
 }
 
-function sort2(a1,a2){
-    if(a1<=a2)
-    return [a1,a2];
-    return [a2,a1];
-}
+// function sort2(a1,a2){
+//     if(a1<=a2)
+//     return [a1,a2];
+//     return [a2,a1];
+// }
+
 //fn to draw Dots on screen
 function dots() {
     var canvasWidth = simulationArea.canvas.width; //max X distance
@@ -609,53 +597,103 @@ function dots() {
 
 }
 
-function Element(x, y, type, width, parent, height = undefined) {
-    this.type = type;
-    this.x = x;
-    this.y = y;
-    if (height == undefined)
-        this.height = width;
-    else
-        this.height = height;
-    this.width = width;
-    this.b = new Button(x, y, this.width, this.height, parent);
-    this.isResolved = false;
-    this.update = function() {
-        var updated = false;
-        updated |= this.b.update();
+// The Circuit element class serves as the abstract class for all circuit elements.
+// Data Members: /* Insert Description */
+// Prototype Methods:
+//          - update: Used to update the state of object on mouse applicationCache
+//          - isHover: Used to check if mouse is hovering over object
 
-        if (this.b.clicked){
-            // if(simulationArea.shiftDown)simulationArea.multipleObjectSelections.push(parent);
-            // else
-            // simulationArea.lastSelected = parent;
-        }
-        this.x = this.b.x;
-        this.y = this.b.y;
-        return updated;
-    }
 
-    // this.draw = function() {
-    //     return this.b.draw();
-    // }
-}
-
-function Button(x, y, width, height, parent) {
-    this.width = width;
-    this.height = height;
+function CircuitElement(x, y, scope, dir, bitWidth) {
+    // Data member initializations
+    this.objectType = this.constructor.name; // CHECK IF THIS IS VALID
     this.x = x;
     this.y = y;
     this.parent = parent;
-    // this.radius = radius;
+    this.nodeList = []
+    this.isResolved = false;
     this.clicked = false;
     this.hover = false;
     this.oldx = x;
     this.oldy = y;
-    // this.draw = function() {
-    //
-    // }
+    this.leftDimensionX = 10;
+    this.rightDimensionX = 10;
+    this.upDimensionY = 10;
+    this.downDimensionY = 10;
+    this.rectangleObject = true;
+    this.label = "";
+    this.scope = scope;
+    this.scope[this.objectType].push(this); // CHECK IF THIS IS VALID
+    this.bitWidth = bitWidth || parseInt(prompt("Enter bitWidth"), 10);
+
+    this.direction = dir;
+    this.directionFixed = false;
+    this.labelDirection = dir;
+    this.orientationFixed = true; // should it be false?
+    this.fixedBitWidth = false;
+
+
+    /* Methods to be Implemented for derivedClass
+        saveObject(); //To generate JSON-safe data that can be loaded
+        customDraw(); //This is to draw the custom design of the circuit(Optional)
+        resolve(); // To execute digital logic(Optional)
+        override isResolvable(); // custom logic for checking if module is ready
+        override newDirection(dir) //To implement custom direction logic(Optional)
+        newOrientation(dir) //To implement custom orientation logic(Optional)
+    */
+
+    // Method definitions
+
+    this.saveObject = function() {
+        var data = {
+            x: this.x,
+            y: this.y,
+            objectType: this.objectType,
+            label: this.label,
+            direction: this.direction,
+            labelDirection: this.labelDirection,
+            customData: this.customSave()
+        }
+        return data;
+
+    }
+    this.customSave = function() {
+        return {
+            values: {},
+            nodes: {},
+            constructorParamaters: [],
+        }
+    }
+
+    //This sets the width and height of the element if its rectangluar
+    // and the reference point is at the center of the object.
+    //width and height define the X and Y distance from the center.
+    //Effectively HALF the actual width and height.
+    // NOT OVERIDABLE
+    this.setDimensions = function(width, height) {
+        this.leftDimensionX = this.rightDimensionX = width;
+        this.downDimensionY = this.upDimensionY = height;
+    }
+    this.setWidth = function(width) {
+        this.leftDimensionX = this.rightDimensionX = width;
+    }
+    this.setHeight = function(height) {
+        this.downDimensionY = this.upDimensionY = height;
+    }
+
+    // The update method is used to change the parameters of the object on mouse click and hover.
+    // Return Value: true if state has changed else false
+    // NOT OVERIDABLE
     this.update = function() {
 
+        var update = false;
+        // console.log(this.nodeList)
+        for (var i = 0; i < this.nodeList.length; i++) {
+            update |= this.nodeList[i].update();
+        }
+
         if (!simulationArea.mouseDown) this.hover = false;
+
         if ((this.clicked || !simulationArea.hover) && this.isHover()) {
             this.hover = true;
             simulationArea.hover = true;
@@ -668,88 +706,219 @@ function Button(x, y, width, height, parent) {
             if (this.x == simulationArea.mouseX && this.y == simulationArea.mouseY) return false;
             this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
             this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
-            return true;
+
+            update |= true;
         } else if (simulationArea.mouseDown && !simulationArea.selected) {
             this.oldx = this.x;
             this.oldy = this.y;
             simulationArea.selected = this.clicked = this.hover = this.hover;
-            return this.clicked;
+
+            update |= this.clicked;
         } else {
             if (this.clicked) simulationArea.selected = false;
             this.clicked = false;
+            this.wasClicked = false;
         }
 
-
-
-        return false;
-    }
-    this.isHover = function() {
-        // console.log(this.x-simulationArea.mouseX,(this.y-simulationArea.mouseY),this.l,this.b);
-        var width, height;
-        // [width,height]=rotate(this.width,this.height,this.parent.direction);
-        [width, height] = rotate(this.width, this.height, "left");
-        width = Math.abs(width);
-        height = Math.abs(height);
-        if (Math.abs(this.x - simulationArea.mouseX) <= width && Math.abs(this.y - simulationArea.mouseY) <= height) return true;
-        return false;
-    }
-}
-//
-function distance(x1, y1, x2, y2) {
-    return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-}
-
-function deleteObj(obj) {
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++) {
-            obj.nodeList[i].delete();
-        }
-
-    obj.delete();
-}
-
-function updateObj(obj) {
-    var update = false;
-    if (obj.update === undefined) {
-
-
-        for (var i = 0; i < obj.nodeList.length; i++) {
-            update |= obj.nodeList[i].update();
-        }
-        update |= obj.element.update();
-
-        if (simulationArea.mouseDown == false)
-            obj.wasClicked = false;
-
-        if (simulationArea.mouseDown && !obj.wasClicked) { //&& this.element.b.clicked afterwards
-            if (obj.element.b.clicked) {
-                obj.wasClicked = true;
-                if(obj.click)obj.click();
-                if(simulationArea.shiftDown){
-                    simulationArea.lastSelected=undefined;
-                    if(simulationArea.multipleObjectSelections.contains(obj)){
-                        simulationArea.multipleObjectSelections.clean(obj);
+        if (simulationArea.mouseDown && !this.wasClicked) {
+            if (this.clicked) {
+                this.wasClicked = true;
+                if (this.click) this.click();
+                if (simulationArea.shiftDown) {
+                    simulationArea.lastSelected = undefined;
+                    if (simulationArea.multipleObjectSelections.contains(this)) {
+                        simulationArea.multipleObjectSelections.clean(this);
+                    } else {
+                        simulationArea.multipleObjectSelections.push(this);
                     }
-                    else {
-                        simulationArea.multipleObjectSelections.push(obj);
-                    }
-                }
-                else{
-                    simulationArea.lastSelected = obj;
+                } else {
+                    simulationArea.lastSelected = this;
                 }
             }
         }
-    } else {
-        update |= obj.update();
+
+        // if (this.hover)
+        //     console.log(this);
+
+        return update;
     }
-    return update;
+
+    this.fixDirection=function(){
+        this.direction=fixDirection[this.direction]||this.direction;
+        this.labelDirection=fixDirection[this.labelDirection]||this.labelDirection;
+    }
+
+    // The isHover method is used to check if the mouse is hovering over the object.
+    // Return Value: true if mouse is hovering over object else false
+    // NOT OVERIDABLE
+    this.isHover = function() {
+        // var width, height;
+        //
+        // [width, height] = rotate(this.width, this.height, "RIGHT");
+        // width = Math.abs(width);
+        // height = Math.abs(height);
+        var rX = this.rightDimensionX;
+        var lX = this.leftDimensionX;
+        var uY = this.upDimensionY;
+        var dY = this.downDimensionY;
+        if (!this.directionFixed) {
+            if (this.direction == "LEFT") {
+                lX = this.rightDimensionX;
+                rX = this.leftDimensionX
+            } else if (this.direction == "DOWN") {
+                lX = this.downDimensionY;
+                rX = this.upDimensionY;
+                uY = this.leftDimensionX;
+                dY = this.rightDimensionX;
+            } else if (this.direction == "UP") {
+                lX = this.downDimensionY;
+                rX = this.upDimensionY;
+                dY = this.leftDimensionX;
+                uY = this.rightDimensionX;
+            }
+        }
+        var mouseX = simulationArea.mouseX;
+        var mouseY = simulationArea.mouseY;
+        if (mouseX - this.x <= rX && this.x - mouseX <= lX && mouseY - this.y <= dY && this.y - mouseY <= uY) return true;
+
+        return false;
+    };
+
+    this.setLabel = function() {
+        this.label = prompt("Enter Label:");
+        // console.log(this.label);
+    }
+
+    //Method that draws the outline of the module and calls draw function on module Nodes.
+    //NOT OVERIDABLE
+    this.draw = function() {
+
+        // Draws rectangle and highlighs
+        if (this.rectangleObject) {
+            ctx = simulationArea.context;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "white";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            rect2(ctx, -this.leftDimensionX, -this.upDimensionY, this.leftDimensionX + this.rightDimensionX, this.upDimensionY + this.downDimensionY, this.x, this.y, [this.direction, "RIGHT"][+this.directionFixed]);
+            if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+            ctx.fill();
+            ctx.stroke();
+            // if (this.hover)
+            //     console.log(this);
+        }
+        if (this.label != "") {
+            var rX = this.rightDimensionX;
+            var lX = this.leftDimensionX;
+            var uY = this.upDimensionY;
+            var dY = this.downDimensionY;
+            if (!this.directionFixed) {
+                if (this.direction == "LEFT") {
+                    lX = this.rightDimensionX;
+                    rX = this.leftDimensionX
+                } else if (this.direction == "DOWN") {
+                    lX = this.downDimensionY;
+                    rX = this.upDimensionY;
+                    uY = this.leftDimensionX;
+                    dY = this.rightDimensionX;
+                } else if (this.direction == "UP") {
+                    lX = this.downDimensionY;
+                    rX = this.upDimensionY;
+                    dY = this.leftDimensionX;
+                    uY = this.rightDimensionX;
+                }
+            }
+
+            if (this.labelDirection == "LEFT") {
+                ctx.beginPath();
+                ctx.textAlign = "right";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x - lX - 10, this.y + 5, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "RIGHT") {
+                ctx.beginPath();
+                ctx.textAlign = "left";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x + rX + 10, this.y + 5, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "UP") {
+                ctx.beginPath();
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x, this.y + 5 - uY - 10, 14);
+                ctx.fill();
+            } else if (this.labelDirection == "DOWN") {
+                ctx.beginPath();
+                ctx.textAlign = "center";
+                ctx.fillStyle = "black";
+                fillText(ctx, this.label, this.x, this.y + 5 + dY + 10, 14);
+                ctx.fill();
+            }
+        }
+
+
+        // calls the custom circuit design
+        if (this.customDraw) this.customDraw();
+
+        //draws nodes
+        for (var i = 0; i < this.nodeList.length; i++)
+            this.nodeList[i].draw();
+    }
+
+    //method to delete object
+    //OVERRIDE WITH CAUTION
+    this.delete = function() {
+        simulationArea.lastSelected = undefined;
+        this.scope[this.objectType].clean(this); // CHECK IF THIS IS VALID
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].delete();
+        }
+    }
+
+    //method to change direction
+    //OVERRIDE WITH CAUTION
+    this.newDirection = function(dir) {
+        console.log(dir)
+        // Leave this for now
+        if (this.directionFixed && this.orientationFixed) return;
+        else if (this.directionFixed) {
+            this.newOrientation(dir);
+            return; // Should it return ?
+        }
+
+        // if (obj.direction == undefined) return;
+        this.direction = dir;
+        for (var i = 0; i < this.nodeList.length; i++) {
+            this.nodeList[i].refresh();
+        }
+
+    }
+
+    //Method to check if object can be resolved
+    //OVERRIDE if necessary
+    this.isResolvable = function() {
+        for (var i = 0; i < this.nodeList.length; i++)
+            if (this.nodeList[i].type == 0 && this.nodeList[i].value == undefined) return false;
+        return true;
+    }
+
+    //Method to change object Bitwidth
+    //OVERRIDE if necessary
+    this.newBitWidth = function(bitWidth) {
+        if (this.fixedBitWidth) return;
+        if (this.bitWidth == undefined) return;
+        this.bitWidth = bitWidth;
+        for (var i = 0; i < this.nodeList.length; i++)
+            this.nodeList[i].bitWidth = bitWidth;
+    }
+
+    //Dummy resolve function
+    //OVERRIDE if necessary
+    this.resolve = function() {
+
+    }
 }
 
-function drawObj(obj) {
-    obj.draw();
-
-    if (obj.nodeList !== undefined)
-        for (var i = 0; i < obj.nodeList.length; i++)
-            obj.nodeList[i].draw();
-
+function distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
 }
