@@ -79,7 +79,7 @@ function Wire(node1, node2, scope) {
     this.draw = function() {
         ctx = simulationArea.context;
         var color;
-        if (this.node1.value == undefined)
+        if (this.node1.value == undefined||this.node2.value == undefined)
             color = "red";
         else if (this.node1.bitWidth == 1)
             color = ["red", "DarkGreen", "Lime"][this.node1.value + 1];

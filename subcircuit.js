@@ -30,6 +30,8 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
             this.outputNodes.push(this.scope.allNodes[this.savedData["outputNodes"][i]]);
             this.outputNodes[i].parent = this;
         }
+        this.nodeList.extend(this.inputNodes);
+        this.nodeList.extend(this.outputNodes);
     }
 
     var http = new XMLHttpRequest();
@@ -57,6 +59,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
         for (var i = 0; i < this.localScope.SubCircuit.length; i++) {
             this.localScope.SubCircuit[i].resetNodes();
         }
+
     }
     this.click = function() {
         // this.dataHash=prompt();
@@ -117,7 +120,7 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
         play(this.localScope);
 
         for (i = 0; i < this.localScope.Output.length; i++) {
-            this.outputNodes[i].value = this.localScope.Output[i].state;
+            this.outputNodes[i].value = this.localScope.Output[i].inp1.value;
         }
         for (i = 0; i < this.localScope.Output.length; i++) {
             this.scope.stack.push(this.outputNodes[i]);
