@@ -26,6 +26,10 @@ function addTriState() {
     var a = new TriState(200, 150, globalScope, "RIGHT");
 }
 
+function addControlledInverter() {
+    var a = new ControlledInverter(200, 150, globalScope, "RIGHT");
+}
+
 function addInput() {
     var a = new Input(200, 150, globalScope, "RIGHT");
 }
@@ -108,6 +112,7 @@ document.getElementById("andButton").addEventListener("click", addAnd);
 document.getElementById("multiplexerButton").addEventListener("click", addMultiplexer);
 document.getElementById("orButton").addEventListener("click", addOr);
 document.getElementById("notButton").addEventListener("click", addNot);
+document.getElementById("ControlledInverterButton").addEventListener("click", addControlledInverter);
 document.getElementById("triStateButton").addEventListener("click", addTriState);
 document.getElementById("inputButton").addEventListener("click", addInput);
 document.getElementById("outputButton").addEventListener("click", addOutput);

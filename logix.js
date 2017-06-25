@@ -11,7 +11,7 @@ objectSelection = false;
 var backups = []
 loading = false
 //Exact same name as object constructor
-moduleList = ["Input", "Output", "NotGate", "OrGate", "AndGate", "NorGate", "NandGate", "XorGate", "XnorGate", "SevenSegDisplay", "HexDisplay", "Multiplexer", "BitSelector", "Splitter", "Power", "Ground", "ConstantVal", "TriState", "Adder", "Ram", "FlipFlop", "TTY", "Keyboard", "Clock", "SubCircuit", "DigitalLed"];
+moduleList = ["Input", "Output", "NotGate", "OrGate", "AndGate", "NorGate", "NandGate", "XorGate", "XnorGate", "SevenSegDisplay", "HexDisplay", "Multiplexer", "BitSelector", "Splitter", "Power", "Ground", "ConstantVal", "ControlledInverter","TriState", "Adder", "Ram", "FlipFlop", "TTY", "Keyboard", "Clock", "SubCircuit", "DigitalLed"];
 
 //Exact same name as object constructor
 //All the combinational modules which give rise to an value(independently)

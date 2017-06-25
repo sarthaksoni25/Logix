@@ -752,6 +752,70 @@ function TriState(x, y, scope, dir, bitWidth = undefined) {
 
 }
 
+function ControlledInverter(x, y, scope, dir, bitWidth = undefined) {
+    CircuitElement.call(this, x, y, scope, dir, bitWidth);
+    this.rectangleObject = false;
+    this.setDimensions(15, 15);
+
+    this.inp1 = new Node(-10, 0, 0, this);
+    this.output1 = new Node(30, 0, 1, this);
+    this.state = new Node(0, 0, 0, this, 1);
+    this.customSave = function() {
+        var data = {
+            constructorParamaters: [this.direction, this.bitWidth],
+            nodes: {
+                output1: findNode(this.output1),
+                inp1: findNode(this.inp1),
+                state: findNode(this.state)
+            },
+        }
+        return data;
+    }
+    this.newBitWidth = function(bitWidth) {
+        this.inp1.bitWidth = bitWidth;
+        this.output1.bitWidth = bitWidth;
+        this.bitWidth = bitWidth;
+    }
+
+    this.resolve = function() {
+        if (this.isResolvable() == false) {
+            return;
+        }
+        if (this.state.value == 0) {
+            this.output1.value = 0; //>>>0)<<(32-this.bitWidth))>>>(32-this.bitWidth);
+            this.scope.stack.push(this.output1);
+        }
+        if (this.state.value == 1 )
+         {
+            this.output1.value = undefined;
+        }
+    }
+
+    this.customDraw = function() {
+
+        ctx = simulationArea.context;
+        ctx.strokeStyle = ("rgba(0,0,0,1)");
+        ctx.lineWidth = 3;
+
+        var xx = this.x;
+        var yy = this.y;
+        ctx.beginPath();
+        ctx.fillStyle = "white";
+        moveTo(ctx, -10, -15, xx, yy, this.direction);
+        lineTo(ctx, 20, 0, xx, yy, this.direction);
+        lineTo(ctx, -10, 15, xx, yy, this.direction);
+        ctx.closePath();
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        arc(ctx, 25, 0, 5, 2 * (Math.PI), 0, xx, yy, this.direction);
+        ctx.stroke();
+
+    }
+
+}
+
 function Adder(x, y, scope, dir, bitWidth = undefined) {
 
     CircuitElement.call(this, x, y, scope, dir, bitWidth);
