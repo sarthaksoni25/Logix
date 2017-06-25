@@ -1135,7 +1135,6 @@ function Output(x, y, scope, dir, bitWidth) {
     this.directionFixed = true;
     this.setDimensions(this.bitWidth * 10, 10);
     this.inp1 = new Node(this.bitWidth * 10, 0, 0, this);
-    this.state = undefined;
 
     this.customSave = function() {
         var data = {
@@ -1163,22 +1162,20 @@ function Output(x, y, scope, dir, bitWidth) {
         }
     }
 
-    this.resolve = function() {
-        this.state = this.inp1.value;
-    }
-
     this.customDraw = function() {
 
         ctx = simulationArea.context;
         ctx.beginPath();
-        ctx.strokeStyle = ["blue", "red"][(this.state === undefined) + 0];
+        ctx.strokeStyle = ["red","blue"][this.inp1.value||0];
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         var xx = this.x;
         var yy = this.y;
 
         rect2(ctx, -10 * this.bitWidth, -10, 20 * this.bitWidth, 20, xx, yy, "RIGHT");
-        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        if ((this.hover && !simulationArea.shiftDown) || simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this))
+            ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+
         ctx.fill();
         ctx.stroke();
 
@@ -1190,6 +1187,7 @@ function Output(x, y, scope, dir, bitWidth) {
             var bin = 'x'.repeat(this.bitWidth);
         else
             var bin = dec2bin(this.state, this.bitWidth);
+
         for (var k = 0; k < this.bitWidth; k++)
             fillText(ctx, bin[k], xx - 10 * this.bitWidth + 10 + (k) * 20, yy + 5);
         ctx.stroke();
@@ -1448,43 +1446,42 @@ function NorGate(x, y, scope = globalScope, dir = "RIGHT", inputs = 2, bitWidth 
     }
 }
 
-function loadDigitalLed(data, scope) {
-    var v = new DigitalLed(data["x"], data["y"], scope, data["dir"],data["bitWidth"]);
-    v.inp1 = replace(v.inp1, data["inp1"]);
-    v.label = data["label"];
-}
-
-function DigitalLed(x, y, scope, dir, bitWidth) {
+function DigitalLed(x, y, scope) {
     // Calling base class constructor
 
-    CircuitElement.call(this, x, y, scope, dir,bitwidth = 1);
+    CircuitElement.call(this, x, y, scope, "UP",1);
     this.rectangleObject=false;
     this.setDimensions(10,10);
-    this.inp1 = new Node(-30, 0, 0, this);
-    this.state = undefined;
+    this.inp1 = new Node(-40, 0, 0, this,1);
+    this.directionFixed=true;
+    this.fixedBitWidth=true;
 
     this.customSave = function() {
         var data = {
             nodes:{inp1: scope.allNodes.indexOf(this.inp1)},
-            constructorParamaters:[this.direction,this.bitWidth],
         }
         return data;
-    }
-
-
-    this.resolve = function() {
-        this.state = this.inp1.value;
     }
 
     this.customDraw = function() {
 
         ctx = simulationArea.context;
-        ctx.beginPath();
-        ctx.strokeStyle = "black";
-        ctx.fillStyle = ["#f9182b","#e3e4e5"][(this.state === undefined || this.state == 0) + 0];
-        ctx.lineWidth = 1;
+
         var xx = this.x;
         var yy = this.y;
+
+        ctx.strokeStyle = "#e3e4e5";
+        ctx.lineWidth=3;
+        ctx.beginPath();
+        moveTo(ctx, -20, 0, xx, yy, this.direction);
+        lineTo(ctx, -40, 0, xx, yy, this.direction);
+        ctx.stroke();
+
+        ctx.strokeStyle = "#d3d4d5";
+        ctx.fillStyle = ["rgba(227,228,229,0.8)","rgba(249,24,43,0.8)"][this.inp1.value||0];
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
 
         moveTo(ctx, -15, -9, xx, yy, this.direction);
         lineTo(ctx, 0, -9, xx, yy, this.direction);
@@ -1493,69 +1490,9 @@ function DigitalLed(x, y, scope, dir, bitWidth) {
         lineTo(ctx,-18,12,xx,yy,this.direction);
         arc(ctx,0,0,Math.sqrt(468),((Math.PI/2) + Math.acos(12/Math.sqrt(468))),((-Math.PI/2) - Math.asin(18/Math.sqrt(468))),xx,yy,this.direction);
         lineTo(ctx, -15, -9, xx, yy, this.direction);
-        moveTo(ctx, -20, 0, xx, yy, this.direction);
-        lineTo(ctx, -30, 0, xx, yy, this.direction);
-        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";ctx.fill();
         ctx.stroke();
-        ctx.beginPath();
-        ctx.font = "20px Georgia";
-        ctx.fillStyle = "green";
-        ctx.textAlign = "center";
-        if (this.state === undefined)
-            var bin = 'x';
-        else
-            var bin = dec2bin(this.state);
-        ctx.stroke();
+        if ((this.hover&&!simulationArea.shiftDown)|| simulationArea.lastSelected == this || simulationArea.multipleObjectSelections.contains(this)) ctx.fillStyle = "rgba(255, 255, 32,0.8)";
+        ctx.fill();
 
-        if (this.direction == "left") {
-            ctx.beginPath();
-            ctx.textAlign = "right";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx - 10 * this.bitWidth - 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "right") {
-            ctx.beginPath();
-            ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx + 10 * this.bitWidth + 10, yy + 5, 14);
-            ctx.fill();
-        } else if (this.direction == "up") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 - 25, 14);
-            ctx.fill();
-        } else if (this.direction == "down") {
-            ctx.beginPath();
-            ctx.textAlign = "center";
-            ctx.fillStyle = "black";
-            fillText(ctx, this.label, xx, yy + 5 + 25, 14);
-            ctx.fill();
-        }
-    }
-    /*
-    this.glowLed = function(state) {
-      if(state == 1){
-        ctx.fillStyle = "#f9182b";
-      }
-      else{
-        ctx.fillStyle = "#e3e4e5";
-      }
-    }*/
-
-
-    this.newDirection = function(dir) {
-        if (dir == this.direction) return;
-        this.direction=dir;
-        this.inp1.refresh();
-        if (dir == "left" || dir == "right") {
-            this.inp1.leftx = 10 * this.bitWidth;
-            this.inp1.lefty = 0;
-        } else {
-            this.inp1.leftx = 10; //10*this.bitWidth;
-            this.inp1.lefty = 0;
-        }
-
-        this.inp1.refresh();
     }
 }
