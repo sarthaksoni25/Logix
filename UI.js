@@ -97,6 +97,10 @@ function addXor() {
 function addXnor() {
     var or = new XnorGate(200, 150, globalScope, "RIGHT", prompt("No of inputs:"));
 }
+
+function addDigitalLed(){
+    var or = new DigitalLed(200, 150, globalScope, "UP");
+}
 document.getElementById("powerButton").addEventListener("click", addPower);
 document.getElementById("bitSelectorButton").addEventListener("click", addBitSelector);
 document.getElementById("groundButton").addEventListener("click", addGround);
@@ -124,3 +128,4 @@ document.getElementById("xorButton").addEventListener("click", addXor);
 document.getElementById("xnorButton").addEventListener("click", addXnor);
 document.getElementById("keyboardButton").addEventListener("click", addKeyboard);
 document.getElementById("norButton").addEventListener("click", addNor);
+document.getElementById("digitalledButton").addEventListener("click", addDigitalLed);
