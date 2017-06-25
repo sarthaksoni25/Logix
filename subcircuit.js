@@ -119,7 +119,6 @@ function SubCircuit(x, y, scope = globalScope, dir = "RIGHT", savedData = undefi
             this.localScope.stack.push(this.localScope.Input[i]);
         }
         play(this.localScope);
-        console.log(this.localScope.Input.length,this.localScope.Output.length)
 
         for (i = 0; i < this.localScope.Output.length; i++) {
             this.outputNodes[i].value = this.localScope.Output[i].inp1.value;

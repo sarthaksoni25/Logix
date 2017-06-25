@@ -329,7 +329,7 @@ var simulationArea = {
         })
         window.addEventListener('dblclick', function(e) {
             scheduleUpdate(2);
-            if (simulationArea.lastSelected.dblclick !== undefined) {
+            if (simulationArea.lastSelected&&simulationArea.lastSelected.dblclick !== undefined) {
                 simulationArea.lastSelected.dblclick();
             }
             if (!simulationArea.shiftDown) {
@@ -717,7 +717,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             // this.x = this.oldx + simulationArea.mouseX - simulationArea.mouseDownX;
             // this.y = this.oldy + simulationArea.mouseY - simulationArea.mouseDownY;
             this.drag();
-            if(simulationArea.multipleObjectSelections.contains(this)){
+            if(!simulationArea.shiftDown&&simulationArea.multipleObjectSelections.contains(this)){
                 for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
                     simulationArea.multipleObjectSelections[i].drag();
                 }
@@ -728,7 +728,7 @@ function CircuitElement(x, y, scope, dir, bitWidth) {
             // this.oldx = this.x;
             // this.oldy = this.y;
             this.startDragging();
-            if(simulationArea.multipleObjectSelections.contains(this)){
+            if(!simulationArea.shiftDown&&simulationArea.multipleObjectSelections.contains(this)){
                 for(var i=0;i<simulationArea.multipleObjectSelections.length;i++){
                     simulationArea.multipleObjectSelections[i].startDragging();
                 }

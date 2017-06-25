@@ -42,7 +42,7 @@ function Wire(node1, node2, scope) {
             this.delete();
             return;
         } // SLOW , REMOVE
-        if (simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
+        if (simulationArea.shiftDown==false&&simulationArea.mouseDown == true && simulationArea.selected == false && this.checkWithin(simulationArea.mouseDownX, simulationArea.mouseDownY)) {
             simulationArea.selected = true;
             simulationArea.lastSelected = this;
             var n = new Node(simulationArea.mouseDownX, simulationArea.mouseDownY, 2, this.scope.root);
