@@ -1163,12 +1163,9 @@ function Output(x, y, scope, dir, bitWidth) {
         }
     }
 
-    this.resolve = function() {
-        this.state = this.inp1.value;
-    }
 
     this.customDraw = function() {
-
+        this.state = this.inp1.value;
         ctx = simulationArea.context;
         ctx.beginPath();
         ctx.strokeStyle = ["blue", "red"][(this.state === undefined) + 0];
