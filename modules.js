@@ -1166,7 +1166,7 @@ function Output(x, y, scope, dir, bitWidth) {
         this.state = this.inp1.value;
         ctx = simulationArea.context;
         ctx.beginPath();
-        ctx.strokeStyle = ["red","blue"][this.inp1.value||0];
+        ctx.strokeStyle = ["blue","red"][+(this.inp1.value==undefined)];
         ctx.fillStyle = "white";
         ctx.lineWidth = 3;
         var xx = this.x;
